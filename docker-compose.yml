@@ -1,0 +1,13 @@
+version: '3'
+services:
+  php-npm:
+    build:
+      context: ./docker
+      args:
+        USER_ID: ${USER_ID:-0}
+        GROUP_ID: ${GROUP_ID:-0}
+    restart: always
+    user: ${USER_ID:-0}:${GROUP_ID:-0}
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
