@@ -13,5 +13,7 @@
     "gulp": "^4.0.2",
     "gulp-zip": "^5.1.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "aesirx-analytics": "^1.0.5"
+  }
 }
