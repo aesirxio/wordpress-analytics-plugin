@@ -14,7 +14,7 @@ function movePluginFolderTask() {
 
 function moveAnalyticJSTask() {
   return gulp
-    .src(["./node_modules/aesirx-analytics/build/analytics.js"])
+    .src(["./node_modules/aesirx-analytics/dist/analytics.js"])
     .pipe(gulp.dest("./dist/plugin/aesirx-analytics/assets/js"));
 }
 
