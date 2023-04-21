@@ -2,7 +2,7 @@
 /**
  * Plugin Name: aesirx-analytics
  * Description: Aesirx analytics plugin.
- * Version: 0.1
+ * Version: 1.0.1-alpha.1
  * Author: aesirx.io
  * Author URI: https://aesirx.io/
  * Domain Path: /languages

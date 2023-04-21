@@ -1,2 +1,61 @@
-/dist
+# OSX
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# PHPStorm
+.idea/
+
+# Sublime Text
+*.sublime*
+sftp-config.json
+
+# Eclipse
+.buildpath
+.project
+.settings
+
+# Netbeans (custom)
+.netbeans/*
+
+# Temp files
+*.tmp
+*.bak
+*.swp
+*~.nib
+*~
+*.bak.php
+/tmp/**
+/src/pdf/**
+
+# composer
+composer.phar
+vendor/*
+**/vendor/*
+
+# NPM
 /node_modules
+
+# Dist
+/dist
+
+# Docker
+.env
+
+# Apache
+.htaccess
+
+# Proaktiv
+/configuration.yaml
+/configurationKey.yaml
+
+# Never ignore
+!.gitkeep
+!.gitignore
+!index.html
+!index.php

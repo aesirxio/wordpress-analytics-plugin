@@ -1,6 +1,6 @@
 {
   "name": "aesirx_analytics",
-  "version": "1.0.0",
+  "version": "1.0.1-alpha.1",
   "description": "analytics via aesirx",
   "private": true,
   "type": "commonjs",
@@ -14,5 +14,7 @@
     "gulp-composer": "^0.4.5",
     "gulp-zip": "^5.1.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "aesirx-analytics": "^1.1.1"
+  }
 }
