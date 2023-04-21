@@ -40,10 +40,6 @@ add_action('plugins_loaded', function () {
 });
 
 register_activation_hook( __FILE__, function () {
-	$file = WP_PLUGIN_DIR . '/aesirx-analytics/assets/analytics-cli';
-
-	chmod($file,'0755');
-
 	process_analytics(['migrate']);
 } );
 
@@ -55,7 +51,7 @@ if ( ! wp_next_scheduled( 'analytics_cron_geo' ) ) {
 	wp_schedule_event( time(), 'hourly', 'analytics_cron_geo' );
 }
 
-function process_analytics(array $command): Process {
+function process_analytics(array $command, bool $makeExecutable = true): Process {
 	require_once WP_PLUGIN_DIR . '/aesirx-analytics/vendor/autoload.php';
 	$file = WP_PLUGIN_DIR . '/aesirx-analytics/assets/analytics-cli';
 	$options = get_option('aesirx_analytics_plugin_options');
@@ -75,6 +71,18 @@ function process_analytics(array $command): Process {
 	if (count($dbHost) > 1)
 	{
 		$env['DBPORT'] = $dbHost[1];
+	}
+
+	// Plugin probably updated, we need to make sure it's executable and database is up-to-date
+	if ($makeExecutable
+	    && !is_executable($file))
+	{
+		chmod($file,'0755');
+
+		if ($command != ['migrate'])
+		{
+			process_analytics(['migrate'], false);
+		}
 	}
 
 	$process = (new Process(array_merge([$file], $command), null, $env));
