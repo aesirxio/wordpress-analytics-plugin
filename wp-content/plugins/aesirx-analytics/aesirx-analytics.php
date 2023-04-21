@@ -47,6 +47,14 @@ register_activation_hook( __FILE__, function () {
 	process_analytics(['migrate']);
 } );
 
+add_action( 'analytics_cron_geo', function() {
+	process_analytics(['job', 'geo']);
+} );
+
+if ( ! wp_next_scheduled( 'analytics_cron_geo' ) ) {
+	wp_schedule_event( time(), 'hourly', 'analytics_cron_geo' );
+}
+
 function process_analytics(array $command): Process {
 	require_once WP_PLUGIN_DIR . '/aesirx-analytics/vendor/autoload.php';
 	$file = WP_PLUGIN_DIR . '/aesirx-analytics/assets/analytics-cli';
