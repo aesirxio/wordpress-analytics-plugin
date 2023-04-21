@@ -11,6 +11,7 @@
   "devDependencies": {
     "del": "^7.0.0",
     "gulp": "^4.0.2",
+    "gulp-composer": "^0.4.5",
     "gulp-zip": "^5.1.0"
   },
   "dependencies": {}
