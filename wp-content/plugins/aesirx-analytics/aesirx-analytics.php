@@ -10,8 +10,12 @@
  * Requires PHP: 7.2
  **/
 
+use AesirxAnalytics\Route\Middleware\IsBackendMiddlware;
+use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 use Symfony\Component\Process\Process;
+use Pecee\SimpleRouter\SimpleRouter;
 
+require_once WP_PLUGIN_DIR . '/aesirx-analytics/vendor/autoload.php';
 require_once 'includes/settings.php';
 
 add_action(
@@ -52,7 +56,6 @@ if ( ! wp_next_scheduled( 'analytics_cron_geo' ) ) {
 }
 
 function process_analytics(array $command, bool $makeExecutable = true): Process {
-	require_once WP_PLUGIN_DIR . '/aesirx-analytics/vendor/autoload.php';
 	$file = WP_PLUGIN_DIR . '/aesirx-analytics/assets/analytics-cli';
 	$options = get_option('aesirx_analytics_plugin_options');
 
@@ -104,35 +107,72 @@ add_filter('plugin_action_links_' . plugin_basename(__FILE__), function ($links)
 	return $links;
 });
 
-function get_the_user_ip(): string {
-	if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
-		//check ip from share internet
-
-	} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-		//to check ip is pass from proxy
-		$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-	} else {
-		$ip = $_SERVER['REMOTE_ADDR'];
-	}
-
-	return $ip;
-}
-
-function match_uri(string $path): bool
-{
-	return substr($_SERVER["REQUEST_URI"], 0, strlen($path)) === $path;
-}
-
-function apply_if_not_empty(array $request, array $fields): array
+function apply_if_not_empty(array $request = null, array $fields): array
 {
 	$command = [];
 
-	foreach ($fields as $from => $to)
+	if (!empty($request))
 	{
-		if (array_key_exists($from, $request))
+		foreach ($fields as $from => $to)
 		{
-			$command[] = '--' . $to;
-			$command[] = $request[$from];
+			if (array_key_exists($from, $request))
+			{
+				foreach ((array) $request[$from] as $one)
+				{
+					$command[] = '--' . $to;
+					$command[] = $one;
+				}
+			}
+		}
+	}
+
+	return $command;
+}
+
+function apply_list_params(): array
+{
+	$command = [];
+	$params  = SimpleRouter::request()->getUrl()->getParams();
+
+	foreach ($params as $key => $values)
+	{
+		$converterKey = str_replace('_', '-', $key);
+
+		switch ($key)
+		{
+			case 'page':
+			case 'page_size':
+				$command[] = '--' . $converterKey;
+				$command[] = $values;
+				break;
+			case 'sort':
+			case 'with':
+			case 'sort_direction':
+				foreach ($values as $value)
+				{
+					$command[] = '--' . $converterKey;
+					$command[] = $value;
+				}
+				break;
+			case 'filter':
+				foreach ($values as $keyValue => $value)
+				{
+					if (is_iterable($value))
+					{
+						foreach ($value as $v)
+						{
+							$command[] = '--filter';
+							$command[] = $keyValue . '[]=' . $v;
+						}
+					}
+					else
+					{
+						$command[] = '--filter';
+						$command[] = $keyValue . '=' . $value;
+					}
+				}
+
+				break;
 		}
 	}
 
@@ -158,30 +198,27 @@ function apply_attributes(array $request): array
 add_action('parse_request', 'my_custom_url_handler');
 
 function my_custom_url_handler() {
-
-	$path = '/visitor/v1/';
-
 	$options = get_option('aesirx_analytics_plugin_options');
 
-	if (substr($_SERVER["REQUEST_URI"], 0, strlen($path)) !== $path
-	    || $_SERVER['REQUEST_METHOD'] !== 'POST'
-	    || ($options['storage'] ?? 'internal') != 'internal')
+	if (($options['storage'] ?? 'internal') != 'internal')
 	{
 		return;
 	}
 
-	define( 'WP_DEBUG', true );
-	define( 'WP_DEBUG_DISPLAY', true );
-	@ini_set( 'display_errors', 1 );
+//	define( 'WP_DEBUG', true );
+//	define( 'WP_DEBUG_DISPLAY', true );
+//	@ini_set( 'display_errors', 1 );
 
-	$requestBody = json_decode(file_get_contents('php://input'), true);
+	$request          = SimpleRouter::request();
+	$requestBody      = json_decode(file_get_contents('php://input'), true);
+	$requestUrlParams = $request->getUrl()->getParams();
+	$command          = null;
 
-	switch (true)
-	{
-		case match_uri('/visitor/v1/init'):
+	SimpleRouter::group(['prefix' => '/visitor/v1'], function () use (&$command, $requestBody, $request) {
+		SimpleRouter::post( '/init', function () use (&$command, $requestBody, $request) {
 			$command = [
 				'visitor', 'init' , 'v1',
-				'--ip', empty($requestBody['ip']) ? get_the_user_ip() : $requestBody['ip'],
+				'--ip', empty($requestBody['ip']) ? $request->getIp() : $requestBody['ip'],
 			];
 			$fields = [
 				'user_agent' => 'user-agent',
@@ -196,11 +233,10 @@ function my_custom_url_handler() {
 			];
 			$command = array_merge($command, apply_if_not_empty($requestBody, $fields));
 			$command = array_merge($command, apply_attributes($requestBody));
-			break;
-		case match_uri('/visitor/v1/start'):
-			$command = [
-				'visitor', 'start' , 'v1',
-			];
+		});
+
+		SimpleRouter::post('/start', function () use (&$command, $requestBody) {
+			$command = [ 'visitor', 'start' , 'v1', ];
 
 			$fields = [
 				'visitor_uuid' => 'visitor-uuid',
@@ -212,8 +248,9 @@ function my_custom_url_handler() {
 			];
 			$command = array_merge($command, apply_if_not_empty($requestBody, $fields));
 			$command = array_merge($command, apply_attributes($requestBody));
-			break;
-		case match_uri('/visitor/v1/end'):
+		});
+
+		SimpleRouter::post('/end', function () use (&$command, $requestBody) {
 			$command = [
 				'visitor', 'end' , 'v1',
 			];
@@ -222,9 +259,51 @@ function my_custom_url_handler() {
 				'event_uuid' => 'event-uuid',
 			];
 			$command = array_merge($command, apply_if_not_empty($requestBody, $fields));
-			break;
-		default:
-			die;
+		});
+	});
+
+	SimpleRouter::group(['middleware' => IsBackendMiddlware::class], function () use (&$command, $requestUrlParams) {
+		SimpleRouter::get('/flow/v1/{flow_uuid}', function (string $flowUuid) use (&$command, $requestUrlParams) {
+			$command = [
+				'get', 'flow', 'v1', $flowUuid,
+			];
+			$command = array_merge($command, apply_if_not_empty($requestUrlParams, ['with' => 'with']));
+		});
+		SimpleRouter::get('/flow/v1/{start_date}/{end_date}', function (string $start, string $end) use (&$command, $requestUrlParams) {
+			$command = array_merge([ 'get', 'flows', 'v1', '--start', $start, '--end', $end, ], apply_list_params());
+		});
+
+		SimpleRouter::get('/visitor/v1/{start_date}/{end_date}', function (string $start, string $end) use (&$command, $requestUrlParams) {
+			$command = array_merge([ 'ge' , 'events', 'v1', '--start', $start, '--end', $end, ], apply_list_params());
+		});
+
+		foreach (['visits', 'domains', 'metrics', 'pages', 'visitors', 'browsers', 'browserversions', 'languages', 'devices', 'countries', 'cities', 'isps', 'attribute'] as $statistic)
+		{
+			SimpleRouter::get('/' . $statistic . '/v1/{start_date}/{end_date}', function (string $start, string $end) use (&$command, $statistic) {
+				$path    = $statistic == 'attribute' ? 'attributes' : $statistic;
+				$command = array_merge([ 'statistics', $path, 'v1', '--start', $start, '--end', $end, ], apply_list_params());
+			});
+		}
+	});
+
+	try
+	{
+		SimpleRouter::start();
+	}
+	catch (Throwable $e)
+	{
+		if ($e instanceof NotFoundHttpException)
+		{
+			return;
+		}
+
+		echo json_encode(['error' => $e->getMessage()]);
+		die;
+	}
+
+	if (is_null($command))
+	{
+		return;
 	}
 
 	$process = process_analytics($command);
