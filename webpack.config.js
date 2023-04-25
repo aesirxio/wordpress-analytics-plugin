@@ -2,20 +2,23 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { ProvidePlugin } = require('webpack');
 const FileManagerPlugin = require('filemanager-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
   mode: 'development',
   module: {
     rules: [
       {
-        test: /\.(js|jsx)$/,
-        exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-react', '@babel/preset-env'],
+        test: /\.tsx?$/,
+        use: [
+          {
+            loader: 'babel-loader',
+            options: {
+              presets: ['@babel/preset-react', '@babel/preset-env'],
+            },
           },
-        },
+          'ts-loader',
+        ],
       },
       {
         test: /\.(sa|sc|c)ss$/,
@@ -74,6 +77,16 @@ module.exports = {
   },
 
   optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          compress: {
+            drop_console: true,
+          },
+        },
+      }),
+    ],
     splitChunks: {
       chunks: 'all',
     },

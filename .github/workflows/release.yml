@@ -1,9 +1,9 @@
-name: "release"
+name: 'release'
 
 on:
   push:
     tags:
-      - "*"
+      - '*'
 
 jobs:
   run:
@@ -26,5 +26,5 @@ jobs:
       - name: Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "dist/plg_aesirx_analytics.zip"
+          artifacts: 'dist/plg_aesirx_analytics.zip'
           generateReleaseNotes: true

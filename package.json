@@ -5,7 +5,9 @@
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "gulp zip"
+    "build": "gulp zip",
+    "format:check": "prettier --check .",
+    "format:write": "prettier --write ."
   },
   "devDependencies": {
     "@babel/core": "^7.21.4",
@@ -22,16 +24,19 @@
     "gulp-composer": "^0.4.5",
     "gulp-zip": "^5.1.0",
     "html-webpack-plugin": "^5.5.1",
+    "prettier": "^2.8.8",
     "process": "^0.11.10",
     "sass": "^1.62.0",
     "sass-loader": "^13.2.2",
     "style-loader": "^3.3.2",
+    "terser-webpack-plugin": "^5.3.7",
     "ts-loader": "^9.4.2",
     "typescript": "^5.0.4",
     "webpack": "^5.80.0",
     "webpack-stream": "^7.0.0"
   },
   "dependencies": {
+    "@prettier/plugin-php": "^0.19.4",
     "aesirx-analytics": "^1.1.2",
     "aesirx-bi-app": "^1.0.6",
     "react": "^18.2.0",

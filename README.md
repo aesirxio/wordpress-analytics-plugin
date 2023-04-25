@@ -1,4 +1,5 @@
 # Wordpress analytics plugin
+
 WordPress plugin for tracking and storing the tracking data in the 1st party Aesirx Analytics server.
 
 First you will need to set up the 1st party Analytics server.
@@ -11,6 +12,7 @@ And this is all set.
 The tracking from your WordPress site will be stored in the Mongo database on the 1st party server.
 
 ## For local setup
+
 To install this you will need to clone this repo locally with command:
 
 `git clone https://github.com/aesirxio/wordpress-analytics-plugin.git`
