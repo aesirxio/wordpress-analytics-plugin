@@ -53,7 +53,7 @@ exports.zip = gulp.series(
   moveAnalyticJSTask,
   webpackBIApp,
   composerTask,
-  //  cleanComposerTask,
-  compressTask
-  //cleanTask
+  cleanComposerTask,
+  compressTask,
+  cleanTask
 );
