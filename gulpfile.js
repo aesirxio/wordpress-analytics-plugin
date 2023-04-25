@@ -22,7 +22,7 @@ function moveAnalyticJSTask() {
 
 function webpackBIApp() {
   return gulp
-    .src('./assets/bi/index.tsx')
+    .src('./assets/bi/index.js')
     .pipe(webpack(require('./webpack.config.js')))
     .pipe(gulp.dest('./dist/plugin/aesirx-analytics'));
 }
@@ -53,7 +53,7 @@ exports.zip = gulp.series(
   moveAnalyticJSTask,
   webpackBIApp,
   composerTask,
-  cleanComposerTask,
-  compressTask,
-  cleanTask
+  //cleanComposerTask,
+  compressTask
+  //cleanTask
 );

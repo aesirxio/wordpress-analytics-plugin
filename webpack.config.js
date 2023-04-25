@@ -4,13 +4,18 @@ const { ProvidePlugin } = require('webpack');
 const FileManagerPlugin = require('filemanager-webpack-plugin');
 
 module.exports = {
-  mode: 'production',
+  mode: 'development',
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
-        use: 'ts-loader',
+        test: /\.(js|jsx)$/,
         exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-react', '@babel/preset-env'],
+          },
+        },
       },
       {
         test: /\.(sa|sc|c)ss$/,
@@ -63,7 +68,7 @@ module.exports = {
   ],
 
   output: {
-    filename: 'assets/bi/js/[contenthash].js',
+    filename: 'assets/bi/js/[name].[contenthash].js',
     publicPath: '/wp-content/plugins/aesirx-analytics/',
     clean: true,
   },

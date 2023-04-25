@@ -1,6 +1,6 @@
-FROM php:7.2-cli-alpine3.12
+FROM php:7.4-cli-alpine
 
-RUN apk add --no-cache nodejs npm zip zlib-dev git;
+RUN apk add --no-cache --update nodejs npm yarn zip zlib-dev git;
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 RUN chmod uga+x /usr/local/bin/install-php-extensions && sync && \
     install-php-extensions \
