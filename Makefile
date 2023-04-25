@@ -12,7 +12,7 @@ watch:
 
 # Just open console the container
 sh:
-	docker-compose run php-npm sh
+	docker-compose run php-npm bash
 
 # Down all
 down:
