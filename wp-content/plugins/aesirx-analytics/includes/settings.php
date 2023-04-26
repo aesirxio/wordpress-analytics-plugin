@@ -45,29 +45,12 @@ add_action('admin_init', function () {
     'aesirx_analytics_settings',
     'Aesirx Analytics',
     function () {
+			echo '<h3>' . __('When you join forces with AesirX, you are not just becoming a Partner - you are also becoming a freedom fighter in the battle for privacy! Earn 25% Affiliate Commission <a href="https://aesirx.io/seed-round?utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics">[Click to Join]</a>') . '</h3>';
       echo '<p>' .
         __('Here you can set all the options for using the aesirx analytics', 'aesirx-analytics') .
-        '</p><h3>
-        To track events, simply add special data-attribute to the element you want to track. For example, you might have a button with the following code:
-        </h3><code>
-        ' .
-        htmlentities('<button class="button"') .
-        '<br>
-        ' .
-        htmlentities('data-aesirx-event-name="sign up"') .
-        '<br>
-        ' .
-        htmlentities('data-aesirx-event-type="login"') .
-        '<br>
-        ' .
-        htmlentities('data-aesirx-event-attribute-a="value-a"') .
-        '<br>
-        ' .
-        htmlentities('data-aesirx-event-attribute-b="value-b"') .
-        '>Sign Up' .
-        htmlentities('</button>') .
+				'</p>' .
         '
-        </code><p>Read more detail at <a target="_blank" href="https://github.com/aesirxio/analytics#in-ssr-site">https://github.com/aesirxio/analytics#in-ssr-site</a></p><p class= "description">
+        <p>Read more detail at <a target="_blank" href="https://github.com/aesirxio/analytics#in-ssr-site">https://github.com/aesirxio/analytics#in-ssr-site</a></p><p class= "description">
         <h3>Note: Please set Permalink structure is NOT plain.</h3></p>';
     },
     'aesirx_analytics_plugin'
@@ -139,6 +122,33 @@ add_action('admin_init', function () {
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
   );
+
+	add_settings_section(
+		'aesirx_analytics_settings2',
+		'',
+		function () {
+			echo '<h3>
+        To track events, simply add special data-attribute to the element you want to track. For example, you might have a button with the following code:
+        </h3><code>
+        ' .
+				htmlentities('<button class="button"') .
+				'<br>
+        ' .
+				htmlentities('data-aesirx-event-name="sign up"') .
+				'<br>
+        ' .
+				htmlentities('data-aesirx-event-type="login"') .
+				'<br>
+        ' .
+				htmlentities('data-aesirx-event-attribute-a="value-a"') .
+				'<br>
+        ' .
+				htmlentities('data-aesirx-event-attribute-b="value-b"') .
+				'>Sign Up' .
+				htmlentities('</button>') . '</code><br><br>';
+		},
+	'aesirx_analytics_plugin'
+	);
 });
 
 add_action('admin_menu', function () {
