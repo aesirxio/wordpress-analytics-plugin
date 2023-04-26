@@ -1,14 +1,14 @@
-# npm init
+# yarn init
 init:
-	docker-compose run php-npm npm i
+	docker-compose run php-npm yarn install
 
 # Build package
 build:
-	docker-compose run php-npm npm run build
+	docker-compose run php-npm yarn build
 
 # Watch js changes when developing
 watch:
-	docker-compose run php-npm npm run watch
+	docker-compose run php-npm yarn watch
 
 # Just open console the container
 sh:

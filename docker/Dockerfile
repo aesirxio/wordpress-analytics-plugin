@@ -1,8 +1,8 @@
 FROM php:7.2-cli-buster
 
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
     apt-get install -y nodejs git zip && \
-    npm install -g npm@9.6.5
+    npm install -g yarn
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 RUN chmod uga+x /usr/local/bin/install-php-extensions && sync && \
     install-php-extensions \

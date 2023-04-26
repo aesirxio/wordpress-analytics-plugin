@@ -2,15 +2,23 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { ProvidePlugin } = require('webpack');
 const FileManagerPlugin = require('filemanager-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
-  mode: 'production',
+  mode: 'development',
   module: {
     rules: [
       {
         test: /\.tsx?$/,
-        use: 'ts-loader',
-        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'babel-loader',
+            options: {
+              presets: ['@babel/preset-react', '@babel/preset-env'],
+            },
+          },
+          'ts-loader',
+        ],
       },
       {
         test: /\.(sa|sc|c)ss$/,
@@ -63,12 +71,22 @@ module.exports = {
   ],
 
   output: {
-    filename: 'assets/bi/js/[contenthash].js',
+    filename: 'assets/bi/js/[name].[contenthash].js',
     publicPath: '/wp-content/plugins/aesirx-analytics/',
     clean: true,
   },
 
   optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          compress: {
+            drop_console: true,
+          },
+        },
+      }),
+    ],
     splitChunks: {
       chunks: 'all',
     },
