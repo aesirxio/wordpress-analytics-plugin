@@ -269,7 +269,7 @@ function my_custom_url_handler()
       string $end
     ) use (&$command, $requestUrlParams) {
       $command = array_merge(
-        ['ge', 'events', 'v1', '--start', $start, '--end', $end],
+        ['get', 'events', 'v1', '--start', $start, '--end', $end],
         apply_list_params()
       );
     });
