@@ -339,3 +339,19 @@ function my_custom_url_handler()
 
   die();
 }
+
+register_activation_hook(__FILE__, 'initialize_aesirx_analytics_function');
+function initialize_aesirx_analytics_function() {
+    add_option('aesirx_do_activation_redirect', true);
+}
+
+add_action('admin_init', function () {
+    if (get_option('aesirx_do_activation_redirect', false)) {
+
+        delete_option('aesirx_do_activation_redirect');
+
+        if (wp_safe_redirect("options-general.php?page=aesirx-analytics-plugin")) {
+            exit();
+        }
+    }
+});
