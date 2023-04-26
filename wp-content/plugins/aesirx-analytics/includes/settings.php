@@ -47,7 +47,27 @@ add_action('admin_init', function () {
     function () {
       echo '<p>' .
         __('Here you can set all the options for using the aesirx analytics', 'aesirx-analytics') .
-        '</p>';
+        '</p><h3>
+        To track events, simply add special data-attribute to the element you want to track. For example, you might have a button with the following code:
+        </h3><code>
+        ' .
+        htmlentities('<button class="button"') .
+        '<br>
+        ' .
+        htmlentities('data-aesirx-event-name="sign up"') .
+        '<br>
+        ' .
+        htmlentities('data-aesirx-event-type="login"') .
+        '<br>
+        ' .
+        htmlentities('data-aesirx-event-attribute-a="value-a"') .
+        '<br>
+        ' .
+        htmlentities('data-aesirx-event-attribute-b="value-b"') .
+        '>Sign Up' .
+        htmlentities('</button>') .
+        '
+        </code><p>Read more detail at <a target="_blank" href="https://github.com/aesirxio/analytics#in-ssr-site">https://github.com/aesirxio/analytics#in-ssr-site</a></p>';
     },
     'aesirx_analytics_plugin'
   );
@@ -172,6 +192,6 @@ add_action('admin_enqueue_scripts', function () {
 		  window.env.REACT_APP_DATA_STREAM = JSON.stringify(<?php echo json_encode($streams); ?>);
 		  window.env.PUBLIC_URL="/wp-content/plugins/aesirx-analytics";
 	  </script>
-	   <%= htmlWebpackPlugin.tags.headTags %>
+	  <%= htmlWebpackPlugin.tags.headTags %>
 	  <?php
 });
