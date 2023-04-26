@@ -1,6 +1,7 @@
 <?php
 /**
  * Plugin Name: aesirx-analytics
+ * Plugin URI: https://analytics.aesirx.io/
  * Description: Aesirx analytics plugin.
  * Version: 1.0.1-alpha.1
  * Author: aesirx.io
