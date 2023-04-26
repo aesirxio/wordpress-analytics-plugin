@@ -67,7 +67,8 @@ add_action('admin_init', function () {
         '>Sign Up' .
         htmlentities('</button>') .
         '
-        </code><p>Read more detail at <a target="_blank" href="https://github.com/aesirxio/analytics#in-ssr-site">https://github.com/aesirxio/analytics#in-ssr-site</a></p>';
+        </code><p>Read more detail at <a target="_blank" href="https://github.com/aesirxio/analytics#in-ssr-site">https://github.com/aesirxio/analytics#in-ssr-site</a></p><p class= "description">
+        <h3>Note: Please set Permalink structure is NOT plain.</h3></p>';
     },
     'aesirx_analytics_plugin'
   );
