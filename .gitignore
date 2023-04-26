@@ -40,6 +40,8 @@ vendor/*
 
 # NPM
 /node_modules
+.yalc
+yalc.lock
 
 # Dist
 /dist

@@ -1,4 +1,5 @@
 # Wordpress analytics plugin
+
 WordPress plugin for tracking and storing the tracking data in the 1st party Aesirx Analytics server.
 
 First you will need to set up the 1st party Analytics server.
@@ -11,6 +12,7 @@ And this is all set.
 The tracking from your WordPress site will be stored in the Mongo database on the 1st party server.
 
 ## For local setup
+
 To install this you will need to clone this repo locally with command:
 
 `git clone https://github.com/aesirxio/wordpress-analytics-plugin.git`
@@ -19,11 +21,11 @@ To install this you will need to clone this repo locally with command:
 
 After that you can run the next commands.
 
-`npm i` - initialize libraries
+`yarn install` - initialize libraries
 
-`npm run build` - for building Joomla zip installer (PHP 7.2 or higher)
+`yarn build` - for building Joomla zip installer (PHP 7.2 or higher)
 
-`npm run watch` - for watching changes in the JS when developing
+`yarn watch` - for watching changes in the JS when developing
 
 ## Docker set up
 
@@ -42,11 +44,11 @@ _Before build docker container please make sure you set correct USER_ID and GROU
 
 If you don't have Makefile set uo on Windows you can use direct docker commands.
 
-`docker-compose run php-npm npm i` - initialize libraries
+`docker-compose run php-npm yarn install` - initialize libraries
 
-`docker-compose run php-npm npm run build` - for building Joomla zip installer (PHP 7.2 or higher)
+`docker-compose run php-npm yarn build` - for building Joomla zip installer (PHP 7.2 or higher)
 
-`docker-compose run php-npm npm run watch` - for watching changes in the JS when developing
+`docker-compose run php-npm yarn watch` - for watching changes in the JS when developing
 
 ## Installing and Set up
 

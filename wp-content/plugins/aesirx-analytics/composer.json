@@ -1,0 +1,12 @@
+{
+  "require": {
+    "php": ">=7.2",
+    "symfony/process": "^5.4",
+    "pecee/simple-router": "5.0.0.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "AesirxAnalytics\\": "src"
+    }
+  }
+}

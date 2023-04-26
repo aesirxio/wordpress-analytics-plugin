@@ -1,0 +1,29 @@
+#biapp {
+  margin-left: -20px;
+  margin-top: 30px;
+  #all_header {
+    top: 30px !important;
+    width: calc(100% - 161px) !important;
+  }
+  .arrow {
+    position: static !important;
+  }
+
+  .loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 90vh;
+  }
+  .Toastify__toast-container--top-right {
+    top: calc(1em + 30px);
+  }
+}
+
+#wpfooter {
+  display: none;
+}
+
+#wpbody-content {
+  padding-bottom: 0 !important;
+}
