@@ -74,7 +74,7 @@ function process_analytics(array $command, bool $makeExecutable = true): Process
   }
 
   // Plugin probably updated, we need to make sure it's executable and database is up-to-date
-  if ($makeExecutable && !is_executable($file)) {
+  if ($makeExecutable) {
     chmod($file, '0755');
 
     if ($command != ['migrate']) {
