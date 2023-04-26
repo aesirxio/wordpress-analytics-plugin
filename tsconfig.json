@@ -1,27 +1,20 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Default",
   "compilerOptions": {
-    "sourceMap": true,
-    "noImplicitAny": false,
-    "module": "commonjs",
-    "target": "es5",
-    "lib": [
-      "esnext",
-      "dom",
-      "dom.iterable"
-    ],
-    "removeComments": true,
-    "allowSyntheticDefaultImports": true,
     "jsx": "react",
-    "allowJs": true,
-    "baseUrl": "./",
+    "composite": false,
     "esModuleInterop": true,
-    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+    "inlineSources": false,
+    "isolatedModules": true,
     "moduleResolution": "node",
-    "downlevelIteration": true,
-
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "preserveWatchOutput": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "resolveJsonModule": true
   },
-  "include": [
-    "./assets",
-
-  ]
+  "exclude": ["node_modules"]
 }

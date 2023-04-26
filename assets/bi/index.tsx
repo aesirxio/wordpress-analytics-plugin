@@ -1,5 +1,6 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import BIApp from './app';
-
-ReactDOM.render(<BIApp />, document.getElementById('biapp'));
+const container = document.getElementById('biapp');
+const root = createRoot(container!);
+root.render(<BIApp />);
