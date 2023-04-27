@@ -339,6 +339,7 @@ function my_custom_url_handler()
     $err = $process->getErrorOutput();
 
     json_decode($err);
+    http_response_code(500);
 
     if (json_last_error() === JSON_ERROR_NONE) {
       echo $err;
