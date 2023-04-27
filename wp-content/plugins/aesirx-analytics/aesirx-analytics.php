@@ -53,8 +53,18 @@ if (!wp_next_scheduled('analytics_cron_geo')) {
   wp_schedule_event(time(), 'hourly', 'analytics_cron_geo');
 }
 
+/**
+ * @param array $command
+ * @param bool  $makeExecutable
+ *
+ * @global wpdb $wpdb WordPress database abstraction object.
+ *
+ * @return Process
+ */
 function process_analytics(array $command, bool $makeExecutable = true): Process
 {
+	global $wpdb;
+
   $file = WP_PLUGIN_DIR . '/aesirx-analytics/assets/analytics-cli';
   $options = get_option('aesirx_analytics_plugin_options');
 
@@ -66,13 +76,12 @@ function process_analytics(array $command, bool $makeExecutable = true): Process
     'LICENSE' => $options['license'] ?? '',
   ];
 
-  $dbHost = explode(':', DB_HOST);
+	$env['DBHOST'] = DB_HOST;
+	$hostData = $wpdb->parse_db_host(DB_HOST);
 
-  $env['DBHOST'] = $dbHost[0];
-
-  if (count($dbHost) > 1) {
-    $env['DBPORT'] = $dbHost[1];
-  }
+	if ($hostData) {
+		list($env['DBHOST'], $env['DBPORT']) = $hostData;
+	}
 
 	// Plugin probably updated, we need to make sure it's executable and database is up-to-date
 	if ($makeExecutable && 0755 !== (fileperms($file) & 0777))
@@ -185,13 +194,13 @@ function my_custom_url_handler()
   //	define( 'WP_DEBUG', true );
   //	define( 'WP_DEBUG_DISPLAY', true );
   //	@ini_set( 'display_errors', 1 );
-
+  $prefix  = site_url('', 'relative');
   $request = SimpleRouter::request();
   $requestBody = json_decode(file_get_contents('php://input'), true);
   $requestUrlParams = $request->getUrl()->getParams();
   $command = null;
 
-  SimpleRouter::group(['prefix' => '/visitor/v1'], function () use (
+  SimpleRouter::group(['prefix' => $prefix . '/visitor/v1'], function () use (
     &$command,
     $requestBody,
     $request
@@ -246,16 +255,17 @@ function my_custom_url_handler()
 
   SimpleRouter::group(['middleware' => IsBackendMiddlware::class], function () use (
     &$command,
-    $requestUrlParams
+    $requestUrlParams,
+      $prefix
   ) {
-    SimpleRouter::get('/flow/v1/{flow_uuid}', function (string $flowUuid) use (
+    SimpleRouter::get($prefix . '/flow/v1/{flow_uuid}', function (string $flowUuid) use (
       &$command,
       $requestUrlParams
     ) {
       $command = ['get', 'flow', 'v1', $flowUuid];
       $command = array_merge($command, apply_if_not_empty($requestUrlParams, ['with' => 'with']));
     });
-    SimpleRouter::get('/flow/v1/{start_date}/{end_date}', function (
+    SimpleRouter::get($prefix . '/flow/v1/{start_date}/{end_date}', function (
       string $start,
       string $end
     ) use (&$command, $requestUrlParams) {
@@ -265,7 +275,7 @@ function my_custom_url_handler()
       );
     });
 
-    SimpleRouter::get('/visitor/v1/{start_date}/{end_date}', function (
+    SimpleRouter::get($prefix . '/visitor/v1/{start_date}/{end_date}', function (
       string $start,
       string $end
     ) use (&$command, $requestUrlParams) {
@@ -293,7 +303,7 @@ function my_custom_url_handler()
       ]
       as $statistic
     ) {
-      SimpleRouter::get('/' . $statistic . '/v1/{start_date}/{end_date}', function (
+      SimpleRouter::get($prefix . '/' . $statistic . '/v1/{start_date}/{end_date}', function (
         string $start,
         string $end
       ) use (&$command, $statistic) {
