@@ -45,10 +45,14 @@ add_action('admin_init', function () {
     'aesirx_analytics_settings',
     'Aesirx Analytics',
     function () {
-			echo '<h3>' . __('When you join forces with AesirX, you are not just becoming a Partner - you are also becoming a freedom fighter in the battle for privacy! Earn 25% Affiliate Commission <a href="https://aesirx.io/seed-round?utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics">[Click to Join]</a>') . '</h3>';
+      echo '<h3>' .
+        __(
+          'When you join forces with AesirX, you are not just becoming a Partner - you are also becoming a freedom fighter in the battle for privacy! Earn 25% Affiliate Commission <a href="https://aesirx.io/seed-round?utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics">[Click to Join]</a>'
+        ) .
+        '</h3>';
       echo '<p>' .
         __('Here you can set all the options for using the aesirx analytics', 'aesirx-analytics') .
-				'</p>' .
+        '</p>' .
         '
         <p>Read more detail at <a target="_blank" href="https://github.com/aesirxio/analytics#in-ssr-site">https://github.com/aesirxio/analytics#in-ssr-site</a></p><p class= "description">
         <h3>Note: Please set Permalink structure is NOT plain.</h3></p>';
@@ -123,32 +127,33 @@ add_action('admin_init', function () {
     'aesirx_analytics_settings'
   );
 
-	add_settings_section(
-		'aesirx_analytics_settings2',
-		'',
-		function () {
-			echo '<h3>
+  add_settings_section(
+    'aesirx_analytics_settings2',
+    '',
+    function () {
+      echo '<h3>
         To track events, simply add special data-attribute to the element you want to track. For example, you might have a button with the following code:
         </h3><code>
         ' .
-				htmlentities('<button class="button"') .
-				'<br>
+        htmlentities('<button class="button"') .
+        '<br>
         ' .
-				htmlentities('data-aesirx-event-name="sign up"') .
-				'<br>
+        htmlentities('data-aesirx-event-name="sign up"') .
+        '<br>
         ' .
-				htmlentities('data-aesirx-event-type="login"') .
-				'<br>
+        htmlentities('data-aesirx-event-type="login"') .
+        '<br>
         ' .
-				htmlentities('data-aesirx-event-attribute-a="value-a"') .
-				'<br>
+        htmlentities('data-aesirx-event-attribute-a="value-a"') .
+        '<br>
         ' .
-				htmlentities('data-aesirx-event-attribute-b="value-b"') .
-				'>Sign Up' .
-				htmlentities('</button>') . '</code><br><br>';
-		},
-	'aesirx_analytics_plugin'
-	);
+        htmlentities('data-aesirx-event-attribute-b="value-b"') .
+        '>Sign Up' .
+        htmlentities('</button>') .
+        '</code><br><br>';
+    },
+    'aesirx_analytics_plugin'
+  );
 });
 
 add_action('admin_menu', function () {
@@ -183,26 +188,38 @@ add_action('admin_menu', function () {
   );
 });
 
-add_action('admin_enqueue_scripts', function () {
-  global $wp;
-  $options = get_option('aesirx_analytics_plugin_options');
+add_action('admin_enqueue_scripts', function ($hook) {
+  if ($hook === 'toplevel_page_aesirx-bi-dashboard') {
 
-  $protocols = ['http://', 'https://', 'http://www.', 'https://www.', 'www.'];
-  $domain = str_replace($protocols, '', site_url());
-  $streams = [['name' => get_bloginfo('name'), 'domain' => $domain]];
-  $endpoint =
-    ($options['storage'] ?? 'internal') == 'internal'
-      ? get_bloginfo('url')
-      : $options['domain'] ?? '';
-  ?>
-	  <script>
+    global $wp;
+    $options = get_option('aesirx_analytics_plugin_options');
+
+    $protocols = ['http://', 'https://', 'http://www.', 'https://www.', 'www.'];
+    $domain = str_replace($protocols, '', site_url());
+    $streams = [['name' => get_bloginfo('name'), 'domain' => $domain]];
+    $endpoint =
+      ($options['storage'] ?? 'internal') == 'internal'
+        ? get_bloginfo('url')
+        : $options['domain'] ?? '';
+
+    $manifest = json_decode(
+      file_get_contents(plugin_dir_path(__DIR__) . 'assets-manifest.json', true)
+    );
+
+    if ($manifest->entrypoints->main->assets) {
+      foreach ($manifest->entrypoints->main->assets->js as $js) {
+        wp_enqueue_script('aesrix_bi' . md5($js), plugins_url($js, __DIR__), false, null, true);
+      }
+    }
+    ?>
+	  <script type="text/javascript">
 		  window.env = {};
 		  window.env.REACT_APP_CLIENT_ID = "app";
 		  window.env.REACT_APP_CLIENT_SECRET = "secret";
 		  window.env.REACT_APP_ENDPOINT_URL = "<?php echo $endpoint; ?>";
 		  window.env.REACT_APP_DATA_STREAM = JSON.stringify(<?php echo json_encode($streams); ?>);
-		  window.env.PUBLIC_URL="/wp-content/plugins/aesirx-analytics";
+		  window.env.PUBLIC_URL="<?php echo plugin_dir_url(__DIR__) ?>";
 	  </script>
-	  <%= htmlWebpackPlugin.tags.headTags %>
 	  <?php
+  }
 });

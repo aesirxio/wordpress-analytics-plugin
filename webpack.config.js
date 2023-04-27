@@ -3,6 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { ProvidePlugin } = require('webpack');
 const FileManagerPlugin = require('filemanager-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
+const WebpackAssetsManifest = require('webpack-assets-manifest');
 
 module.exports = {
   mode: 'development',
@@ -68,11 +69,14 @@ module.exports = {
         },
       },
     }),
+
+    new WebpackAssetsManifest({
+      entrypoints: true,
+    }),
   ],
 
   output: {
     filename: 'assets/bi/js/[name].[contenthash].js',
-    publicPath: '/wp-content/plugins/aesirx-analytics/',
     clean: true,
   },
 
