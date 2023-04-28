@@ -80,7 +80,12 @@ function process_analytics(array $command, bool $makeExecutable = true): Process
 	$hostData = $wpdb->parse_db_host(DB_HOST);
 
 	if ($hostData) {
-		list($env['DBHOST'], $env['DBPORT']) = $hostData;
+		list($env['DBHOST'], $dbPort) = $hostData;
+
+        if (!is_null($dbPort))
+        {
+            $env['DBPORT'] = $dbPort;
+        }
 	}
 
 	// Plugin probably updated, we need to make sure it's executable and database is up-to-date
@@ -339,6 +344,7 @@ function my_custom_url_handler()
     $err = $process->getErrorOutput();
 
     json_decode($err);
+    http_response_code(500);
 
     if (json_last_error() === JSON_ERROR_NONE) {
       echo $err;
