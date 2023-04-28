@@ -1,5 +1,4 @@
 const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { ProvidePlugin } = require('webpack');
 const FileManagerPlugin = require('filemanager-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
@@ -45,12 +44,6 @@ module.exports = {
   plugins: [
     new ProvidePlugin({
       process: 'process/browser',
-    }),
-    new HtmlWebpackPlugin({
-      inject: false,
-      filename: 'includes/settings.php',
-      template: './wp-content/plugins/aesirx-analytics/includes/settings.php',
-      minify: false,
     }),
 
     new FileManagerPlugin({
