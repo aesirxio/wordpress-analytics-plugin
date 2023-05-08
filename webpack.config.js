@@ -6,19 +6,12 @@ const WebpackAssetsManifest = require('webpack-assets-manifest');
 
 module.exports = {
   mode: 'development',
+  devtool: false,
   module: {
     rules: [
       {
         test: /\.tsx?$/,
-        use: [
-          {
-            loader: 'babel-loader',
-            options: {
-              presets: ['@babel/preset-react', '@babel/preset-env'],
-            },
-          },
-          'ts-loader',
-        ],
+        use: 'ts-loader',
       },
       {
         test: /\.(sa|sc|c)ss$/,
@@ -69,11 +62,12 @@ module.exports = {
   ],
 
   output: {
-    filename: 'assets/bi/js/[name].[contenthash].js',
+    filename: 'assets/bi/js/[contenthash].js',
     clean: true,
   },
 
   optimization: {
+    usedExports: true,
     minimize: true,
     minimizer: [
       new TerserPlugin({
@@ -81,7 +75,11 @@ module.exports = {
           compress: {
             drop_console: true,
           },
+          format: {
+            comments: false,
+          },
         },
+        extractComments: false,
       }),
     ],
     splitChunks: {
