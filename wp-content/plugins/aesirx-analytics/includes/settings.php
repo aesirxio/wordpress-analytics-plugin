@@ -46,16 +46,15 @@ add_action('admin_init', function () {
     'Aesirx Analytics',
     function () {
       echo '<h3>' .
-        __(
-          'When you join forces with AesirX, you are not just becoming a Partner - you are also becoming a freedom fighter in the battle for privacy! Earn 25% Affiliate Commission <a href="https://aesirx.io/seed-round?utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics">[Click to Join]</a>'
-        ) .
+        sprintf(__(
+          'When you join forces with AesirX, you are not just becoming a Partner - you are also becoming a freedom fighter in the battle for privacy! Earn 25% Affiliate Commission <a href="%s">[Click to Join]</a>'
+        ), 'https://aesirx.io/seed-round?utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics') .
         '</h3>';
       echo '<p>' .
-        __('Here you can set all the options for using the aesirx analytics', 'aesirx-analytics') .
+           __('Here you can set all the options for using the aesirx analytics', 'aesirx-analytics') .
         '</p>' .
-        '
-        <p>Read more detail at <a target="_blank" href="https://github.com/aesirxio/analytics#in-ssr-site">https://github.com/aesirxio/analytics#in-ssr-site</a></p><p class= "description">
-        <h3>Note: Please set Permalink structure is NOT plain.</h3></p>';
+                   sprintf(__('<p>Read more detail at <a target="_blank" href="%s">%s</a></p><p class= "description">
+        <h3>Note: Please set Permalink structure is NOT plain.</h3></p>'), 'https://github.com/aesirxio/analytics#in-ssr-site', 'https://github.com/aesirxio/analytics#in-ssr-site');
     },
     'aesirx_analytics_plugin'
   );
@@ -68,22 +67,24 @@ add_action('admin_init', function () {
       $checked = 'checked="checked"';
       $storage = $options['storage'] ?? 'internal';
       echo '
-    <label>Internal <input type="radio" class="analytic-storage-class" name="aesirx_analytics_plugin_options[storage]" ' .
+    <label>' . __('Internal', 'aesirx-analytics') . ' <input type="radio" class="analytic-storage-class" name="aesirx_analytics_plugin_options[storage]" ' .
         ($storage == 'internal' ? $checked : '') .
         ' value="internal"  /></label>
-    <label>External <input type="radio" class="analytic-storage-class" name="aesirx_analytics_plugin_options[storage]" ' .
+    <label>' . __('External', 'aesirx-analytics') . ' <input type="radio" class="analytic-storage-class" name="aesirx_analytics_plugin_options[storage]" ' .
         ($storage == 'external' ? $checked : '') .
         ' value="external" /></label>
 
     <script>
     jQuery(document).ready(function() {
 	function switch_radio(test) {
-		if (test == "internal") {
+		if (test === "internal") {
 			jQuery("#aesirx_analytics_domain").parents("tr").hide();
 			jQuery("#aesirx_analytics_license").parents("tr").show();
+			jQuery("#aesirx_analytics_download").parents("tr").show();
 		} else {
 			jQuery("#aesirx_analytics_domain").parents("tr").show();
 			jQuery("#aesirx_analytics_license").parents("tr").hide();
+			jQuery("#aesirx_analytics_download").parents("tr").hide();
 		}
 	}
     jQuery("input.analytic-storage-class").click(function() {
@@ -106,11 +107,36 @@ add_action('admin_init', function () {
       $options = get_option('aesirx_analytics_plugin_options', []);
       echo "<input id='aesirx_analytics_domain' name='aesirx_analytics_plugin_options[domain]' type='text' value='" .
         esc_attr($options['domain'] ?? '') .
-        "' /><p class= 'description'>
-		You can setup 1st party server at <a target='_blank' href='https://github.com/aesirxio/analytics-1stparty'>https://github.com/aesirxio/analytics-1stparty</a>.</p>";
+        "' />" . sprintf(__("<p class= 'description'>
+		You can setup 1st party server at <a target='_blank' href='%s'>%s</a>.</p>", 'aesirx-analytics'), 'https://github.com/aesirxio/analytics-1stparty', 'https://github.com/aesirxio/analytics-1stparty');
     },
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
+  );
+
+  add_settings_field(
+      'aesirx_analytics_download',
+      __('Download', 'aesirx-analytics'),
+      function () {
+        if (analytics_cli_exists()) {
+          echo '<p>' . __('CLI library is already downloaded.', 'aesirx-analytics') . '</p><p>'
+               . __('It has to be re-downloaded every time the plugin has been updated.', 'aesirx-analytics') . '</p>';
+        } else {
+          try {
+            get_supported_arch();
+
+            echo '<button name="submit" id="aesirx_analytics_download" class="button button-primary" type="submit" value="download_analytics_cli">' . __(
+                    'Click to download CLI library! This plugin can\'t work without the library!', 'aesirx-analytics'
+                ) . '</button><p>' . __('It has to be re-downloaded every time the plugin has been updated.', 'aesirx-analytics') . '</p>';
+          } catch (Throwable $e)
+          {
+            echo '<strong style="color: red">' . __('You can\'t use internal server. Error: ' . $e->getMessage(), 'aesirx-analytics') . '</strong>';
+          }
+        }
+
+      },
+      'aesirx_analytics_plugin',
+      'aesirx_analytics_settings'
   );
 
   add_settings_field(
@@ -183,15 +209,24 @@ add_action('admin_menu', function () {
     'manage_options',
     'aesirx-bi-dashboard',
     function () {
-      include 'dashboard.php';
+      ?><div id="biapp"></div><?php
     }
   );
 });
 
+add_action('admin_init', 'redirect_analytics_config', 1);
+function redirect_analytics_config() {
+  if ( isset($_GET['page'])
+       && $_GET['page'] == 'aesirx-bi-dashboard'
+       && !analytics_config_is_ok()) {
+    wp_redirect('/wp-admin/options-general.php?page=aesirx-analytics-plugin');
+    die;
+  }
+}
+
 add_action('admin_enqueue_scripts', function ($hook) {
   if ($hook === 'toplevel_page_aesirx-bi-dashboard') {
 
-    global $wp;
     $options = get_option('aesirx_analytics_plugin_options');
 
     $protocols = ['http://', 'https://', 'http://www.', 'https://www.', 'www.'];
