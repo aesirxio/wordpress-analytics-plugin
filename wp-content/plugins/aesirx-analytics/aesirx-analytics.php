@@ -4,13 +4,11 @@
  * Plugin URI: https://analytics.aesirx.io?utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics
  * Description: Aesirx analytics plugin. When you join forces with AesirX, you're not just becoming a Partner - you're also becoming a freedom fighter in the battle for privacy! Earn 25% Affiliate Commission <a href="https://aesirx.io/seed-round?utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics">[Click to Join]</a>
  * Version: 2.0.0
- * Version CLI: 1.0.0
  * Author: aesirx.io
  * Author URI: https://aesirx.io/
  * Domain Path: /languages
  * Text Domain: aesirx-analytics
  * Requires PHP: 7.2
- * RequiresWP: 6.2
  **/
 
 use AesirxAnalytics\Route\Middleware\IsBackendMiddlware;
@@ -407,11 +405,11 @@ function get_supported_arch(): string {
     $arch = null;
 
     if (PHP_OS === 'Linux') {
-        $uname = shell_exec('uname -m');
-        if (strpos($uname, 'arm') !== false) {
-            $arch = 'armv7-unknown-linux-gnueabihf';
+        $uname = php_uname('m');
+        if (strpos($uname, 'aarch64') !== false) {
+            $arch = 'aarch64';
         } else if (strpos($uname, 'x86_64') !== false) {
-            $arch = 'x86_64-unknown-linux-musl';
+            $arch = 'x86_64';
         }
     }
 
@@ -441,17 +439,13 @@ add_action('admin_init', function () {
         }
 
         $file = WP_PLUGIN_DIR . '/aesirx-analytics/assets/analytics-cli';
-        $plugin_data = get_plugin_data( __FILE__ );
 
         try {
             $arch = get_supported_arch();
-            //file_put_contents($file, fopen("https://github.com/aesirxio/analytics/releases/download/1.1.3/analytics.js" . $arch . '/' . $plugin_data['Version'] . ".zip", 'r'));
-            //chmod($file,0755);
+            file_put_contents($file, fopen("https://github.com/aesirxio/analytics/releases/download/1.1.3/analytics-cli-linux-" . $arch, 'r'));
+            chmod($file,0755);
 
-            //process_analytics( [ 'migrate' ] );
-
-            //var_dump($plugin_data, __FILE__);
-            //die;
+            process_analytics( [ 'migrate' ] );
 
             add_settings_error(
                 'aesirx_analytics_plugin_options',
@@ -465,6 +459,7 @@ add_action('admin_init', function () {
             add_settings_error(
                 'aesirx_analytics_plugin_options',
                 'download',
+                /* translators: %s: error message */
                 sprintf(__('Error: %s', 'aesirx-analytics'), $e->getMessage())
             );
         }
