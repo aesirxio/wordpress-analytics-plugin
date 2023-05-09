@@ -63,7 +63,7 @@ if (!wp_next_scheduled('analytics_cron_geo')) {
  */
 function process_analytics(array $command, bool $makeExecutable = true): Process
 {
-	global $wpdb;
+	global $wpdb, $table_prefix;
 
   $file = WP_PLUGIN_DIR . '/aesirx-analytics/assets/analytics-cli';
   $options = get_option('aesirx_analytics_plugin_options');
@@ -74,6 +74,7 @@ function process_analytics(array $command, bool $makeExecutable = true): Process
     'DBNAME' => DB_NAME,
     'DBTYPE' => 'mysql',
     'LICENSE' => $options['license'] ?? '',
+    'DBPREFIX' => $table_prefix,
   ];
 
 	$env['DBHOST'] = DB_HOST;
