@@ -9,3 +9,9 @@ updates:
     directory: '/' # Location of package manifests
     schedule:
       interval: 'monthly'
+      
+ - package-ecosystem: "composer"
+    # Files stored in repository root
+    directory: "/"
+    schedule:
+      interval: "monthly"

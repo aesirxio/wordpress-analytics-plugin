@@ -94,7 +94,7 @@ function process_analytics(array $command, bool $makeExecutable = true): Process
 
   $env = [
     'DBUSER' => DB_USER,
-    'DBPASS' => DB_PASSWORD,
+    'DBPASS' => urlencode(DB_PASSWORD),
     'DBNAME' => DB_NAME,
     'DBTYPE' => 'mysql',
     'LICENSE' => $options['license'] ?? '',
