@@ -48,7 +48,7 @@ add_action('admin_init', function () {
       echo '<h3>' .
            /* translators: %s: URL to aesir.io */
         sprintf(__(
-          'When you join forces with AesirX, you are not just becoming a Partner - you are also becoming a freedom fighter in the battle for privacy! Earn 25% Affiliate Commission <a href="%s">[Click to Join]</a>'
+          'When you join forces with AesirX, you are not just becoming a Partner - you are also becoming a freedom fighter in the battle for privacy! Earn 25%% Affiliate Commission <a href="%s">[Click to Join]</a>'
         ), 'https://aesirx.io/seed-round?utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics') .
         '</h3>';
       echo '<p>' .
