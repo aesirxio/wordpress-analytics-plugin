@@ -48,7 +48,7 @@ add_action('admin_init', function () {
       echo '<h3>' .
            /* translators: %s: URL to aesir.io */
         sprintf(__(
-          'When you join forces with AesirX, you are not just becoming a Partner - you are also becoming a freedom fighter in the battle for privacy! Earn 25%% Affiliate Commission <a href="%s">[Click to Join]</a>'
+          'When you join forces with AesirX, you are not just becoming a Partner - you are also becoming a freedom fighter in the battle for privacy! Earn 25%% Affiliate Commission <a href="%s">[Click to Join]</a>', 'aesirx-analytics'
         ), 'https://aesirx.io/seed-round?utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics') .
         '</h3>';
       echo '<p>' .
@@ -56,7 +56,7 @@ add_action('admin_init', function () {
         '</p>' .
            /* translators: %s: URL to aesir.io read mor details */
                    sprintf(__('<p>Read more detail at <a target="_blank" href="%s">%s</a></p><p class= "description">
-        <h3>Note: Please set Permalink structure is NOT plain.</h3></p>'), 'https://github.com/aesirxio/analytics#in-ssr-site', 'https://github.com/aesirxio/analytics#in-ssr-site');
+        <h3>Note: Please set Permalink structure is NOT plain.</h3></p>', 'aesirx-analytics'), 'https://github.com/aesirxio/analytics#in-ssr-site', 'https://github.com/aesirxio/analytics#in-ssr-site');
     },
     'aesirx_analytics_plugin'
   );
