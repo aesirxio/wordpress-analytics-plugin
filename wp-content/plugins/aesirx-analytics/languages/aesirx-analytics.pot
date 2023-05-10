@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-05-09T15:27:56+00:00\n"
+"POT-Creation-Date: 2023-05-10T12:01:27+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.7.1\n"
 "X-Domain: aesirx-analytics\n"
@@ -34,12 +34,17 @@ msgstr ""
 msgid "https://aesirx.io/"
 msgstr ""
 
-#: aesirx-analytics.php:457
+#. translators: %s: error message
+#: aesirx-analytics.php:430
+msgid "Problem with Aesirx Analytics plugin install: %s"
+msgstr ""
+
+#: aesirx-analytics.php:492
 msgid "Library successfully downloaded."
 msgstr ""
 
 #. translators: %s: error message
-#: aesirx-analytics.php:467
+#: aesirx-analytics.php:502
 msgid "Error: %s"
 msgstr ""
 
@@ -71,43 +76,34 @@ msgstr ""
 msgid "External"
 msgstr ""
 
-#: includes/settings.php:107
+#: includes/settings.php:112
 msgid "domain <i>(Use next format: http://example.com:1000/)</i>"
 msgstr ""
 
 #. translators: %s: URL to aesir.io
-#: includes/settings.php:115
+#: includes/settings.php:120
 msgid ""
 "<p class= 'description'>\r\n"
 "\t\tYou can setup 1st party server at <a target='_blank' href='%s'>%s</a>.</p>"
 msgstr ""
 
-#: includes/settings.php:124
+#: includes/settings.php:130
 msgid "Download"
 msgstr ""
 
-#: includes/settings.php:127
-msgid "CLI library is already downloaded."
-msgstr ""
-
-#: includes/settings.php:128
 #: includes/settings.php:135
-msgid "It has to be re-downloaded every time the plugin has been updated."
-msgstr ""
-
-#: includes/settings.php:133
 msgid "Click to download CLI library! This plugin can't work without the library!"
 msgstr ""
 
-#: includes/settings.php:138
+#: includes/settings.php:140
 msgid "You can't use internal server. Error: "
 msgstr ""
 
-#: includes/settings.php:149
+#: includes/settings.php:150
 msgid "License"
 msgstr ""
 
-#: includes/settings.php:192
 #: includes/settings.php:193
+#: includes/settings.php:194
 msgid "Aesirx Analytics"
 msgstr ""

@@ -388,17 +388,55 @@ function initialize_aesirx_analytics_function() {
 
 function analytics_update_plugins(WP_Upgrader $upgrader_object, array $options ): void {
     $current_plugin_path_name = plugin_basename( __FILE__ );
+    $download = false;
 
-    if ($options['action'] == 'update' && $options['type'] == 'plugin' ) {
-        foreach($options['plugins'] as $each_plugin) {
-            if ($each_plugin == $current_plugin_path_name) {
-                wp_redirect('/wp-admin/options-general.php?page=aesirx-analytics-plugin');
-                die;
+    if (in_array($options['action'], ['update', 'install'])
+        && $options['type'] == 'plugin' ) {
+        if ($options['bulk'] ?? false) {
+            foreach($options['plugins'] as $each_plugin) {
+                if ($each_plugin == $current_plugin_path_name) {
+                    $download = true;
+                    break;
+                }
             }
+        } elseif (property_exists($upgrader_object, 'new_plugin_data')
+                && !empty($upgrader_object->new_plugin_data['Name'])
+                && $upgrader_object->new_plugin_data['Name'] == 'aesirx-analytics'
+                && property_exists($upgrader_object->skin, 'overwrite')
+                && $upgrader_object->skin->overwrite == 'update-plugin') {
+            $download = true;
+        }
+    }
+
+    $options = get_option('aesirx_analytics_plugin_options');
+
+    if ($download
+        && ($options['storage'] ?? null) == 'internal') {
+        try {
+            download_analytics_cli();
+        } catch (Throwable $e) {
+            set_transient( 'analytics_update_notice', serialize($e) );
         }
     }
 }
 
+function analytics_display_update_notice(  ) {
+    $notice = get_transient( 'analytics_update_notice' );
+    if( $notice ) {
+
+        $notice = unserialize($notice);
+
+        if ($notice instanceof Throwable)
+        {
+            /* translators: %s: error message */
+            echo '<div class="notice notice-error"><p>' . sprintf(__('Problem with Aesirx Analytics plugin install: %s', 'aesirx-analytics'), $notice->getMessage()) . '</p></div>';
+        }
+
+        delete_transient( 'analytics_update_notice' );
+    }
+}
+
+add_action( 'admin_notices', 'analytics_display_update_notice' );
 add_action( 'upgrader_process_complete', 'analytics_update_plugins', 10, 2);
 
 function get_supported_arch(): string {
@@ -420,6 +458,15 @@ function get_supported_arch(): string {
     return $arch;
 }
 
+function download_analytics_cli(): void {
+    $arch = get_supported_arch();
+    $file = WP_PLUGIN_DIR . '/aesirx-analytics/assets/analytics-cli';
+    file_put_contents($file, fopen("https://github.com/aesirxio/analytics/releases/download/1.1.3/analytics-cli-linux-" . $arch, 'r'));
+    chmod($file,0755);
+
+    process_analytics( [ 'migrate' ] );
+}
+
 add_action('admin_init', function () {
     if (get_option('aesirx_do_activation_redirect', false)) {
 
@@ -438,14 +485,8 @@ add_action('admin_init', function () {
             return;
         }
 
-        $file = WP_PLUGIN_DIR . '/aesirx-analytics/assets/analytics-cli';
-
         try {
-            $arch = get_supported_arch();
-            file_put_contents($file, fopen("https://github.com/aesirxio/analytics/releases/download/1.1.3/analytics-cli-linux-" . $arch, 'r'));
-            chmod($file,0755);
-
-            process_analytics( [ 'migrate' ] );
+            download_analytics_cli();
 
             add_settings_error(
                 'aesirx_analytics_plugin_options',

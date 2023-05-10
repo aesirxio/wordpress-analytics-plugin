@@ -79,14 +79,19 @@ add_action('admin_init', function () {
     <script>
     jQuery(document).ready(function() {
 	function switch_radio(test) {
+		var donwload = jQuery("#aesirx_analytics_download");
 		if (test === "internal") {
 			jQuery("#aesirx_analytics_domain").parents("tr").hide();
 			jQuery("#aesirx_analytics_license").parents("tr").show();
-			jQuery("#aesirx_analytics_download").parents("tr").show();
+			if (donwload.length()) {
+				donwload.parents("tr").show();
+			}
 		} else {
 			jQuery("#aesirx_analytics_domain").parents("tr").show();
 			jQuery("#aesirx_analytics_license").parents("tr").hide();
-			jQuery("#aesirx_analytics_download").parents("tr").hide();
+			if (donwload.length()) {
+			    donwload.parents("tr").hide();
+			}
 		}
 	}
     jQuery("input.analytic-storage-class").click(function() {
@@ -119,30 +124,26 @@ add_action('admin_init', function () {
     'aesirx_analytics_settings'
   );
 
-  add_settings_field(
-      'aesirx_analytics_download',
-      __('Download', 'aesirx-analytics'),
-      function () {
-        if (analytics_cli_exists()) {
-          echo '<p>' . __('CLI library is already downloaded.', 'aesirx-analytics') . '</p><p>'
-               . __('It has to be re-downloaded every time the plugin has been updated.', 'aesirx-analytics') . '</p>';
-        } else {
+  if (!analytics_cli_exists()) {
+    add_settings_field(
+        'aesirx_analytics_download',
+        __( 'Download', 'aesirx-analytics' ),
+        function () {
           try {
             get_supported_arch();
 
             echo '<button name="submit" id="aesirx_analytics_download" class="button button-primary" type="submit" value="download_analytics_cli">' . __(
                     'Click to download CLI library! This plugin can\'t work without the library!', 'aesirx-analytics'
-                ) . '</button><p>' . __('It has to be re-downloaded every time the plugin has been updated.', 'aesirx-analytics') . '</p>';
-          } catch (Throwable $e)
-          {
-            echo '<strong style="color: red">' . __('You can\'t use internal server. Error: ' . $e->getMessage(), 'aesirx-analytics') . '</strong>';
+                ) . '</button>';
           }
-        }
-
-      },
-      'aesirx_analytics_plugin',
-      'aesirx_analytics_settings'
-  );
+          catch ( Throwable $e ) {
+            echo '<strong style="color: red">' . __( 'You can\'t use internal server. Error: ' . $e->getMessage(), 'aesirx-analytics' ) . '</strong>';
+          }
+        },
+        'aesirx_analytics_plugin',
+        'aesirx_analytics_settings'
+    );
+  }
 
   add_settings_field(
     'aesirx_analytics_license',
