@@ -11,3 +11,4 @@ services:
     volumes:
       - .:/workspace
     working_dir: /workspace
+    tty: true

@@ -37,6 +37,7 @@ function compressTask() {
 function composerTask() {
   return composer({
     'working-dir': './dist/plugin/aesirx-analytics',
+    'no-dev': true,
   });
 }
 

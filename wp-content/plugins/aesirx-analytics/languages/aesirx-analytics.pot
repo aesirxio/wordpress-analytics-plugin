@@ -2,14 +2,14 @@
 # This file is distributed under the same license as the aesirx-analytics plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: aesirx-analytics 1.0.1-alpha.1\n"
+"Project-Id-Version: aesirx-analytics 2.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aesirx-analytics\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-03-03T09:15:51+00:00\n"
+"POT-Creation-Date: 2023-05-10T14:35:51+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.7.1\n"
 "X-Domain: aesirx-analytics\n"
@@ -18,8 +18,12 @@ msgstr ""
 msgid "aesirx-analytics"
 msgstr ""
 
+#. Plugin URI of the plugin
+msgid "https://analytics.aesirx.io?utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics"
+msgstr ""
+
 #. Description of the plugin
-msgid "Aesirx analytics plugin."
+msgid "Aesirx analytics plugin. When you join forces with AesirX, you're not just becoming a Partner - you're also becoming a freedom fighter in the battle for privacy! Earn 25% Affiliate Commission <a href=\"https://aesirx.io/seed-round?utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics\">[Click to Join]</a>"
 msgstr ""
 
 #. Author of the plugin
@@ -30,23 +34,88 @@ msgstr ""
 msgid "https://aesirx.io/"
 msgstr ""
 
-#: includes/settings.php:14
+#. translators: %s: error message
+#: aesirx-analytics.php:432
+msgid "Problem with Aesirx Analytics plugin install: %s"
+msgstr ""
+
+#: aesirx-analytics.php:494
+msgid "Library successfully downloaded."
+msgstr ""
+
+#. translators: %s: error message
+#: aesirx-analytics.php:504
+msgid "Error: %s"
+msgstr ""
+
+#: includes/settings.php:16
+msgid "License is empty."
+msgstr ""
+
+#: includes/settings.php:25
 msgid "Domain is empty."
 msgstr ""
 
-#: includes/settings.php:19
+#: includes/settings.php:32
 msgid "Invalid domain format."
 msgstr ""
 
-#: includes/settings.php:31
+#. translators: %s: URL to aesir.io
+#: includes/settings.php:50
+msgid "When you join forces with AesirX, you are not just becoming a Partner - you are also becoming a freedom fighter in the battle for privacy! Earn 25%% Affiliate Commission <a href=\"%s\">[Click to Join]</a>"
+msgstr ""
+
+#: includes/settings.php:55
 msgid "Here you can set all the options for using the aesirx analytics"
 msgstr ""
 
-#: includes/settings.php:34
+#. translators: %s: URL to aesir.io read mor details
+#: includes/settings.php:58
+msgid ""
+"<p>Read more detail at <a target=\"_blank\" href=\"%s\">%s</a></p><p class= \"description\">\r\n"
+"        <h3>Note: Please set Permalink structure is NOT plain.</h3></p>"
+msgstr ""
+
+#: includes/settings.php:66
+msgid "1st party server"
+msgstr ""
+
+#: includes/settings.php:72
+msgid "Internal"
+msgstr ""
+
+#: includes/settings.php:75
+msgid "External"
+msgstr ""
+
+#: includes/settings.php:112
 msgid "domain <i>(Use next format: http://example.com:1000/)</i>"
 msgstr ""
 
-#: includes/settings.php:42
-#: includes/settings.php:43
-msgid "Aesirx analytics"
+#. translators: %s: URL to aesir.io
+#: includes/settings.php:120
+msgid ""
+"<p class= 'description'>\r\n"
+"\t\tYou can setup 1st party server at <a target='_blank' href='%s'>%s</a>.</p>"
+msgstr ""
+
+#: includes/settings.php:130
+msgid "Download"
+msgstr ""
+
+#: includes/settings.php:135
+msgid "Click to download CLI library! This plugin can't work without the library!"
+msgstr ""
+
+#: includes/settings.php:140
+msgid "You can't use internal server. Error: "
+msgstr ""
+
+#: includes/settings.php:150
+msgid "License"
+msgstr ""
+
+#: includes/settings.php:193
+#: includes/settings.php:194
+msgid "Aesirx Analytics"
 msgstr ""

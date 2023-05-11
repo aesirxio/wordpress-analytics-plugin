@@ -19,19 +19,43 @@ use Pecee\SimpleRouter\SimpleRouter;
 require_once WP_PLUGIN_DIR . '/aesirx-analytics/vendor/autoload.php';
 require_once 'includes/settings.php';
 
-add_action('wp_enqueue_scripts', function (): void {
-  wp_register_script('aesirx-analytics', plugins_url('assets/js/analytics.js', __FILE__));
-  wp_enqueue_script('aesirx-analytics');
+function analytics_cli_exists(): bool
+{
+    return file_exists(WP_PLUGIN_DIR . '/aesirx-analytics/assets/analytics-cli');
+}
 
-  $options = get_option('aesirx_analytics_plugin_options');
+function analytics_config_is_ok(string $isStorage = null): bool {
+    $options = get_option('aesirx_analytics_plugin_options');
+    $res = (!empty($options['storage'])
+        && (
+            ($options['storage'] == 'internal' && !empty($options['license']) && analytics_cli_exists())
+            || ($options['storage'] == 'external' && !empty($options['domain']))
+        ));
 
-  $domain =
-    ($options['storage'] ?? 'internal') == 'internal'
-      ? get_bloginfo('url')
-      : $options['domain'] ?? '';
+    if ($res
+        && !is_null($isStorage))
+    {
+        $res = $options['storage'] == $isStorage;
+    }
 
-  wp_add_inline_script('aesirx-analytics', 'window.aesirx1stparty="' . $domain . '";', 'before');
-});
+    return $res;
+}
+
+if (analytics_config_is_ok()) {
+    add_action('wp_enqueue_scripts', function (): void {
+        wp_register_script('aesirx-analytics', plugins_url('assets/js/analytics.js', __FILE__));
+        wp_enqueue_script('aesirx-analytics');
+
+        $options = get_option('aesirx_analytics_plugin_options');
+
+        $domain =
+            ($options['storage'] ?? 'internal') == 'internal'
+                ? get_bloginfo('url')
+                : $options['domain'] ?? '';
+
+        wp_add_inline_script('aesirx-analytics', 'window.aesirx1stparty="' . $domain . '";', 'before');
+    });
+}
 
 add_action('plugins_loaded', function () {
   load_plugin_textdomain(
@@ -41,12 +65,10 @@ add_action('plugins_loaded', function () {
   );
 });
 
-register_activation_hook(__FILE__, function () {
-  process_analytics(['migrate']);
-});
-
 add_action('analytics_cron_geo', function () {
-  process_analytics(['job', 'geo']);
+    if (analytics_config_is_ok('internal')) {
+        process_analytics(['job', 'geo']);
+    }
 });
 
 if (!wp_next_scheduled('analytics_cron_geo')) {
@@ -187,9 +209,11 @@ function apply_attributes(array $request): array
   return $command;
 }
 
-add_action('parse_request', 'my_custom_url_handler');
+if (analytics_cli_exists()) {
+    add_action( 'parse_request', 'analytics_url_handler' );
+}
 
-function my_custom_url_handler()
+function analytics_url_handler()
 {
   $options = get_option('aesirx_analytics_plugin_options');
 
@@ -362,6 +386,87 @@ function initialize_aesirx_analytics_function() {
     add_option('aesirx_do_activation_redirect', true);
 }
 
+function analytics_update_plugins(WP_Upgrader $upgrader_object, array $options ): void {
+    $current_plugin_path_name = plugin_basename( __FILE__ );
+    $download = false;
+
+    if (in_array($options['action'], ['update', 'install'])
+        && $options['type'] == 'plugin' ) {
+        if ($options['bulk'] ?? false) {
+            foreach($options['plugins'] as $each_plugin) {
+                if ($each_plugin == $current_plugin_path_name) {
+                    $download = true;
+                    break;
+                }
+            }
+        } elseif (property_exists($upgrader_object, 'new_plugin_data')
+                && !empty($upgrader_object->new_plugin_data['Name'])
+                && $upgrader_object->new_plugin_data['Name'] == 'aesirx-analytics'
+                && property_exists($upgrader_object->skin, 'overwrite')
+                && $upgrader_object->skin->overwrite == 'update-plugin') {
+            $download = true;
+        }
+    }
+
+    $options = get_option('aesirx_analytics_plugin_options');
+
+    if ($download
+        && ($options['storage'] ?? null) == 'internal') {
+        try {
+            download_analytics_cli();
+        } catch (Throwable $e) {
+            set_transient( 'analytics_update_notice', serialize($e) );
+        }
+    }
+}
+
+function analytics_display_update_notice(  ) {
+    $notice = get_transient( 'analytics_update_notice' );
+    if( $notice ) {
+
+        $notice = unserialize($notice);
+
+        if ($notice instanceof Throwable)
+        {
+            /* translators: %s: error message */
+            echo '<div class="notice notice-error"><p>' . sprintf(__('Problem with Aesirx Analytics plugin install: %s', 'aesirx-analytics'), $notice->getMessage()) . '</p></div>';
+        }
+
+        delete_transient( 'analytics_update_notice' );
+    }
+}
+
+add_action( 'admin_notices', 'analytics_display_update_notice' );
+add_action( 'upgrader_process_complete', 'analytics_update_plugins', 10, 2);
+
+function get_supported_arch(): string {
+    $arch = null;
+
+    if (PHP_OS === 'Linux') {
+        $uname = php_uname('m');
+        if (strpos($uname, 'aarch64') !== false) {
+            $arch = 'aarch64';
+        } else if (strpos($uname, 'x86_64') !== false) {
+            $arch = 'x86_64';
+        }
+    }
+
+    if (is_null($arch)) {
+        throw new \DomainException("Unsupported architecture " . PHP_OS . " " . PHP_INT_SIZE);
+    }
+
+    return $arch;
+}
+
+function download_analytics_cli(): void {
+    $arch = get_supported_arch();
+    $file = WP_PLUGIN_DIR . '/aesirx-analytics/assets/analytics-cli';
+    file_put_contents($file, fopen("https://github.com/aesirxio/analytics/releases/download/1.1.3/analytics-cli-linux-" . $arch, 'r'));
+    chmod($file,0755);
+
+    process_analytics( [ 'migrate' ] );
+}
+
 add_action('admin_init', function () {
     if (get_option('aesirx_do_activation_redirect', false)) {
 
@@ -371,4 +476,33 @@ add_action('admin_init', function () {
             exit();
         }
     }
+
+    add_action('load-options.php', function () {
+        if (!array_key_exists('submit', $_REQUEST)
+            || $_REQUEST['submit'] !== 'download_analytics_cli'
+            || !array_key_exists('option_page', $_REQUEST)
+            || $_REQUEST['option_page'] !== 'aesirx_analytics_plugin_options') {
+            return;
+        }
+
+        try {
+            download_analytics_cli();
+
+            add_settings_error(
+                'aesirx_analytics_plugin_options',
+                'download',
+                __('Library successfully downloaded.', 'aesirx-analytics'),
+                'info'
+            );
+        }
+        catch (Throwable $e)
+        {
+            add_settings_error(
+                'aesirx_analytics_plugin_options',
+                'download',
+                /* translators: %s: error message */
+                sprintf(__('Error: %s', 'aesirx-analytics'), $e->getMessage())
+            );
+        }
+    });
 });
