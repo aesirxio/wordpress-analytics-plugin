@@ -264,3 +264,42 @@ add_action('admin_enqueue_scripts', function ($hook) {
 	  <?php
   }
 });
+
+add_action( 'tgmpa_register', 'aesirx_analytics_register_required_plugins' );
+
+function aesirx_analytics_register_required_plugins() {
+  /*
+   * Array of plugin arrays. Required keys are name and slug.
+   * If the source is NOT from the .org repo, then source is also required.
+   */
+  $plugins = array(
+      array(
+          'name'      => 'WP Crontrol',
+          'slug'      => 'wp-crontrol',
+          'required'  => true,
+          'version' => 'v1.3.0',
+      ),
+  );
+
+  $config = array(
+      'id'           => 'aesirx-analytics',
+      'dismissable'  => false,
+      'is_automatic' => true,
+      'strings'      => array(
+        'notice_can_install_required'     => _n_noop(
+            /* translators: 1: plugin name(s). */
+            'This plugin requires the following plugin: %1$s.',
+            'This plugin requires the following plugins: %1$s.',
+            'aesirx-analytics'
+        ),
+        'notice_can_activate_required'    => _n_noop(
+            /* translators: 1: plugin name(s). */
+            'The following required plugin is currently inactive: %1$s.',
+            'The following required plugins are currently inactive: %1$s.',
+            'aesirx-analytics'
+        ),
+    ),
+  );
+
+  tgmpa( $plugins, $config );
+}

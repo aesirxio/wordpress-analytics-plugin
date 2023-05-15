@@ -18,6 +18,7 @@ use Pecee\SimpleRouter\SimpleRouter;
 
 require_once WP_PLUGIN_DIR . '/aesirx-analytics/vendor/autoload.php';
 require_once 'includes/settings.php';
+require_once 'class-tgm-plugin-activation.php';
 
 function analytics_cli_exists(): bool
 {
