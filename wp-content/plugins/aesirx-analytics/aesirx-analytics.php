@@ -330,6 +330,7 @@ function analytics_url_handler()
         'cities',
         'isps',
         'attribute',
+        'events',
       ]
       as $statistic
     ) {
