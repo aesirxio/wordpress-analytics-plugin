@@ -46,17 +46,10 @@ add_action('admin_init', function () {
     'Aesirx Analytics',
     function () {
       echo '<h3>' .
-           /* translators: %s: URL to aesir.io */
-        sprintf(__(
-          'When you join forces with AesirX, you are not just becoming a Partner - you are also becoming a freedom fighter in the battle for privacy! Earn 25%% Affiliate Commission <a href="%s">[Click to Join]</a>', 'aesirx-analytics'
-        ), 'https://aesirx.io/seed-round?utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics') .
-        '</h3>';
-      echo '<p>' .
-           __('Here you can set all the options for using the aesirx analytics', 'aesirx-analytics') .
-        '</p>' .
+
            /* translators: %s: URL to aesir.io read mor details */
                    sprintf(__('<p>Read more detail at <a target="_blank" href="%s">%s</a></p><p class= "description">
-        <h3>Note: Please set Permalink structure is NOT plain.</h3></p>', 'aesirx-analytics'), 'https://github.com/aesirxio/analytics#in-ssr-site', 'https://github.com/aesirxio/analytics#in-ssr-site');
+        <p>Note: Please set Permalink structure is NOT plain.</p></p>', 'aesirx-analytics'), 'https://github.com/aesirxio/analytics#in-ssr-site', 'https://github.com/aesirxio/analytics#in-ssr-site');
     },
     'aesirx_analytics_plugin'
   );
@@ -102,6 +95,16 @@ add_action('admin_init', function () {
         '");
 });
 </script>';
+
+      $manifest = json_decode(
+        file_get_contents(plugin_dir_path(__DIR__) . 'assets-manifest.json', true)
+      );
+
+      if ($manifest->entrypoints->plugin->assets) {
+        foreach ($manifest->entrypoints->plugin->assets->js as $js) {
+          wp_enqueue_script('aesrix_bi' . md5($js), plugins_url($js, __DIR__), false, null, true);
+        }
+      }
     },
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
@@ -153,39 +156,12 @@ add_action('admin_init', function () {
       echo "<input id='aesirx_analytics_license' name='aesirx_analytics_plugin_options[license]' type='text' value='" .
         esc_attr($options['license'] ?? '') .
         "' /> <p class= 'description'>
-		You can get License at <a target='_blank' href='https://analytics.aesirx.io'>https://analytics.aesirx.io</a>.</p>";
+        Register to AesirX and get your license here: <a target='_blank' href='https://partners.aesirx.io/auth/register'>https://partners.aesirx.io/auth/register</a>.</p>";
     },
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
   );
 
-  add_settings_section(
-    'aesirx_analytics_settings2',
-    '',
-    function () {
-      echo '<h3>
-        To track events, simply add special data-attribute to the element you want to track. For example, you might have a button with the following code:
-        </h3><code>
-        ' .
-        htmlentities('<button class="button"') .
-        '<br>
-        ' .
-        htmlentities('data-aesirx-event-name="sign up"') .
-        '<br>
-        ' .
-        htmlentities('data-aesirx-event-type="login"') .
-        '<br>
-        ' .
-        htmlentities('data-aesirx-event-attribute-a="value-a"') .
-        '<br>
-        ' .
-        htmlentities('data-aesirx-event-attribute-b="value-b"') .
-        '>Sign Up' .
-        htmlentities('</button>') .
-        '</code><br><br>';
-    },
-    'aesirx_analytics_plugin'
-  );
 });
 
 add_action('admin_menu', function () {
@@ -247,8 +223,8 @@ add_action('admin_enqueue_scripts', function ($hook) {
       file_get_contents(plugin_dir_path(__DIR__) . 'assets-manifest.json', true)
     );
 
-    if ($manifest->entrypoints->main->assets) {
-      foreach ($manifest->entrypoints->main->assets->js as $js) {
+    if ($manifest->entrypoints->bi->assets) {
+      foreach ($manifest->entrypoints->bi->assets->js as $js) {
         wp_enqueue_script('aesrix_bi' . md5($js), plugins_url($js, __DIR__), false, null, true);
       }
     }

@@ -7,6 +7,10 @@ const WebpackAssetsManifest = require('webpack-assets-manifest');
 module.exports = {
   mode: 'development',
   devtool: false,
+  entry: {
+    plugin: './assets/plugin/index.tsx',
+    bi: './assets/bi/index.tsx',
+  },
   module: {
     rules: [
       {
@@ -91,5 +95,6 @@ module.exports = {
       react$: require.resolve(path.resolve(__dirname, './node_modules/react')),
     },
     extensions: ['.tsx', '.ts', '.js'],
+    fallback: { 'process/browser': require.resolve('process/browser') },
   },
 };
