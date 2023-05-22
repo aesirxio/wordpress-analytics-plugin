@@ -332,10 +332,11 @@ function analytics_url_handler()
         'isps',
         'attribute',
         'events',
+        'events-name-type',
       ]
       as $statistic
     ) {
-      SimpleRouter::get($prefix . '/' . $statistic . '/v1/{start_date}/{end_date}', function (
+      SimpleRouter::get($prefix . '/' . str_replace('-', '_', $statistic) . '/v1/{start_date}/{end_date}', function (
         string $start,
         string $end
       ) use (&$command, $statistic) {
