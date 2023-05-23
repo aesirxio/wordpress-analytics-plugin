@@ -39,8 +39,7 @@
     "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-spinners": "^0.13.8",
-    "react-to-print": "^2.14.12"
+    "react-spinners": "^0.13.8"
   },
   "resolutions": {
     "react": "^18",
