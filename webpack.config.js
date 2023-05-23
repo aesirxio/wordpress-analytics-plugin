@@ -59,13 +59,6 @@ module.exports = {
               source: path.resolve(__dirname, './node_modules/aesirx-bi-app/public/assets/data/'),
               destination: path.resolve(__dirname, `${dist}/plugins/aesirx-analytics/assets/data/`),
             },
-            {
-              source: path.resolve(__dirname, './assets/images/'),
-              destination: path.resolve(
-                __dirname,
-                `${dist}/plugins/aesirx-analytics/assets/images/`
-              ),
-            },
           ],
         },
       },

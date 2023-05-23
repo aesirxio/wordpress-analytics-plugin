@@ -7,7 +7,8 @@ const _ = require('lodash');
 
 require('dotenv').config();
 
-const dist = process.env.DIST;
+var dist = './dist';
+process.env.DIST = dist;
 
 async function cleanTask() {
   const del = await import('del');
@@ -73,6 +74,8 @@ exports.zip = series(
 );
 
 exports.watch = function () {
+  dist = process.env.WWW;
+  process.env.DIST = dist;
   watch('./assets/**', series(webpackBIAppWatch));
   watch('./wp-content/plugins/aesirx-analytics/**', series(movePluginFolderTask, composerTask));
 };
