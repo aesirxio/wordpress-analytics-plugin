@@ -225,7 +225,7 @@ add_action('admin_enqueue_scripts', function ($hook) {
 
     $options = get_option('aesirx_analytics_plugin_options');
 
-    $protocols = ['http://', 'https://'];
+    $protocols = ['http://', 'https://', 'http://www.', 'https://www.', 'www.'];
     $domain = str_replace($protocols, '', site_url());
     $streams = [['name' => get_bloginfo('name'), 'domain' => $domain]];
     $endpoint =
