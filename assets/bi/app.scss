@@ -1,8 +1,7 @@
 #biapp {
   margin-left: -20px;
-  margin-top: 30px;
   #all_header {
-    top: 30px !important;
+    margin-top: 2px;
     width: calc(100% - 161px) !important;
   }
   .arrow {
@@ -15,6 +14,7 @@
     justify-content: center;
     height: 90vh;
   }
+
   .Toastify__toast-container--top-right {
     top: calc(1em + 30px);
   }
@@ -26,4 +26,9 @@
 
 #wpbody-content {
   padding-bottom: 0 !important;
+}
+
+.error,
+.notice {
+  display: none;
 }

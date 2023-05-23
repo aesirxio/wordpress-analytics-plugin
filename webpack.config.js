@@ -3,6 +3,7 @@ const { ProvidePlugin } = require('webpack');
 const FileManagerPlugin = require('filemanager-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const WebpackAssetsManifest = require('webpack-assets-manifest');
+const dist = process.env.DIST;
 
 module.exports = {
   mode: 'development',
@@ -49,11 +50,21 @@ module.exports = {
           copy: [
             {
               source: path.resolve(__dirname, './node_modules/aesirx-bi-app/public/assets/images/'),
-              destination: path.resolve(__dirname, './dist/plugin/aesirx-analytics/assets/images/'),
+              destination: path.resolve(
+                __dirname,
+                `${dist}/plugins/aesirx-analytics/assets/images/`
+              ),
             },
             {
               source: path.resolve(__dirname, './node_modules/aesirx-bi-app/public/assets/data/'),
-              destination: path.resolve(__dirname, './dist/plugin/aesirx-analytics/assets/data/'),
+              destination: path.resolve(__dirname, `${dist}/plugins/aesirx-analytics/assets/data/`),
+            },
+            {
+              source: path.resolve(__dirname, './assets/images/'),
+              destination: path.resolve(
+                __dirname,
+                `${dist}/plugins/aesirx-analytics/assets/images/`
+              ),
             },
           ],
         },
