@@ -45,7 +45,7 @@ add_action('admin_init', function () {
     'aesirx_analytics_settings',
     'Aesirx Analytics',
     function () {
-      echo '<h3>' .
+      echo
 
            /* translators: %s: URL to aesir.io read mor details */
                    sprintf(__('<p>Read more detail at <a target="_blank" href="%s">%s</a></p><p class= "description">
@@ -162,6 +162,19 @@ add_action('admin_init', function () {
     'aesirx_analytics_settings'
   );
 
+  add_settings_section(
+    'aesirx_analytics_info',
+    '',
+    function () {
+      echo '<div class="aesirx_analytics_info"><div class="wrap">Invest $1000 as a seed fund and receive:
+      <ul><li>Rewards worth of $6000!</li><li> Many more exclusive benefits!</li></ul><div>
+
+      <p>* Apply for only the first 2000 investors</p>
+      <a target="_blank" href="https://aesirx.io/seed-round?utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics">Become a Community Investor Now!</a></div>';
+    },
+    'aesirx_analytics_info'
+  );
+
 });
 
 add_action('admin_menu', function () {
@@ -182,6 +195,7 @@ add_action('admin_menu', function () {
     ); ?>"/>
 			</form>
 			<?php
+      do_settings_sections('aesirx_analytics_info');
     }
   );
 

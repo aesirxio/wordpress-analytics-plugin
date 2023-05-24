@@ -1,0 +1,31 @@
+.aesirx_analytics_info {
+  margin-top: 1rem;
+  background-image: url('../images/Hero.jpg');
+  background-position: 100%;
+  padding: 2rem;
+  color: #fff;
+  margin-right: 20px;
+  .wrap {
+    font-size: 1.5rem;
+
+    ul {
+      list-style: disc;
+      list-style-position: inside;
+
+      li {
+        padding: 5px 0px;
+      }
+    }
+
+    a {
+      color: #fff;
+      background-color: #1ab394;
+      border-color: #1ab394;
+      padding: 0.5rem 1rem;
+      line-height: 1.5;
+      display: inline-block;
+      border-radius: 0.375rem;
+      text-decoration: none;
+    }
+  }
+}
