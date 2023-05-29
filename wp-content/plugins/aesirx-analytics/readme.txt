@@ -1,7 +1,6 @@
 === AesirX Analytics ===
 Contributors: aesirx
 Tags: analytics
-Requires at least: 2.1.0
 Requires PHP: 7.2
 License: GPL-3.0-only
 
