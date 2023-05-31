@@ -177,14 +177,15 @@ function apply_list_params(): array
         }
         break;
       case 'filter':
+      case 'filter_not':
         foreach ($values as $keyValue => $value) {
           if (is_iterable($value)) {
             foreach ($value as $v) {
-              $command[] = '--filter';
+              $command[] = '--' . $converterKey;
               $command[] = $keyValue . '[]=' . $v;
             }
           } else {
-            $command[] = '--filter';
+            $command[] = '--' . $converterKey;
             $command[] = $keyValue . '=' . $value;
           }
         }
