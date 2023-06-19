@@ -334,6 +334,7 @@ function analytics_url_handler()
         'attribute',
         'events',
         'events-name-type',
+        'attribute-date',
       ]
       as $statistic
     ) {
