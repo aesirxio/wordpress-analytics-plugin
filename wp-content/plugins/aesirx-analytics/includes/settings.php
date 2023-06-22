@@ -76,15 +76,11 @@ add_action('admin_init', function () {
 		if (test === "internal") {
 			jQuery("#aesirx_analytics_domain").parents("tr").hide();
 			jQuery("#aesirx_analytics_license").parents("tr").show();
-			if (donwload.length()) {
-				donwload.parents("tr").show();
-			}
+			donwload.parents("tr").show();
 		} else {
 			jQuery("#aesirx_analytics_domain").parents("tr").show();
 			jQuery("#aesirx_analytics_license").parents("tr").hide();
-			if (donwload.length()) {
-			    donwload.parents("tr").hide();
-			}
+			donwload.parents("tr").hide();
 		}
 	}
     jQuery("input.analytic-storage-class").click(function() {
@@ -146,6 +142,21 @@ add_action('admin_init', function () {
         'aesirx_analytics_plugin',
         'aesirx_analytics_settings'
     );
+  } else {
+      add_settings_field(
+          'aesirx_analytics_download',
+          __( 'CLI library check', 'aesirx-analytics' ),
+          function () {
+              try {
+                  process_analytics(['--version']);
+				  echo '<strong style="color: green" id="aesirx_analytics_download">' . __( 'Passed', 'aesirx-analytics' ) . '</strong>';
+              } catch (Throwable $e) {
+                  echo '<strong style="color: red" id="aesirx_analytics_download">' . __( 'You can\'t use internal server. Error: ' . $e->getMessage(), 'aesirx-analytics' ) . '</strong>';
+			  }
+          },
+          'aesirx_analytics_plugin',
+          'aesirx_analytics_settings'
+      );
   }
 
   add_settings_field(

@@ -11,7 +11,7 @@
  * Requires PHP: 7.2
  **/
 
-use AesirxAnalytics\Route\Middleware\IsBackendMiddlware;
+use AesirxAnalytics\Route\Middleware\IsBackendMiddleware;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 use Symfony\Component\Process\Process;
 use Pecee\SimpleRouter\SimpleRouter;
@@ -285,7 +285,7 @@ function analytics_url_handler()
     });
   });
 
-  SimpleRouter::group(['middleware' => IsBackendMiddlware::class], function () use (
+  SimpleRouter::group(['middleware' => IsBackendMiddleware::class], function () use (
     &$command,
     $requestUrlParams,
       $prefix
@@ -353,34 +353,33 @@ function analytics_url_handler()
 
   try {
     SimpleRouter::start();
+
+      if (is_null($command)) {
+          return;
+      }
+
+      $process = process_analytics($command);
+
+      if ($process->isSuccessful()) {
+          echo $process->getOutput();
+      } else {
+          $err = $process->getErrorOutput();
+
+          $encoded = json_decode($err);
+
+          if (json_last_error() === JSON_ERROR_NONE) {
+              throw new Exception($err);
+          } else {
+              throw new Exception($encoded);
+          }
+      }
   } catch (Throwable $e) {
     if ($e instanceof NotFoundHttpException) {
       return;
     }
 
-    echo json_encode(['error' => $e->getMessage()]);
-    die();
-  }
-
-  if (is_null($command)) {
-    return;
-  }
-
-  $process = process_analytics($command);
-
-  if ($process->isSuccessful()) {
-    echo $process->getOutput();
-  } else {
-    $err = $process->getErrorOutput();
-
-    json_decode($err);
     http_response_code(500);
-
-    if (json_last_error() === JSON_ERROR_NONE) {
-      echo $err;
-    } else {
-      echo json_encode($err);
-    }
+    echo json_encode(['error' => $e->getMessage()]);
   }
 
   die();
