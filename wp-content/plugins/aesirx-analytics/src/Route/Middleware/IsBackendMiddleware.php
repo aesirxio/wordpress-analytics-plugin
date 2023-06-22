@@ -5,7 +5,7 @@ use Pecee\Http\Middleware\IMiddleware;
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\HttpException;
 
-class IsBackendMiddlware implements IMiddleware
+class IsBackendMiddleware implements IMiddleware
 {
   /**
    * @param Request $request
@@ -13,7 +13,7 @@ class IsBackendMiddlware implements IMiddleware
   public function handle(Request $request): void
   {
     if (!current_user_can('administrator')) {
-      throw new HttpException('Permission denied!', 403);
+      throw new HttpException(__('Permission denied!', 'aesirx-analytics'), 403);
     }
   }
 }

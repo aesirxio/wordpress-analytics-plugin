@@ -11,7 +11,7 @@
  * Requires PHP: 7.2
  **/
 
-use AesirxAnalytics\Route\Middleware\IsBackendMiddlware;
+use AesirxAnalytics\Route\Middleware\IsBackendMiddleware;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 use Symfony\Component\Process\Process;
 use Pecee\SimpleRouter\SimpleRouter;
@@ -284,7 +284,7 @@ function analytics_url_handler()
     });
   });
 
-  SimpleRouter::group(['middleware' => IsBackendMiddlware::class], function () use (
+  SimpleRouter::group(['middleware' => IsBackendMiddleware::class], function () use (
     &$command,
     $requestUrlParams,
       $prefix
