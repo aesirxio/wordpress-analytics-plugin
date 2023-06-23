@@ -10,6 +10,11 @@ WordPress plugin for tracking and storing the tracking data
 WordPress plugin for tracking and storing the tracking data
 
 == Changelog ==
+
+= 2.1.1 =
+* Fix CLI
+* Update BI app
+
 = 2.1.0 =
 * UTM, Event Generator
 * Export PDF Views

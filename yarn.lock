@@ -894,10 +894,10 @@ aesirx-analytics@^1.1.4:
     query-string "^7.1.1"
     react "^18.2.0"
 
-aesirx-bi-app@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/aesirx-bi-app/-/aesirx-bi-app-1.2.0.tgz#359856579f844c647d5859a2dec231b1e511f634"
-  integrity sha512-f3gYKpQn9Nh5gMaNnXKXKD+gU1On40oW2Qqgwl/KQjECROjeqb1KQXwcfOnsaX/udIoxLP83SgvS77HuMkWjRg==
+aesirx-bi-app@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/aesirx-bi-app/-/aesirx-bi-app-1.2.1.tgz#4a7fd5bb3d00a99e597726ae2e2fc0c00fdd6172"
+  integrity sha512-JU9yvp7K9ZZcWrgd3F2RFh8djuPIn1pxcXyE3Xy21CiJcvEXsNQ2G0XjnA3qQzFivE0smIliZtQ+IHk3Zm2WXw==
   dependencies:
     "@fortawesome/fontawesome-svg-core" "^6.4.0"
     "@fortawesome/free-solid-svg-icons" "^6.4.0"

@@ -1,6 +1,6 @@
 {
   "name": "aesirx_analytics",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "analytics via aesirx",
   "private": true,
   "scripts": {
@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "aesirx-analytics": "^1.1.4",
-    "aesirx-bi-app": "^1.2.0",
+    "aesirx-bi-app": "^1.2.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-spinners": "^0.13.8"
