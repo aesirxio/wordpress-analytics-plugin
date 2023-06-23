@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react';
-import 'aesirx-bi-app/dist/index.css';
+
 import './app.scss';
 import Spinner from './Spinner';
 
