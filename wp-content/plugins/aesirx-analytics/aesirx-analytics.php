@@ -231,6 +231,43 @@ function analytics_url_handler()
   $requestUrlParams = $request->getUrl()->getParams();
   $command = null;
 
+  SimpleRouter::post($prefix . '/wallet/v1/{network}/{address}/nonce', function ($network, $address) use (&$command, $requestBody) {
+      $command = array_merge(
+          ['wallet', 'v1', 'nonce'],
+          apply_if_not_empty($requestBody, [
+              'network' => $network,
+              'address' => $address,
+          ])
+      );
+  });
+
+    SimpleRouter::group(['prefix' => $prefix . '/consent/v1'], function () use (
+        &$command,
+        $requestBody
+    ) {
+        SimpleRouter::post('/level1/{uuid}/{consent}', function ($uuid, $consent) use (&$command) {
+            $command = ['consent', 'level1', 'v1', '--uuid', $uuid, '--consent', $consent];
+        });
+        SimpleRouter::post('/level3/{uuid}/{network}/{wallet}', function ($uuid, $network, $wallet) use (&$command, $requestBody) {
+            $command = array_merge(
+                ['consent', 'level3', 'v1', '--visitor-uuid', $uuid, '--network', $network, '--wallet', $wallet],
+                apply_if_not_empty($requestBody, [
+                    'consent' => 'consent',
+                    'signature' => 'signature',
+                ])
+            );
+        });
+        SimpleRouter::post('/level4/{uuid}/{network}/{web3id}/{wallet}', function ($uuid, $network, $web3id, $wallet) use (&$command, $requestBody) {
+            $command = array_merge(
+                ['consent', 'level2', 'v1', '--visitor-uuid', $uuid, '--network', $network, '--wallet', $wallet, '--web3id', $web3id],
+                apply_if_not_empty($requestBody, [
+                    'consent' => 'consent',
+                    'signature' => 'signature',
+                ])
+            );
+        });
+    });
+
   SimpleRouter::group(['prefix' => $prefix . '/visitor/v1'], function () use (
     &$command,
     $requestBody,
@@ -282,6 +319,9 @@ function analytics_url_handler()
       ];
       $command = array_merge($command, apply_if_not_empty($requestBody, $fields));
     });
+      SimpleRouter::get('/{uuid}', function ($uuid) use (&$command, $requestBody) {
+          $command = ['ge', 'visitor', 'v1', '--uuid', $uuid];
+      });
   });
 
   SimpleRouter::group(['middleware' => IsBackendMiddlware::class], function () use (
