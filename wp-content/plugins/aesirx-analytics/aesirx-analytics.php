@@ -233,10 +233,9 @@ function analytics_url_handler()
 
   SimpleRouter::post($prefix . '/wallet/v1/{network}/{address}/nonce', function ($network, $address) use (&$command, $requestBody) {
       $command = array_merge(
-          ['wallet', 'v1', 'nonce'],
+          ['wallet', 'v1', 'nonce', '--network', $network, '--address', $address],
           apply_if_not_empty($requestBody, [
-              'network' => $network,
-              'address' => $address,
+              'text' => 'text',
           ])
       );
   });
