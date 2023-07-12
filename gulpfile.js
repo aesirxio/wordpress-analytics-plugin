@@ -77,5 +77,8 @@ exports.watch = function () {
   dist = process.env.WWW;
   process.env.DIST = dist;
   watch('./assets/**', series(webpackBIAppWatch));
-  watch('./wp-content/plugins/aesirx-analytics/**', series(movePluginFolderTask, composerTask));
+  watch(
+    './wp-content/plugins/aesirx-analytics/**',
+    series(movePluginFolderTask, moveAnalyticJSTask, composerTask)
+  );
 };

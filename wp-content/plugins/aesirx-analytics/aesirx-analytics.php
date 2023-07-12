@@ -44,7 +44,7 @@ function analytics_config_is_ok(string $isStorage = null): bool {
 
 if (analytics_config_is_ok()) {
     add_action('wp_enqueue_scripts', function (): void {
-        wp_register_script('aesirx-analytics', plugins_url('assets/js/analytics.js', __FILE__));
+        wp_register_script('aesirx-analytics', plugins_url('assets/js/analytics.js', __FILE__), [], true, true);
         wp_enqueue_script('aesirx-analytics');
 
         $options = get_option('aesirx_analytics_plugin_options');
