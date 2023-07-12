@@ -44,7 +44,7 @@ msgstr "Il y a eu un problème avec l’API de l’extension."
 msgid "This theme requires the following plugin: %1$s."
 msgid_plural "This theme requires the following plugins: %1$s."
 msgstr[0] "Ce thème nécessite l’extension suivante : %1$s."
-msgstr[1] "Ce thème nécessite les extensions suivante : %1$s."
+msgstr[1] "Ce thème nécessite les extensions suivantes : %1$s."
 
 #. translators: 1: plugin name(s).
 #: class-tgm-plugin-activation.php:349
@@ -64,7 +64,7 @@ msgid_plural ""
 "The following plugins need to be updated to their latest version to ensure "
 "maximum compatibility with this theme: %1$s."
 msgstr[0] ""
-"L’extension suivante doit être mis à jour vers sa dernière version afin "
+"L’extension suivante doit être mise à jour vers sa dernière version afin "
 "d’assurer une compatibilité maximale avec ce thème : %1$s."
 msgstr[1] ""
 "Les extensions suivantes doivent être mises à jour vers leurs dernières "
@@ -75,9 +75,9 @@ msgstr[1] ""
 #, php-format
 msgid "There is an update available for: %1$s."
 msgid_plural "There are updates available for the following plugins: %1$s."
-msgstr[0] "Il y’a une mise à jour disponible pour : %1$s."
+msgstr[0] "Il existe une mise à jour disponible pour : %1$s."
 msgstr[1] ""
-"Il y’a des mises à jour disponibles pour les extensions suivantes : %1$s."
+"Il existe des mises à jour disponibles pour les extensions suivantes : %1$s."
 
 #. translators: 1: plugin name(s).
 #: class-tgm-plugin-activation.php:367
@@ -138,7 +138,7 @@ msgstr[1] "Les extensions suivantes ont été activées avec succès :"
 #: class-tgm-plugin-activation.php:397
 #, php-format
 msgid "No action taken. Plugin %1$s was already active."
-msgstr "Aucune mesure prise. L’extension %1$s était déjà active."
+msgstr "Aucune action requise. L’extension %1$s était déjà active."
 
 #. translators: 1: plugin name.
 #: class-tgm-plugin-activation.php:399
