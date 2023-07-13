@@ -11,6 +11,7 @@
  * Requires PHP: 7.2
  **/
 
+use AesirxAnalytics\Exception\ExceptionWithResponseCode;
 use AesirxAnalytics\Route\Middleware\IsBackendMiddleware;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 use Symfony\Component\Process\Process;
@@ -319,9 +320,6 @@ function analytics_url_handler()
       ];
       $command = array_merge($command, apply_if_not_empty($requestBody, $fields));
     });
-      SimpleRouter::get('/{uuid}', function ($uuid) use (&$command, $requestBody) {
-          $command = ['ge', 'visitor', 'v1', '--uuid', $uuid];
-      });
   });
 
   SimpleRouter::group(['middleware' => IsBackendMiddleware::class], function () use (
@@ -390,6 +388,10 @@ function analytics_url_handler()
     }
   });
 
+    SimpleRouter::get($prefix . '/visitor/v1/{uuid}', function ($uuid) use (&$command, $requestBody) {
+        $command = ['get', 'visitor', 'v1', '--uuid', $uuid];
+    });
+
   try {
     SimpleRouter::start();
 
@@ -400,25 +402,60 @@ function analytics_url_handler()
       $process = process_analytics($command);
 
       if ($process->isSuccessful()) {
+          if (!headers_sent()) {
+              header( 'Content-Type: application/json; charset=utf-8' );
+          }
           echo $process->getOutput();
       } else {
           $err = $process->getErrorOutput();
 
-          $encoded = json_decode($err);
+          $decoded = json_decode($err);
 
-          if (json_last_error() === JSON_ERROR_NONE) {
-              throw new Exception($err);
-          } else {
-              throw new Exception($encoded);
+          if (json_last_error() === JSON_ERROR_NONE
+            && $process->getExitCode() == 65) {
+              $message = $err;
+              if (!empty($decoded->message))
+              {
+                  $message = $decoded->message;
+              }
+              switch ($decoded->error_type ?? null)
+              {
+                  case "NotFoundError":
+                      $code = 404;
+                      break;
+                  case "ValidationError":
+                      $code = 400;
+                      break;
+                  case "Rejected":
+                      $code = 406;
+                      break;
+                  default:
+                      $code = 500;
+              }
+              throw new ExceptionWithResponseCode($message, $code);
           }
+
+          throw new ExceptionWithResponseCode($err, 500);
       }
   } catch (Throwable $e) {
     if ($e instanceof NotFoundHttpException) {
       return;
     }
 
-    http_response_code(500);
-    echo json_encode(['error' => $e->getMessage()]);
+    if ($e instanceof ExceptionWithResponseCode) {
+        $code = $e->getResponseCode();
+    } else {
+        $code = 500;
+    }
+
+      if (!headers_sent()) {
+          header( 'Content-Type: application/json; charset=utf-8' );
+      }
+    http_response_code($code);
+    echo json_encode([
+        'error' => $e->getMessage(),
+        'command' => $command,
+    ]);
   }
 
   die();
