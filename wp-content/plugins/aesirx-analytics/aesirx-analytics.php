@@ -232,6 +232,7 @@ function analytics_url_handler()
   $requestBody = json_decode(file_get_contents('php://input'), true);
   $requestUrlParams = $request->getUrl()->getParams();
   $command = null;
+  $uuidMatch = '[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}';
 
   SimpleRouter::post($prefix . '/wallet/v1/{network}/{address}/nonce', function ($network, $address) use (&$command, $requestBody) {
       $command = array_merge(
@@ -244,11 +245,12 @@ function analytics_url_handler()
 
     SimpleRouter::group(['prefix' => $prefix . '/consent/v1'], function () use (
         &$command,
-        $requestBody
+        $requestBody,
+        $uuidMatch
     ) {
         SimpleRouter::post('/level1/{uuid}/{consent}', function ($uuid, $consent) use (&$command) {
             $command = ['consent', 'level1', 'v1', '--uuid', $uuid, '--consent', $consent];
-        });
+        })->where(['uuid' => $uuidMatch]);
         SimpleRouter::post('/level3/{uuid}/{network}/{wallet}', function ($uuid, $network, $wallet) use (&$command, $requestBody) {
             $command = array_merge(
                 ['consent', 'level3', 'v1', '--visitor-uuid', $uuid, '--network', $network, '--wallet', $wallet],
@@ -257,22 +259,26 @@ function analytics_url_handler()
                     'signature' => 'signature',
                 ])
             );
-        });
+        })->where(['uuid' => $uuidMatch]);
         SimpleRouter::post('/level4/{uuid}/{network}/{web3id}/{wallet}', function ($uuid, $network, $web3id, $wallet) use (&$command, $requestBody) {
             $command = array_merge(
-                ['consent', 'level2', 'v1', '--visitor-uuid', $uuid, '--network', $network, '--wallet', $wallet, '--web3id', $web3id],
+                ['consent', 'level4', 'v1', '--visitor-uuid', $uuid, '--network', $network, '--wallet', $wallet, '--web3id', $web3id],
                 apply_if_not_empty($requestBody, [
                     'consent' => 'consent',
                     'signature' => 'signature',
                 ])
             );
-        });
+        })->where([
+            'uuid' => $uuidMatch,
+            'web3id' => '[\@\w-]+',
+        ]);
     });
 
   SimpleRouter::group(['prefix' => $prefix . '/visitor/v1'], function () use (
     &$command,
     $requestBody,
-    $request
+    $request,
+      $uuidMatch
   ) {
     SimpleRouter::post('/init', function () use (&$command, $requestBody, $request) {
       $command = [
@@ -320,12 +326,17 @@ function analytics_url_handler()
       ];
       $command = array_merge($command, apply_if_not_empty($requestBody, $fields));
     });
+
+      SimpleRouter::get('/{uuid}', function ($uuid) use (&$command, $requestBody) {
+          $command = ['get', 'visitor', 'v1', '--uuid', $uuid];
+      })->where(['uuid' => $uuidMatch]);
   });
 
   SimpleRouter::group(['middleware' => IsBackendMiddleware::class], function () use (
     &$command,
     $requestUrlParams,
-      $prefix
+      $prefix,
+      $uuidMatch
   ) {
     SimpleRouter::get($prefix . '/flow/v1/{flow_uuid}', function (string $flowUuid) use (
       &$command,
@@ -333,7 +344,7 @@ function analytics_url_handler()
     ) {
       $command = ['get', 'flow', 'v1', $flowUuid];
       $command = array_merge($command, apply_if_not_empty($requestUrlParams, ['with' => 'with']));
-    });
+    })->where(['flow_uuid' => $uuidMatch]);
     SimpleRouter::get($prefix . '/flow/v1/{start_date}/{end_date}', function (
       string $start,
       string $end
@@ -388,11 +399,8 @@ function analytics_url_handler()
     }
   });
 
-    SimpleRouter::get($prefix . '/visitor/v1/{uuid}', function ($uuid) use (&$command, $requestBody) {
-        $command = ['get', 'visitor', 'v1', '--uuid', $uuid];
-    });
-
   try {
+      SimpleRouter::enableMultiRouteRendering(false);
     SimpleRouter::start();
 
       if (is_null($command)) {
@@ -454,7 +462,6 @@ function analytics_url_handler()
     http_response_code($code);
     echo json_encode([
         'error' => $e->getMessage(),
-        'command' => $command,
     ]);
   }
 
