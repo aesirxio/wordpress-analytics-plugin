@@ -12,15 +12,9 @@
  **/
 
 use AesirxAnalytics\Exception\ExceptionWithResponseCode;
-use AesirxAnalytics\Route\Middleware\IsBackendMiddleware;
 use AesirxAnalytics\RouterFactory;
-use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
-use Pecee\SimpleRouter\Route\RouteGroup;
-use Pecee\SimpleRouter\Route\RouteUrl;
-use Pecee\SimpleRouter\Router;
 use Symfony\Component\Process\Process;
-use Pecee\SimpleRouter\SimpleRouter;
 
 require_once WP_PLUGIN_DIR . '/aesirx-analytics/vendor/autoload.php';
 require_once 'includes/settings.php';
