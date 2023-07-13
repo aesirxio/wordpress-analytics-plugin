@@ -3,7 +3,7 @@
  * Plugin Name: AesirX Analytics
  * Plugin URI: https://analytics.aesirx.io?utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics
  * Description: Aesirx analytics plugin. When you join forces with AesirX, you're not just becoming a Partner - you're also becoming a freedom fighter in the battle for privacy! Earn 25% Affiliate Commission <a href="https://aesirx.io/seed-round?utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics">[Click to Join]</a>
- * Version: 2.1.0
+ * Version: 2.1.1
  * Author: aesirx.io
  * Author URI: https://aesirx.io/
  * Domain Path: /languages
@@ -11,7 +11,7 @@
  * Requires PHP: 7.2
  **/
 
-use AesirxAnalytics\Route\Middleware\IsBackendMiddlware;
+use AesirxAnalytics\Route\Middleware\IsBackendMiddleware;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 use Symfony\Component\Process\Process;
 use Pecee\SimpleRouter\SimpleRouter;
@@ -44,7 +44,7 @@ function analytics_config_is_ok(string $isStorage = null): bool {
 
 if (analytics_config_is_ok()) {
     add_action('wp_enqueue_scripts', function (): void {
-        wp_register_script('aesirx-analytics', plugins_url('assets/js/analytics.js', __FILE__));
+        wp_register_script('aesirx-analytics', plugins_url('assets/js/analytics.js', __FILE__), [], true, true);
         wp_enqueue_script('aesirx-analytics');
 
         $options = get_option('aesirx_analytics_plugin_options');
@@ -177,14 +177,15 @@ function apply_list_params(): array
         }
         break;
       case 'filter':
+      case 'filter_not':
         foreach ($values as $keyValue => $value) {
           if (is_iterable($value)) {
             foreach ($value as $v) {
-              $command[] = '--filter';
+              $command[] = '--' . $converterKey;
               $command[] = $keyValue . '[]=' . $v;
             }
           } else {
-            $command[] = '--filter';
+            $command[] = '--' . $converterKey;
             $command[] = $keyValue . '=' . $value;
           }
         }
@@ -323,7 +324,7 @@ function analytics_url_handler()
       });
   });
 
-  SimpleRouter::group(['middleware' => IsBackendMiddlware::class], function () use (
+  SimpleRouter::group(['middleware' => IsBackendMiddleware::class], function () use (
     &$command,
     $requestUrlParams,
       $prefix
@@ -372,6 +373,7 @@ function analytics_url_handler()
         'attribute',
         'events',
         'events-name-type',
+        'attribute-date',
       ]
       as $statistic
     ) {
@@ -390,34 +392,33 @@ function analytics_url_handler()
 
   try {
     SimpleRouter::start();
+
+      if (is_null($command)) {
+          return;
+      }
+
+      $process = process_analytics($command);
+
+      if ($process->isSuccessful()) {
+          echo $process->getOutput();
+      } else {
+          $err = $process->getErrorOutput();
+
+          $encoded = json_decode($err);
+
+          if (json_last_error() === JSON_ERROR_NONE) {
+              throw new Exception($err);
+          } else {
+              throw new Exception($encoded);
+          }
+      }
   } catch (Throwable $e) {
     if ($e instanceof NotFoundHttpException) {
       return;
     }
 
-    echo json_encode(['error' => $e->getMessage()]);
-    die();
-  }
-
-  if (is_null($command)) {
-    return;
-  }
-
-  $process = process_analytics($command);
-
-  if ($process->isSuccessful()) {
-    echo $process->getOutput();
-  } else {
-    $err = $process->getErrorOutput();
-
-    json_decode($err);
     http_response_code(500);
-
-    if (json_last_error() === JSON_ERROR_NONE) {
-      echo $err;
-    } else {
-      echo json_encode($err);
-    }
+    echo json_encode(['error' => $e->getMessage()]);
   }
 
   die();

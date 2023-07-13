@@ -1,21 +1,21 @@
 # Copyright (C) 2023 aesirx.io
-# This file is distributed under the same license as the aesirx-analytics plugin.
+# This file is distributed under the same license as the AesirX Analytics plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: aesirx-analytics 2.1.0\n"
+"Project-Id-Version: AesirX Analytics 2.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aesirx-analytics\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-05-15T08:50:18+00:00\n"
+"POT-Creation-Date: 2023-06-22T08:20:33+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.7.1\n"
 "X-Domain: aesirx-analytics\n"
 
 #. Plugin Name of the plugin
-msgid "aesirx-analytics"
+msgid "AesirX Analytics"
 msgstr ""
 
 #. Plugin URI of the plugin
@@ -60,58 +60,58 @@ msgstr ""
 msgid "Invalid domain format."
 msgstr ""
 
-#. translators: %s: URL to aesir.io
-#: includes/settings.php:50
-msgid "When you join forces with AesirX, you are not just becoming a Partner - you are also becoming a freedom fighter in the battle for privacy! Earn 25%% Affiliate Commission <a href=\"%s\">[Click to Join]</a>"
-msgstr ""
-
-#: includes/settings.php:55
-msgid "Here you can set all the options for using the aesirx analytics"
-msgstr ""
-
 #. translators: %s: URL to aesir.io read mor details
-#: includes/settings.php:58
+#: includes/settings.php:51
 msgid ""
 "<p>Read more detail at <a target=\"_blank\" href=\"%s\">%s</a></p><p class= \"description\">\r\n"
-"        <h3>Note: Please set Permalink structure is NOT plain.</h3></p>"
+"        <p>Note: Please set Permalink structure is NOT plain.</p></p>"
 msgstr ""
 
-#: includes/settings.php:66
+#: includes/settings.php:59
 msgid "1st party server"
 msgstr ""
 
-#: includes/settings.php:72
+#: includes/settings.php:65
 msgid "Internal"
 msgstr ""
 
-#: includes/settings.php:75
+#: includes/settings.php:68
 msgid "External"
 msgstr ""
 
-#: includes/settings.php:112
+#: includes/settings.php:111
 msgid "domain <i>(Use next format: http://example.com:1000/)</i>"
 msgstr ""
 
 #. translators: %s: URL to aesir.io
-#: includes/settings.php:120
+#: includes/settings.php:119
 msgid ""
 "<p class= 'description'>\r\n"
 "\t\tYou can setup 1st party server at <a target='_blank' href='%s'>%s</a>.</p>"
 msgstr ""
 
-#: includes/settings.php:130
+#: includes/settings.php:129
 msgid "Download"
 msgstr ""
 
-#: includes/settings.php:135
+#: includes/settings.php:134
 msgid "Click to download CLI library! This plugin can't work without the library!"
 msgstr ""
 
-#: includes/settings.php:140
+#: includes/settings.php:139
+#: includes/settings.php:154
 msgid "You can't use internal server. Error: "
 msgstr ""
 
-#: includes/settings.php:150
+#: includes/settings.php:148
+msgid "CLI library check"
+msgstr ""
+
+#: includes/settings.php:152
+msgid "Passed"
+msgstr ""
+
+#: includes/settings.php:164
 msgid "License"
 msgstr ""
 
@@ -121,15 +121,19 @@ msgid "Aesirx Analytics"
 msgstr ""
 
 #. translators: 1: plugin name(s).
-#: includes/settings.php:289
+#: includes/settings.php:292
 msgid "This plugin requires the following plugin: %1$s."
 msgid_plural "This plugin requires the following plugins: %1$s."
 msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: plugin name(s).
-#: includes/settings.php:295
+#: includes/settings.php:298
 msgid "The following required plugin is currently inactive: %1$s."
 msgid_plural "The following required plugins are currently inactive: %1$s."
 msgstr[0] ""
 msgstr[1] ""
+
+#: src/Route/Middleware/IsBackendMiddleware.php:16
+msgid "Permission denied!"
+msgstr ""
