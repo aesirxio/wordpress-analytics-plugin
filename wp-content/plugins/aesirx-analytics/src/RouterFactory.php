@@ -86,56 +86,212 @@ class RouterFactory {
                             } ) )
                                 ->setRequestMethods( [ Request::REQUEST_TYPE_POST ] )
                         );
+
                         $this->router->addRoute(
-                            ( new RouteUrl( '/level3/{uuid}/{network}/{wallet}', function ( string $uuid, string $network, string $wallet ) {
-                                return call_user_func( $this->callback, array_merge(
-                                    [
-                                        'consent',
-                                        'level3',
-                                        'v1',
-                                        '--visitor-uuid',
-                                        $uuid,
-                                        '--network',
-                                        $network,
-                                        '--wallet',
-                                        $wallet
-                                    ],
-                                    $this->apply_if_not_empty( $this->requestBody, [
-                                        'consent'   => 'consent',
-                                        'signature' => 'signature',
-                                    ] )
-                                ) );
-                            } ) )
-                                ->setWhere( [ 'uuid' => $this->uuidMatch ] )
-                                ->setRequestMethods( [ Request::REQUEST_TYPE_POST ] )
+                            ( new RouteGroup )
+                                ->setSettings( [ 'prefix' => '/level2' ] )
+                                ->setCallback(
+                                    function () {
+                                        $this->router->addRoute(
+                                            ( new RouteUrl( '/list', function () {
+                                                return call_user_func( $this->callback, [
+                                                    'list-consent',
+                                                    'level2',
+                                                    'v1',
+                                                    '--token',
+                                                    $this->getToken(),
+                                                ] );
+                                            } ) )
+                                                ->setRequestMethods( [ Request::REQUEST_TYPE_GET ] )
+                                        );
+                                        $this->router->addRoute(
+                                            ( new RouteUrl( '/revoke/{consent_uuid}', function ( string $consent_uuid ) {
+                                                return call_user_func( $this->callback, [
+                                                    'revoke',
+                                                    'level2',
+                                                    'v1',
+                                                    '--consent-uuid',
+                                                    $consent_uuid,
+                                                    '--token',
+                                                    $this->getToken(),
+                                                ] );
+                                            } ) )
+                                                ->setWhere( [ 'consent_uuid' => $this->uuidMatch ] )
+                                                ->setRequestMethods( [ Request::REQUEST_TYPE_PUT ] )
+                                        );
+                                        $this->router->addRoute(
+                                            ( new RouteUrl( '/{uuid}', function ( string $uuid ) {
+                                                return call_user_func( $this->callback, array_merge( [
+                                                    'consent',
+                                                    'level2',
+                                                    'v1',
+                                                    '--uuid',
+                                                    $uuid,
+                                                    '--token',
+                                                    $this->getToken(),
+                                                ],
+                                                    $this->apply_if_not_empty( $this->requestBody, [
+                                                        'consent' => 'consent',
+                                                    ] ) ) );
+                                            } ) )
+                                                ->setWhere( [ 'uuid' => $this->uuidMatch ] )
+                                                ->setRequestMethods( [ Request::REQUEST_TYPE_POST ] )
+                                        );
+
+                                    } )
                         );
+
                         $this->router->addRoute(
-                            ( new RouteUrl( '/level4/{uuid}/{network}/{web3id}/{wallet}', function ( string $uuid, string $network, string $web3id, string $wallet ) {
-                                return call_user_func( $this->callback, array_merge(
-                                    [
-                                        'consent',
-                                        'level4',
-                                        'v1',
-                                        '--visitor-uuid',
-                                        $uuid,
-                                        '--network',
-                                        $network,
-                                        '--wallet',
-                                        $wallet,
-                                        '--web3id',
-                                        $web3id
-                                    ],
-                                    $this->apply_if_not_empty( $this->requestBody, [
-                                        'consent'   => 'consent',
-                                        'signature' => 'signature',
-                                    ] )
-                                ) );
-                            } ) )
-                                ->setWhere( [
-                                    'uuid'   => $this->uuidMatch,
-                                    'web3id' => '[\@\w-]+',
-                                ] )
-                                ->setRequestMethods( [ Request::REQUEST_TYPE_POST ] )
+                            ( new RouteGroup )
+                                ->setSettings( [ 'prefix' => '/level3' ] )
+                                ->setCallback(
+                                    function () {
+                                        $this->router->addRoute(
+                                            ( new RouteUrl( '/list/{network}/{wallet}', function ( string $network, string $wallet ) {
+                                                return call_user_func( $this->callback, array_merge( [
+                                                    'list-consent',
+                                                    'level3',
+                                                    'v1',
+                                                    '--network',
+                                                    $network,
+                                                    '--wallet',
+                                                    $wallet,
+                                                ], $this->apply_if_not_empty( $this->requestBody, [
+                                                    'signature' => 'signature',
+                                                ] ) ) );
+                                            } ) )
+                                                ->setRequestMethods( [ Request::REQUEST_TYPE_GET ] )
+                                        );
+                                        $this->router->addRoute(
+                                            ( new RouteUrl( '/revoke/{consent_uuid}/{network}/{wallet}', function ( string $consent_uuid, string $network, string $wallet ) {
+                                                return call_user_func( $this->callback, array_merge(
+                                                    [
+                                                        'revoke',
+                                                        'level3',
+                                                        'v1',
+                                                        '--consent-uuid',
+                                                        $consent_uuid,
+                                                        '--network',
+                                                        $network,
+                                                        '--wallet',
+                                                        $wallet,
+                                                    ],
+                                                    $this->apply_if_not_empty( $this->requestBody, [
+                                                        'signature' => 'signature',
+                                                    ] )
+                                                ) );
+                                            } ) )
+                                                ->setWhere( [ 'consent_uuid' => $this->uuidMatch ] )
+                                                ->setRequestMethods( [ Request::REQUEST_TYPE_PUT ] )
+                                        );
+                                        $this->router->addRoute(
+                                            ( new RouteUrl( '/{uuid}/{network}/{wallet}', function ( string $uuid, string $network, string $wallet ) {
+                                                return call_user_func( $this->callback, array_merge(
+                                                    [
+                                                        'consent',
+                                                        'level3',
+                                                        'v1',
+                                                        '--visitor-uuid',
+                                                        $uuid,
+                                                        '--network',
+                                                        $network,
+                                                        '--wallet',
+                                                        $wallet
+                                                    ],
+                                                    $this->apply_if_not_empty( $this->requestBody, [
+                                                        'consent'   => 'consent',
+                                                        'signature' => 'signature',
+                                                    ] )
+                                                ) );
+                                            } ) )
+                                                ->setWhere( [ 'uuid' => $this->uuidMatch ] )
+                                                ->setRequestMethods( [ Request::REQUEST_TYPE_POST ] )
+                                        );
+                                    } )
+                        );
+
+                        $this->router->addRoute(
+                            ( new RouteGroup )
+                                ->setSettings( [ 'prefix' => '/level4' ] )
+                                ->setCallback(
+                                    function () {
+                                        $this->router->addRoute(
+                                            ( new RouteUrl( '/list/{network}/{web3id}/{wallet}', function ( string $network, string $web3id, string $wallet ) {
+                                                return call_user_func( $this->callback, array_merge( [
+                                                    'list-consent',
+                                                    'level4',
+                                                    'v1',
+                                                    '--network',
+                                                    $network,
+                                                    '--wallet',
+                                                    $wallet,
+                                                    '--web3id',
+                                                    $web3id,
+                                                ], $this->apply_if_not_empty( $this->requestBody, [
+                                                    'signature' => 'signature',
+                                                ] ) ) );
+                                            } ) )
+                                                ->setWhere( [
+                                                    'web3id' => '[\@\w-]+',
+                                                ] )
+                                                ->setRequestMethods( [ Request::REQUEST_TYPE_GET ] )
+                                        );
+                                        $this->router->addRoute(
+                                            ( new RouteUrl( '/revoke/{consent_uuid}/{network}/{web3id}/{wallet}', function ( string $consent_uuid, string $network, string $web3id, string $wallet ) {
+                                                return call_user_func( $this->callback, array_merge(
+                                                    [
+                                                        'revoke',
+                                                        'level4',
+                                                        'v1',
+                                                        '--consent-uuid',
+                                                        $consent_uuid,
+                                                        '--network',
+                                                        $network,
+                                                        '--wallet',
+                                                        $wallet,
+                                                        '--web3id',
+                                                        $web3id,
+                                                    ],
+                                                    $this->apply_if_not_empty( $this->requestBody, [
+                                                        'signature' => 'signature',
+                                                    ] )
+                                                ) );
+                                            } ) )
+                                                ->setWhere( [
+                                                    'consent_uuid' => $this->uuidMatch,
+                                                    'web3id'       => '[\@\w-]+',
+                                                ] )
+                                                ->setRequestMethods( [ Request::REQUEST_TYPE_PUT ] )
+                                        );
+                                        $this->router->addRoute(
+                                            ( new RouteUrl( '/{uuid}/{network}/{web3id}/{wallet}', function ( string $uuid, string $network, string $web3id, string $wallet ) {
+                                                return call_user_func( $this->callback, array_merge(
+                                                    [
+                                                        'consent',
+                                                        'level4',
+                                                        'v1',
+                                                        '--visitor-uuid',
+                                                        $uuid,
+                                                        '--network',
+                                                        $network,
+                                                        '--wallet',
+                                                        $wallet,
+                                                        '--web3id',
+                                                        $web3id,
+                                                    ],
+                                                    $this->apply_if_not_empty( $this->requestBody, [
+                                                        'consent'   => 'consent',
+                                                        'signature' => 'signature',
+                                                    ] )
+                                                ) );
+                                            } ) )
+                                                ->setWhere( [
+                                                    'uuid'   => $this->uuidMatch,
+                                                    'web3id' => '[\@\w-]+',
+                                                ] )
+                                                ->setRequestMethods( [ Request::REQUEST_TYPE_POST ] )
+                                        );
+                                    } )
                         );
                     }
                 )
@@ -143,66 +299,108 @@ class RouterFactory {
 
         $this->router->addRoute(
             ( new RouteGroup )
-                ->setSettings( [ 'prefix' => '/visitor/v1' ] )
+                ->setSettings( [ 'prefix' => '/visitor' ] )
                 ->setCallback(
                     function () {
                         $this->router->addRoute(
-                            ( new RouteUrl( '/init', function () {
-                                return call_user_func( $this->callback, array_merge( [
-                                    'visitor',
-                                    'init',
-                                    'v1',
-                                    '--ip',
-                                    empty( $this->requestBody['ip'] ) ? $this->router->getRequest()->getIp() : $this->requestBody['ip'],
-                                ], $this->apply_if_not_empty( $this->requestBody, [
-                                    'user_agent'      => 'user-agent',
-                                    'device'          => 'device',
-                                    'browser_name'    => 'browser-name',
-                                    'browser_version' => 'browser-version',
-                                    'lang'            => 'lang',
-                                    'url'             => 'url',
-                                    'referer'         => 'referer',
-                                    'event_name'      => 'event-name',
-                                    'event_type'      => 'event-type',
-                                ] ), $this->apply_attributes() ) );
-                            } ) )
-                                ->setRequestMethods( [ Request::REQUEST_TYPE_POST ] )
+                            ( new RouteGroup )
+                                ->setSettings( [ 'prefix' => '/v1' ] )
+                                ->setCallback(
+                                    function () {
+                                        $this->router->addRoute(
+                                            ( new RouteUrl( '/init', function () {
+                                                return call_user_func( $this->callback, array_merge( [
+                                                    'visitor',
+                                                    'init',
+                                                    'v1',
+                                                    '--ip',
+                                                    empty( $this->requestBody['ip'] ) ? $this->router->getRequest()->getIp() : $this->requestBody['ip'],
+                                                ], $this->apply_if_not_empty( $this->requestBody, [
+                                                    'user_agent'      => 'user-agent',
+                                                    'device'          => 'device',
+                                                    'browser_name'    => 'browser-name',
+                                                    'browser_version' => 'browser-version',
+                                                    'lang'            => 'lang',
+                                                    'url'             => 'url',
+                                                    'referer'         => 'referer',
+                                                    'event_name'      => 'event-name',
+                                                    'event_type'      => 'event-type',
+                                                ] ), $this->apply_attributes() ) );
+                                            } ) )
+                                                ->setRequestMethods( [ Request::REQUEST_TYPE_POST ] )
+                                        );
+                                        $this->router->addRoute(
+                                            ( new RouteUrl( '/start', function () {
+                                                return call_user_func( $this->callback, array_merge(
+                                                    [ 'visitor', 'start', 'v1' ],
+                                                    $this->apply_if_not_empty( $this->requestBody, [
+                                                        'visitor_uuid' => 'visitor-uuid',
+                                                        'url'          => 'url',
+                                                        'referer'      => 'referer',
+                                                        'event_name'   => 'event-name',
+                                                        'event_type'   => 'event-type',
+                                                        'event_uuid'   => 'event-uuid',
+                                                    ] ),
+                                                    $this->apply_attributes()
+                                                ) );
+                                            } ) )
+                                                ->setRequestMethods( [ Request::REQUEST_TYPE_POST ] )
+                                        );
+                                        $this->router->addRoute(
+                                            ( new RouteUrl( '/end', function () {
+                                                return call_user_func( $this->callback, array_merge(
+                                                    [ 'visitor', 'end', 'v1' ],
+                                                    $this->apply_if_not_empty( $this->requestBody, [
+                                                        'visitor_uuid' => 'visitor-uuid',
+                                                        'event_uuid'   => 'event-uuid',
+                                                    ] )
+                                                ) );
+                                            } ) )
+                                                ->setRequestMethods( [ Request::REQUEST_TYPE_POST ] )
+                                        );
+                                        $this->router->addRoute(
+                                            ( new RouteUrl( '/{uuid}', function ( string $uuid ) {
+                                                return call_user_func( $this->callback, [
+                                                    'get',
+                                                    'visitor',
+                                                    'v1',
+                                                    '--uuid',
+                                                    $uuid
+                                                ] );
+                                            } ) )
+                                                ->setWhere( [ 'uuid' => $this->uuidMatch ] )
+                                                ->setRequestMethods( [ Request::REQUEST_TYPE_GET ] )
+                                        );
+                                    } )
                         );
                         $this->router->addRoute(
-                            ( new RouteUrl( '/start', function () {
-                                return call_user_func( $this->callback, array_merge(
-                                    [ 'visitor', 'start', 'v1' ],
-                                    $this->apply_if_not_empty( $this->requestBody, [
-                                        'visitor_uuid' => 'visitor-uuid',
-                                        'url'          => 'url',
-                                        'referer'      => 'referer',
-                                        'event_name'   => 'event-name',
-                                        'event_type'   => 'event-type',
-                                        'event_uuid'   => 'event-uuid',
-                                    ] ),
-                                    $this->apply_attributes()
-                                ) );
-                            } ) )
-                                ->setRequestMethods( [ Request::REQUEST_TYPE_POST ] )
-                        );
-                        $this->router->addRoute(
-                            ( new RouteUrl( '/end', function () {
-                                return call_user_func( $this->callback, array_merge(
-                                    [ 'visitor', 'end', 'v1' ],
-                                    $this->apply_if_not_empty( $this->requestBody, [
-                                        'visitor_uuid' => 'visitor-uuid',
-                                        'event_uuid'   => 'event-uuid',
-                                    ] )
-                                ) );
-                            } ) )
-                                ->setRequestMethods( [ Request::REQUEST_TYPE_POST ] )
-                        );
-                        $this->router->addRoute(
-                            ( new RouteUrl( '/{uuid}', function ( string $uuid ) {
-                                return call_user_func( $this->callback, [ 'get', 'visitor', 'v1', '--uuid', $uuid ] );
-                            } ) )
-                                ->setWhere( [ 'uuid' => $this->uuidMatch ] )
-                                ->setRequestMethods( [ Request::REQUEST_TYPE_GET ] )
+                            ( new RouteGroup )
+                                ->setSettings( [ 'prefix' => '/v2' ] )
+                                ->setCallback(
+                                    function () {
+                                        $this->router->addRoute(
+                                            ( new RouteUrl( '/start', function () {
+                                                return call_user_func( $this->callback, array_merge(
+                                                    [ 'visitor', 'start', 'v2' ],
+                                                    $this->apply_if_not_empty( $this->requestBody, [
+                                                        'fingerprint'     => 'fingerprint',
+                                                        'ip'              => 'ip',
+                                                        'user_agent'      => 'user-agent',
+                                                        'device'          => 'device',
+                                                        'browser_name'    => 'browser-name',
+                                                        'browser_version' => 'browser-version',
+                                                        'lang'            => 'lang',
+                                                        'url'             => 'url',
+                                                        'referer'         => 'referer',
+                                                        'event_name'      => 'event-name',
+                                                        'event_type'      => 'event-type',
+                                                    ] ),
+                                                    $this->apply_attributes()
+                                                ) );
+                                            } ) )
+                                                ->setRequestMethods( [ Request::REQUEST_TYPE_POST ] )
+                                        );
+                                    } )
                         );
                     }
                 )
@@ -283,6 +481,17 @@ class RouterFactory {
                     }
                 )
         );
+    }
+
+    private function getToken(): string {
+        $auth    = $this->router->getRequest()->getHeader( 'authorization', '' );
+        $matches = [];
+
+        if ( preg_match( '/Bearer\s(\S+)/', $auth, $matches ) ) {
+            return $matches[1];
+        }
+
+        return '';
     }
 
     private function apply_if_not_empty( array $request, array $fields ): array {
