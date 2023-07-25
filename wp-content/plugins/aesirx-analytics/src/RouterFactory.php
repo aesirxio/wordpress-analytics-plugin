@@ -156,9 +156,8 @@ class RouterFactory {
                                                     $network,
                                                     '--wallet',
                                                     $wallet,
-                                                ], $this->apply_if_not_empty( $this->requestBody, [
-                                                    'signature' => 'signature',
-                                                ] ) ) );
+                                                ], $this->apply_if_not_empty( $this->router->getRequest()->getUrl()->getParams(), [ 'signature' => 'signature' ] )
+                                                ) );
                                             } ) )
                                                 ->setRequestMethods( [ Request::REQUEST_TYPE_GET ] )
                                         );
@@ -227,7 +226,7 @@ class RouterFactory {
                                                     $wallet,
                                                     '--web3id',
                                                     $web3id,
-                                                ], $this->apply_if_not_empty( $this->requestBody, [
+                                                ], $this->apply_if_not_empty( $this->router->getRequest()->getUrl()->getParams(), [
                                                     'signature' => 'signature',
                                                 ] ) ) );
                                             } ) )
