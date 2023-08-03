@@ -11,10 +11,10 @@
  * Requires PHP: 7.2
  **/
 
-use AesirxAnalytics\Route\Middleware\IsBackendMiddleware;
+use AesirxAnalytics\Exception\ExceptionWithResponseCode;
+use AesirxAnalytics\RouterFactory;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 use Symfony\Component\Process\Process;
-use Pecee\SimpleRouter\SimpleRouter;
 
 require_once WP_PLUGIN_DIR . '/aesirx-analytics/vendor/autoload.php';
 require_once 'includes/settings.php';
@@ -134,83 +134,6 @@ add_filter('plugin_action_links_' . plugin_basename(__FILE__), function ($links)
   return $links;
 });
 
-function apply_if_not_empty(array $request = null, array $fields): array
-{
-  $command = [];
-
-  if (!empty($request)) {
-    foreach ($fields as $from => $to) {
-      if (array_key_exists($from, $request)) {
-        foreach ((array) $request[$from] as $one) {
-          $command[] = '--' . $to;
-          $command[] = $one;
-        }
-      }
-    }
-  }
-
-  return $command;
-}
-
-function apply_list_params(): array
-{
-  $command = [];
-  $params = SimpleRouter::request()
-    ->getUrl()
-    ->getParams();
-
-  foreach ($params as $key => $values) {
-    $converterKey = str_replace('_', '-', $key);
-
-    switch ($key) {
-      case 'page':
-      case 'page_size':
-        $command[] = '--' . $converterKey;
-        $command[] = $values;
-        break;
-      case 'sort':
-      case 'with':
-      case 'sort_direction':
-        foreach ($values as $value) {
-          $command[] = '--' . $converterKey;
-          $command[] = $value;
-        }
-        break;
-      case 'filter':
-      case 'filter_not':
-        foreach ($values as $keyValue => $value) {
-          if (is_iterable($value)) {
-            foreach ($value as $v) {
-              $command[] = '--' . $converterKey;
-              $command[] = $keyValue . '[]=' . $v;
-            }
-          } else {
-            $command[] = '--' . $converterKey;
-            $command[] = $keyValue . '=' . $value;
-          }
-        }
-
-        break;
-    }
-  }
-
-  return $command;
-}
-
-function apply_attributes(array $request): array
-{
-  $command = [];
-
-  if (!empty($request['attributes'] ?? [])) {
-    foreach ($request['attributes'] as $name => $value) {
-      $command[] = '--attributes';
-      $command[] = $name . '=' . $value;
-    }
-  }
-
-  return $command;
-}
-
 if (analytics_cli_exists()) {
     add_action( 'parse_request', 'analytics_url_handler' );
 }
@@ -226,160 +149,69 @@ function analytics_url_handler()
   //	define( 'WP_DEBUG', true );
   //	define( 'WP_DEBUG_DISPLAY', true );
   //	@ini_set( 'display_errors', 1 );
-  $prefix  = site_url('', 'relative');
-  $request = SimpleRouter::request();
-  $requestBody = json_decode(file_get_contents('php://input'), true);
-  $requestUrlParams = $request->getUrl()->getParams();
-  $command = null;
+    $callCommand = function (array $command): string {
+        $process = process_analytics($command);
 
-  SimpleRouter::group(['prefix' => $prefix . '/visitor/v1'], function () use (
-    &$command,
-    $requestBody,
-    $request
-  ) {
-    SimpleRouter::post('/init', function () use (&$command, $requestBody, $request) {
-      $command = [
-        'visitor',
-        'init',
-        'v1',
-        '--ip',
-        empty($requestBody['ip']) ? $request->getIp() : $requestBody['ip'],
-      ];
-      $fields = [
-        'user_agent' => 'user-agent',
-        'device' => 'device',
-        'browser_name' => 'browser-name',
-        'browser_version' => 'browser-version',
-        'lang' => 'lang',
-        'url' => 'url',
-        'referer' => 'referer',
-        'event_name' => 'event-name',
-        'event_type' => 'event-type',
-      ];
-      $command = array_merge($command, apply_if_not_empty($requestBody, $fields));
-      $command = array_merge($command, apply_attributes($requestBody));
-    });
+        if ($process->isSuccessful()) {
+            if (!headers_sent()) {
+                header( 'Content-Type: application/json; charset=utf-8' );
+            }
+            return $process->getOutput();
+        } else {
+            $err = $process->getErrorOutput();
 
-    SimpleRouter::post('/start', function () use (&$command, $requestBody) {
-      $command = ['visitor', 'start', 'v1'];
+            $decoded = json_decode($err);
 
-      $fields = [
-        'visitor_uuid' => 'visitor-uuid',
-        'url' => 'url',
-        'referer' => 'referer',
-        'event_name' => 'event-name',
-        'event_type' => 'event-type',
-        'event_uuid' => 'event-uuid',
-      ];
-      $command = array_merge($command, apply_if_not_empty($requestBody, $fields));
-      $command = array_merge($command, apply_attributes($requestBody));
-    });
+            if (json_last_error() === JSON_ERROR_NONE
+                && $process->getExitCode() == 65) {
+                $message = $err;
+                if (!empty($decoded->message))
+                {
+                    $message = $decoded->message;
+                }
+                switch ($decoded->error_type ?? null)
+                {
+                    case "NotFoundError":
+                        $code = 404;
+                        break;
+                    case "ValidationError":
+                        $code = 400;
+                        break;
+                    case "Rejected":
+                        $code = 406;
+                        break;
+                    default:
+                        $code = 500;
+                }
+                throw new ExceptionWithResponseCode($message, $code);
+            }
 
-    SimpleRouter::post('/end', function () use (&$command, $requestBody) {
-      $command = ['visitor', 'end', 'v1'];
-      $fields = [
-        'visitor_uuid' => 'visitor-uuid',
-        'event_uuid' => 'event-uuid',
-      ];
-      $command = array_merge($command, apply_if_not_empty($requestBody, $fields));
-    });
-  });
-
-  SimpleRouter::group(['middleware' => IsBackendMiddleware::class], function () use (
-    &$command,
-    $requestUrlParams,
-      $prefix
-  ) {
-    SimpleRouter::get($prefix . '/flow/v1/{flow_uuid}', function (string $flowUuid) use (
-      &$command,
-      $requestUrlParams
-    ) {
-      $command = ['get', 'flow', 'v1', $flowUuid];
-      $command = array_merge($command, apply_if_not_empty($requestUrlParams, ['with' => 'with']));
-    });
-    SimpleRouter::get($prefix . '/flow/v1/{start_date}/{end_date}', function (
-      string $start,
-      string $end
-    ) use (&$command, $requestUrlParams) {
-      $command = array_merge(
-        ['get', 'flows', 'v1', '--start', $start, '--end', $end],
-        apply_list_params()
-      );
-    });
-
-    SimpleRouter::get($prefix . '/visitor/v1/{start_date}/{end_date}', function (
-      string $start,
-      string $end
-    ) use (&$command, $requestUrlParams) {
-      $command = array_merge(
-        ['get', 'events', 'v1', '--start', $start, '--end', $end],
-        apply_list_params()
-      );
-    });
-
-    foreach (
-      [
-        'visits',
-        'domains',
-        'metrics',
-        'pages',
-        'visitors',
-        'browsers',
-        'browserversions',
-        'languages',
-        'devices',
-        'countries',
-        'cities',
-        'isps',
-        'attribute',
-        'events',
-        'events-name-type',
-        'attribute-date',
-      ]
-      as $statistic
-    ) {
-      SimpleRouter::get($prefix . '/' . str_replace('-', '_', $statistic) . '/v1/{start_date}/{end_date}', function (
-        string $start,
-        string $end
-      ) use (&$command, $statistic) {
-        $path = $statistic == 'attribute' ? 'attributes' : $statistic;
-        $command = array_merge(
-          ['statistics', $path, 'v1', '--start', $start, '--end', $end],
-          apply_list_params()
-        );
-      });
-    }
-  });
+            throw new ExceptionWithResponseCode($err, 500);
+        }
+    };
 
   try {
-    SimpleRouter::start();
-
-      if (is_null($command)) {
-          return;
-      }
-
-      $process = process_analytics($command);
-
-      if ($process->isSuccessful()) {
-          echo $process->getOutput();
-      } else {
-          $err = $process->getErrorOutput();
-
-          $encoded = json_decode($err);
-
-          if (json_last_error() === JSON_ERROR_NONE) {
-              throw new Exception($err);
-          } else {
-              throw new Exception($encoded);
-          }
-      }
+      echo (new RouterFactory($callCommand, site_url( '', 'relative' )))
+          ->getSimpleRouter()
+          ->start();
   } catch (Throwable $e) {
     if ($e instanceof NotFoundHttpException) {
       return;
     }
 
-    http_response_code(500);
-    echo json_encode(['error' => $e->getMessage()]);
+    if ($e instanceof ExceptionWithResponseCode) {
+        $code = $e->getResponseCode();
+    } else {
+        $code = 500;
+    }
+
+      if (!headers_sent()) {
+          header( 'Content-Type: application/json; charset=utf-8' );
+      }
+    http_response_code($code);
+    echo json_encode([
+        'error' => $e->getMessage(),
+    ]);
   }
 
   die();
