@@ -3,7 +3,7 @@
  * Plugin Name: AesirX Analytics
  * Plugin URI: https://analytics.aesirx.io?utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics
  * Description: Aesirx analytics plugin. When you join forces with AesirX, you're not just becoming a Partner - you're also becoming a freedom fighter in the battle for privacy! Earn 25% Affiliate Commission <a href="https://aesirx.io/seed-round?utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics">[Click to Join]</a>
- * Version: 2.1.1
+ * Version: 2.2.0
  * Author: aesirx.io
  * Author URI: https://aesirx.io/
  * Domain Path: /languages
@@ -54,7 +54,15 @@ if (analytics_config_is_ok()) {
                 ? get_bloginfo('url')
                 : $options['domain'] ?? '';
 
-        wp_add_inline_script('aesirx-analytics', 'window.aesirx1stparty="' . $domain . '";', 'before');
+        $consent =
+            ($options['consent'] ?? 'false') == 'true'
+                ? 'false'
+                : 'true';
+
+        $clientId = $options['clientid'] ?? '';
+        $secret = $options['secret'] ?? '';
+
+        wp_add_inline_script('aesirx-analytics', 'window.aesirx1stparty="' . $domain . '";window.disableAnalyticsConsent="' . $consent . '";window.aesirxClientID="' . $clientId . '";window.aesirxClientSecret="' . $secret . '";', 'before');
     });
 }
 
@@ -297,7 +305,7 @@ function get_supported_arch(): string {
 function download_analytics_cli(): void {
     $arch = get_supported_arch();
     $file = WP_PLUGIN_DIR . '/aesirx-analytics/assets/analytics-cli';
-    file_put_contents($file, fopen("https://github.com/aesirxio/analytics/releases/download/1.1.3/analytics-cli-linux-" . $arch, 'r'));
+    file_put_contents($file, fopen("https://github.com/aesirxio/analytics/releases/download/2.0.1/analytics-cli-linux-" . $arch, 'r'));
     chmod($file,0755);
 
     process_analytics( [ 'migrate' ] );

@@ -160,6 +160,51 @@ add_action('admin_init', function () {
   }
 
   add_settings_field(
+    'aesirx_analytics_consent',
+    __('Consent', 'aesirx-analytics'),
+    function () {
+      $options = get_option('aesirx_analytics_plugin_options', []);
+      $checked = 'checked="checked"';
+      $storage = $options['consent'] ?? 'true';
+      echo '
+        <label>' . __('Yes', 'aesirx-analytics') . ' <input type="radio" class="analytic-consent-class" name="aesirx_analytics_plugin_options[consent]" ' .
+            ($storage == 'true' ? $checked : '') .
+            ' value="true"  /></label>
+        <label>' . __('No', 'aesirx-analytics') . ' <input type="radio" class="analytic-consent-class" name="aesirx_analytics_plugin_options[consent]" ' .
+            ($storage == 'false' ? $checked : '') .
+            ' value="false" /></label>';
+    }, 
+    'aesirx_analytics_plugin',
+    'aesirx_analytics_settings'
+  );
+
+  add_settings_field(
+    'aesirx_analytics_clientid',
+    __('Client ID', 'aesirx-analytics'),
+    function () {
+      $options = get_option('aesirx_analytics_plugin_options', []);
+      echo "<input id='aesirx_analytics_clientid' name='aesirx_analytics_plugin_options[clientid]' type='text' value='" .
+        esc_attr($options['clientid'] ?? '') .
+        "' />";
+    },
+    'aesirx_analytics_plugin',
+    'aesirx_analytics_settings'
+  );
+
+  add_settings_field(
+    'aesirx_analytics_secret',
+    __('Client secret', 'aesirx-analytics'),
+    function () {
+      $options = get_option('aesirx_analytics_plugin_options', []);
+      echo "<input id='aesirx_analytics_secret' name='aesirx_analytics_plugin_options[secret]' type='text' value='" .
+        esc_attr($options['secret'] ?? '') .
+        "' />";
+    },
+    'aesirx_analytics_plugin',
+    'aesirx_analytics_settings'
+  );
+
+  add_settings_field(
     'aesirx_analytics_license',
     __('License', 'aesirx-analytics'),
     function () {
@@ -167,7 +212,7 @@ add_action('admin_init', function () {
       echo "<input id='aesirx_analytics_license' name='aesirx_analytics_plugin_options[license]' type='text' value='" .
         esc_attr($options['license'] ?? '') .
         "' /> <p class= 'description'>
-        Register to AesirX and get your license here: <a target='_blank' href='https://partners.aesirx.io/auth/register'>https://partners.aesirx.io/auth/register</a>.</p>";
+        Register to AesirX and get your client id, client secret and license here: <a target='_blank' href='https://web3id.aesirx.io'>https://web3id.aesirx.io</a>.</p>";
     },
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
@@ -216,7 +261,7 @@ add_action('admin_menu', function () {
     'manage_options',
     'aesirx-bi-dashboard',
     function () {
-      ?><div id="biapp"></div><?php
+      ?><div id="biapp" class="aesirxui"></div><?php
     },
     'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTExLjI2NjEgMlYyMiIgc3Ryb2tlPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNi4wOTA5IDYuMTk1NjhMMTYuOTk5OSAxNy41MjQ0IiBzdHJva2U9IndoaXRlIi8+Cjwvc3ZnPgo=',
     3
