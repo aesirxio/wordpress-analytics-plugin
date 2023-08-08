@@ -288,7 +288,7 @@ function get_supported_arch(): string {
 
     if (PHP_OS === 'Linux') {
         $uname = php_uname('m');
-        if (strpos($uname, 'aarch64') !== false) {
+        if (strpos($uname, 'aarch64') !== false || strpos($uname, 'arm64') !== false) {
             $arch = 'aarch64';
         } else if (strpos($uname, 'x86_64') !== false) {
             $arch = 'x86_64';
