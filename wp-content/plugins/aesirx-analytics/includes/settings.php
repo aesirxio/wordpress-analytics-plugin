@@ -289,7 +289,7 @@ add_action('admin_enqueue_scripts', function ($hook) {
     $endpoint =
       ($options['storage'] ?? 'internal') == 'internal'
         ? get_bloginfo('url')
-        : $options['domain'] ?? '';
+        : rtrim($options['domain'] ?? '', '/');
 
     $manifest = json_decode(
       file_get_contents(plugin_dir_path(__DIR__) . 'assets-manifest.json', true)

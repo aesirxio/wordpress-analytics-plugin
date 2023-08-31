@@ -11,6 +11,7 @@
  * Requires PHP: 7.2
  **/
 
+use AesirxAnalytics\Exception\ExceptionWithErrorType;
 use AesirxAnalytics\Exception\ExceptionWithResponseCode;
 use AesirxAnalytics\RouterFactory;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
@@ -52,7 +53,7 @@ if (analytics_config_is_ok()) {
         $domain =
             ($options['storage'] ?? 'internal') == 'internal'
                 ? get_bloginfo('url')
-                : $options['domain'] ?? '';
+                : rtrim($options['domain'] ?? '', '/');
 
         $consent =
             ($options['consent'] ?? 'false') == 'true'
@@ -88,9 +89,10 @@ if (!wp_next_scheduled('analytics_cron_geo')) {
  * @param array $command
  * @param bool  $makeExecutable
  *
+ * @return Process
+ * @throws ExceptionWithErrorType
  * @global wpdb $wpdb WordPress database abstraction object.
  *
- * @return Process
  */
 function process_analytics(array $command, bool $makeExecutable = true): Process
 {
@@ -133,6 +135,27 @@ function process_analytics(array $command, bool $makeExecutable = true): Process
   $process = new Process(array_merge([$file], $command), null, $env);
   $process->run();
 
+    if (!$process->isSuccessful())
+    {
+        $message = $process->getErrorOutput();
+        $decoded = json_decode($message);
+        $type = NULL;
+
+        if (json_last_error() === JSON_ERROR_NONE
+            && $process->getExitCode() == 65)
+        {
+            if (!empty($decoded->message))
+            {
+                $message = $decoded->message;
+            }
+            if (!empty($decoded->error_type))
+            {
+                $type = $decoded->error_type;
+            }
+        }
+        throw new ExceptionWithErrorType($message, $type);
+    }
+
   return $process;
 }
 
@@ -158,26 +181,17 @@ function analytics_url_handler()
   //	define( 'WP_DEBUG_DISPLAY', true );
   //	@ini_set( 'display_errors', 1 );
     $callCommand = function (array $command): string {
-        $process = process_analytics($command);
+        try
+        {
+            $process = process_analytics($command);
+        }
+        catch (Throwable $e)
+        {
+            $code = 500;
 
-        if ($process->isSuccessful()) {
-            if (!headers_sent()) {
-                header( 'Content-Type: application/json; charset=utf-8' );
-            }
-            return $process->getOutput();
-        } else {
-            $err = $process->getErrorOutput();
-
-            $decoded = json_decode($err);
-
-            if (json_last_error() === JSON_ERROR_NONE
-                && $process->getExitCode() == 65) {
-                $message = $err;
-                if (!empty($decoded->message))
-                {
-                    $message = $decoded->message;
-                }
-                switch ($decoded->error_type ?? null)
+            if ($e instanceof ExceptionWithErrorType)
+            {
+                switch ($e->getErrorType())
                 {
                     case "NotFoundError":
                         $code = 404;
@@ -188,14 +202,16 @@ function analytics_url_handler()
                     case "Rejected":
                         $code = 406;
                         break;
-                    default:
-                        $code = 500;
                 }
-                throw new ExceptionWithResponseCode($message, $code);
             }
 
-            throw new ExceptionWithResponseCode($err, 500);
+            throw new ExceptionWithResponseCode($e->getMessage(), $code, $e->getCode(), $e);
         }
+
+        if (!headers_sent()) {
+            header( 'Content-Type: application/json; charset=utf-8' );
+        }
+        return $process->getOutput();
     };
 
   try {
