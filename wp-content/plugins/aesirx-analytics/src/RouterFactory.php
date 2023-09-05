@@ -73,6 +73,46 @@ class RouterFactory {
                 ->setCallback(
                     function () {
                         $this->router->addRoute(
+                            ( new RouteUrl( '/all', function () {
+                                $data = array_merge( [
+                                    'list-consent',
+                                    'v1',
+                                ], $this->apply_if_not_empty( $this->requestBody, [
+                                    'expired'      => 'expired',
+                                    'visitor_uuid' => 'visitor-uuid',
+                                ] ) );
+
+                                $token = $this->getToken();
+
+                                if ( ! empty( $token ) ) {
+                                    $data = array_merge( $data, [
+                                        '--token',
+                                        $token,
+                                    ] );
+                                }
+
+                                if ( ! empty( $this->requestBody['networks'] ) ) {
+                                    foreach ( (array) $this->requestBody['networks'] as $network ) {
+                                        if ( empty( $network['network'] ) || empty( $network['wallet'] ) || empty( $network['signature'] ) ) {
+                                            continue;
+                                        }
+
+                                        $data = array_merge( $data, [
+                                            '--networks',
+                                            $network['network'],
+                                            '--wallets',
+                                            $network['wallet'],
+                                            '--signatures',
+                                            $network['signature'],
+                                        ] );
+                                    }
+                                }
+
+                                return call_user_func( $this->callback, $data );
+                            } ) )
+                                ->setRequestMethods( [ Request::REQUEST_TYPE_POST ] )
+                        );
+                        $this->router->addRoute(
                             ( new RouteUrl( '/level1/{uuid}/{consent}', function ( string $uuid, string $consent ) {
                                 return call_user_func( $this->callback, [
                                     'consent',
