@@ -380,10 +380,15 @@ class RouterFactory {
                                         $this->router->addRoute(
                                             ( new RouteUrl( '/start', function () {
                                                 return call_user_func( $this->callback, array_merge(
-                                                    [ 'visitor', 'start', 'v2' ],
+                                                    [
+                                                        'visitor',
+                                                        'start',
+                                                        'v2',
+                                                        '--ip',
+                                                        empty( $this->requestBody['ip'] ) ? $this->router->getRequest()->getIp() : $this->requestBody['ip'],
+                                                    ],
                                                     $this->apply_if_not_empty( $this->requestBody, [
                                                         'fingerprint'     => 'fingerprint',
-                                                        'ip'              => 'ip',
                                                         'user_agent'      => 'user-agent',
                                                         'device'          => 'device',
                                                         'browser_name'    => 'browser-name',
