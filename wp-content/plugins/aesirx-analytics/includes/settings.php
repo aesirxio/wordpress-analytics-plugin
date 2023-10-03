@@ -1,5 +1,7 @@
 <?php
 
+use AesirxAnalytics\CliFactory;
+
 add_action('admin_init', function () {
   register_setting('aesirx_analytics_plugin_options', 'aesirx_analytics_plugin_options', function (
     $value
@@ -123,13 +125,13 @@ add_action('admin_init', function () {
     'aesirx_analytics_settings'
   );
 
-  if (!analytics_cli_exists()) {
+  if (!CliFactory::getCli()->analyticsCliExists()) {
     add_settings_field(
         'aesirx_analytics_download',
         __( 'Download', 'aesirx-analytics' ),
         function () {
           try {
-            get_supported_arch();
+              CliFactory::getCli()->getSupportedArch();
 
             echo '<button name="submit" id="aesirx_analytics_download" class="button button-primary" type="submit" value="download_analytics_cli">' . __(
                     'Click to download CLI library! This plugin can\'t work without the library!', 'aesirx-analytics'
@@ -148,7 +150,7 @@ add_action('admin_init', function () {
           __( 'CLI library check', 'aesirx-analytics' ),
           function () {
               try {
-                  process_analytics(['--version']);
+                  CliFactory::getCli()->processAnalytics(['--version']);
 				  echo '<strong style="color: green" id="aesirx_analytics_download">' . __( 'Passed', 'aesirx-analytics' ) . '</strong>';
               } catch (Throwable $e) {
                   echo '<strong style="color: red" id="aesirx_analytics_download">' . __( 'You can\'t use internal server. Error: ' . $e->getMessage(), 'aesirx-analytics' ) . '</strong>';
