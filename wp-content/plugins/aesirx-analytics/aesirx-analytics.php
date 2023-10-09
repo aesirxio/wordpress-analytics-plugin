@@ -11,26 +11,22 @@
  * Requires PHP: 7.2
  **/
 
-use AesirxAnalytics\Exception\ExceptionWithErrorType;
-use AesirxAnalytics\Exception\ExceptionWithResponseCode;
-use AesirxAnalytics\RouterFactory;
+use AesirxAnalytics\CliFactory;
+use AesirxAnalyticsLib\Exception\ExceptionWithResponseCode;
+use AesirxAnalytics\Route\Middleware\IsBackendMiddleware;
+use AesirxAnalyticsLib\Exception\ExceptionWithErrorType;
+use AesirxAnalyticsLib\RouterFactory;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
-use Symfony\Component\Process\Process;
 
 require_once WP_PLUGIN_DIR . '/aesirx-analytics/vendor/autoload.php';
 require_once 'includes/settings.php';
 require_once 'class-tgm-plugin-activation.php';
 
-function analytics_cli_exists(): bool
-{
-    return file_exists(WP_PLUGIN_DIR . '/aesirx-analytics/assets/analytics-cli');
-}
-
 function analytics_config_is_ok(string $isStorage = null): bool {
     $options = get_option('aesirx_analytics_plugin_options');
     $res = (!empty($options['storage'])
         && (
-            ($options['storage'] == 'internal' && !empty($options['license']) && analytics_cli_exists())
+            ($options['storage'] == 'internal' && !empty($options['license']) && CliFactory::getCli()->analyticsCliExists())
             || ($options['storage'] == 'external' && !empty($options['domain']))
         ));
 
@@ -77,86 +73,12 @@ add_action('plugins_loaded', function () {
 
 add_action('analytics_cron_geo', function () {
     if (analytics_config_is_ok('internal')) {
-        process_analytics(['job', 'geo']);
+        CliFactory::getCli()->processAnalytics(['job', 'geo']);
     }
 });
 
 if (!wp_next_scheduled('analytics_cron_geo')) {
   wp_schedule_event(time(), 'hourly', 'analytics_cron_geo');
-}
-
-/**
- * @param array $command
- * @param bool  $makeExecutable
- *
- * @return Process
- * @throws ExceptionWithErrorType
- * @global wpdb $wpdb WordPress database abstraction object.
- *
- */
-function process_analytics(array $command, bool $makeExecutable = true): Process
-{
-	global $wpdb, $table_prefix;
-
-  $file = WP_PLUGIN_DIR . '/aesirx-analytics/assets/analytics-cli';
-  $options = get_option('aesirx_analytics_plugin_options');
-
-  $env = [
-    'DBUSER' => DB_USER,
-    'DBPASS' => urlencode(DB_PASSWORD),
-    'DBNAME' => DB_NAME,
-    'DBTYPE' => 'mysql',
-    'LICENSE' => $options['license'] ?? '',
-    'DBPREFIX' => $table_prefix,
-  ];
-
-	$env['DBHOST'] = DB_HOST;
-	$hostData = $wpdb->parse_db_host(DB_HOST);
-
-	if ($hostData) {
-		list($env['DBHOST'], $dbPort) = $hostData;
-
-        if (!is_null($dbPort))
-        {
-            $env['DBPORT'] = $dbPort;
-        }
-	}
-
-	// Plugin probably updated, we need to make sure it's executable and database is up-to-date
-	if ($makeExecutable && 0755 !== (fileperms($file) & 0777))
-	{
-		chmod($file,0755);
-
-    if ($command != ['migrate']) {
-      process_analytics(['migrate'], false);
-    }
-  }
-
-  $process = new Process(array_merge([$file], $command), null, $env);
-  $process->run();
-
-    if (!$process->isSuccessful())
-    {
-        $message = $process->getErrorOutput();
-        $decoded = json_decode($message);
-        $type = NULL;
-
-        if (json_last_error() === JSON_ERROR_NONE
-            && $process->getExitCode() == 65)
-        {
-            if (!empty($decoded->message))
-            {
-                $message = $decoded->message;
-            }
-            if (!empty($decoded->error_type))
-            {
-                $type = $decoded->error_type;
-            }
-        }
-        throw new ExceptionWithErrorType($message, $type);
-    }
-
-  return $process;
 }
 
 add_filter('plugin_action_links_' . plugin_basename(__FILE__), function ($links) {
@@ -165,7 +87,7 @@ add_filter('plugin_action_links_' . plugin_basename(__FILE__), function ($links)
   return $links;
 });
 
-if (analytics_cli_exists()) {
+if (CliFactory::getCli()->analyticsCliExists()) {
     add_action( 'parse_request', 'analytics_url_handler' );
 }
 
@@ -183,7 +105,7 @@ function analytics_url_handler()
     $callCommand = function (array $command): string {
         try
         {
-            $process = process_analytics($command);
+            $process = CliFactory::getCli()->processAnalytics($command);
         }
         catch (Throwable $e)
         {
@@ -215,7 +137,12 @@ function analytics_url_handler()
     };
 
   try {
-      echo (new RouterFactory($callCommand, site_url( '', 'relative' )))
+      echo (new RouterFactory(
+          $callCommand,
+          new IsBackendMiddleware(),
+          null,
+          site_url( '', 'relative' ))
+      )
           ->getSimpleRouter()
           ->start();
   } catch (Throwable $e) {
@@ -273,7 +200,7 @@ function analytics_update_plugins(WP_Upgrader $upgrader_object, array $options )
     if ($download
         && ($options['storage'] ?? null) == 'internal') {
         try {
-            download_analytics_cli();
+            CliFactory::getCli()->downloadAnalyticsCli();
         } catch (Throwable $e) {
             set_transient( 'analytics_update_notice', serialize($e) );
         }
@@ -299,34 +226,6 @@ function analytics_display_update_notice(  ) {
 add_action( 'admin_notices', 'analytics_display_update_notice' );
 add_action( 'upgrader_process_complete', 'analytics_update_plugins', 10, 2);
 
-function get_supported_arch(): string {
-    $arch = null;
-
-    if (PHP_OS === 'Linux') {
-        $uname = php_uname('m');
-        if (strpos($uname, 'aarch64') !== false) {
-            $arch = 'aarch64';
-        } else if (strpos($uname, 'x86_64') !== false) {
-            $arch = 'x86_64';
-        }
-    }
-
-    if (is_null($arch)) {
-        throw new \DomainException("Unsupported architecture " . PHP_OS . " " . PHP_INT_SIZE);
-    }
-
-    return $arch;
-}
-
-function download_analytics_cli(): void {
-    $arch = get_supported_arch();
-    $file = WP_PLUGIN_DIR . '/aesirx-analytics/assets/analytics-cli';
-    file_put_contents($file, fopen("https://github.com/aesirxio/analytics/releases/download/2.0.1/analytics-cli-linux-" . $arch, 'r'));
-    chmod($file,0755);
-
-    process_analytics( [ 'migrate' ] );
-}
-
 add_action('admin_init', function () {
     if (get_option('aesirx_do_activation_redirect', false)) {
 
@@ -346,7 +245,7 @@ add_action('admin_init', function () {
         }
 
         try {
-            download_analytics_cli();
+            CliFactory::getCli()->downloadAnalyticsCli();
 
             add_settings_error(
                 'aesirx_analytics_plugin_options',
