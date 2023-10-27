@@ -220,6 +220,26 @@ add_action('admin_init', function () {
     'aesirx_analytics_settings'
   );
 
+  add_settings_field(
+    'aesirx_analytics_track_ecommerce',
+    __('Track ecommerce', 'aesirx-analytics'),
+    function () {
+
+        $options = get_option('aesirx_analytics_plugin_options', []);
+        $checked = 'checked="checked"';
+        $storage = $options['track_ecommerce'] ?? 'true';
+        echo '
+        <label>' . __('Yes', 'aesirx-analytics') . ' <input type="radio" class="analytic-track_ecommerce-class" name="aesirx_analytics_plugin_options[track_ecommerce]" ' .
+             ($storage == 'true' ? $checked : '') .
+             ' value="true"  /></label>
+        <label>' . __('No', 'aesirx-analytics') . ' <input type="radio" class="analytic-track_ecommerce-class" name="aesirx_analytics_plugin_options[track_ecommerce]" ' .
+             ($storage == 'false' ? $checked : '') .
+             ' value="false" /></label>';
+    },
+    'aesirx_analytics_plugin',
+    'aesirx_analytics_settings'
+  );
+
   add_settings_section(
     'aesirx_analytics_info',
     '',

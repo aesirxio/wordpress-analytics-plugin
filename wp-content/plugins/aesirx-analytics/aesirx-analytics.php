@@ -12,11 +12,15 @@
  **/
 
 use AesirxAnalytics\CliFactory;
+use AesirxAnalytics\Track\ApiTracker;
+use AesirxAnalytics\Track\CliTracker;
 use AesirxAnalyticsLib\Exception\ExceptionWithResponseCode;
 use AesirxAnalytics\Route\Middleware\IsBackendMiddleware;
 use AesirxAnalyticsLib\Exception\ExceptionWithErrorType;
 use AesirxAnalyticsLib\RouterFactory;
+use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
+use Pecee\SimpleRouter\Route\RouteUrl;
 
 require_once WP_PLUGIN_DIR . '/aesirx-analytics/vendor/autoload.php';
 require_once 'includes/settings.php';
@@ -56,11 +60,47 @@ if (analytics_config_is_ok()) {
                 ? 'false'
                 : 'true';
 
+        $trackEcommerce = ($options['track_ecommerce'] ?? 'true') == 'true' ? 'true': 'false';
+
         $clientId = $options['clientid'] ?? '';
         $secret = $options['secret'] ?? '';
 
-        wp_add_inline_script('aesirx-analytics', 'window.aesirx1stparty="' . $domain . '";window.disableAnalyticsConsent="' . $consent . '";window.aesirxClientID="' . $clientId . '";window.aesirxClientSecret="' . $secret . '";', 'before');
+        wp_add_inline_script('aesirx-analytics', 'window.aesirx1stparty="' . $domain . '";window.disableAnalyticsConsent="' . $consent . '";window.aesirxClientID="' . $clientId . '";window.aesirxClientSecret="' . $secret . '";window.aesirxTrackEcommerce="' . $trackEcommerce . '";', 'before');
     });
+
+    // Track e-commerce
+    add_action( 'init', function (): void {
+        $options = get_option('aesirx_analytics_plugin_options');
+
+        if (is_admin()
+            || ($options['track_ecommerce'] ?? 'true') != 'true')
+        {
+            return;
+        }
+
+        if (!session_id()) {
+            session_start();
+        }
+
+        $flowUuid = $_SESSION['analytics_flow_uuid'] ?? null;
+
+        if (is_null($flowUuid))
+        {
+            return;
+        }
+
+        if (analytics_config_is_ok('internal'))
+        {
+            $tracker = new CliTracker(CliFactory::getCli());
+        }
+        else
+        {
+            $tracker = new ApiTracker(rtrim($options['domain'] ?? '', '/'));
+        }
+
+        (new \AesirxAnalytics\Integration\Woocommerce($tracker, $flowUuid))
+            ->registerHooks();
+    } );
 }
 
 add_action('plugins_loaded', function () {
@@ -137,14 +177,29 @@ function analytics_url_handler()
     };
 
   try {
-      echo (new RouterFactory(
+      $router = (new RouterFactory(
           $callCommand,
           new IsBackendMiddleware(),
           null,
           site_url( '', 'relative' ))
       )
-          ->getSimpleRouter()
-          ->start();
+          ->getSimpleRouter();
+
+      $router->addRoute(
+          (new RouteUrl('/remember_flow/{flow}', static function (string $flow): string {
+              if (!session_id()) {
+                  session_start();
+              }
+
+              $_SESSION['analytics_flow_uuid'] = $flow;
+
+              return json_encode(true);
+          }))
+              ->setWhere(['flow' => '[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}'])
+              ->setRequestMethods([Request::REQUEST_TYPE_POST])
+      );
+
+      echo $router->start();
   } catch (Throwable $e) {
     if ($e instanceof NotFoundHttpException) {
       return;
