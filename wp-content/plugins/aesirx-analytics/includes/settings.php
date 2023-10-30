@@ -322,14 +322,19 @@ add_action('admin_enqueue_scripts', function ($hook) {
         wp_enqueue_script('aesrix_bi' . md5($js), plugins_url($js, __DIR__), false, null, true);
       }
     }
+
+    $clientId = $options['clientid'];
+    $clientSecret = $options['secret'];
+
     ?>
 	  <script type="text/javascript">
 		  window.env = {};
-		  window.env.REACT_APP_CLIENT_ID = "app";
-		  window.env.REACT_APP_CLIENT_SECRET = "secret";
-		  window.env.REACT_APP_ENDPOINT_URL = "<?php echo $endpoint; ?>";
+		  window.aesirxClientID = "<?php echo $clientId; ?>";
+		  window.aesirxClientSecret = "<?php echo $clientSecret; ?>";
+		  window.env.REACT_APP_BI_ENDPOINT_URL = "<?php echo $endpoint; ?>";
 		  window.env.REACT_APP_DATA_STREAM = JSON.stringify(<?php echo json_encode($streams); ?>);
 		  window.env.PUBLIC_URL="<?php echo plugin_dir_url(__DIR__) ?>";
+      window.env.STORAGE="<?php echo $options['storage'] ?>";
 	  </script>
 	  <?php
   }
