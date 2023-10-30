@@ -329,8 +329,6 @@ add_action('admin_enqueue_scripts', function ($hook) {
 		  window.env = {};
 		  window.aesirxClientID = "<?php echo $clientId; ?>";
 		  window.aesirxClientSecret = "<?php echo $clientSecret; ?>";
-      window.aesirxEndpoint = "https://dev01.aesirx.io";
-      window.env.REACT_APP_ENDPOINT_URL = "<?php echo $endpoint; ?>";
 		  window.env.REACT_APP_BI_ENDPOINT_URL = "<?php echo $endpoint; ?>";
 		  window.env.REACT_APP_DATA_STREAM = JSON.stringify(<?php echo json_encode($streams); ?>);
 		  window.env.PUBLIC_URL="<?php echo plugin_dir_url(__DIR__) ?>";
