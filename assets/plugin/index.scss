@@ -2,12 +2,14 @@
   margin-top: 1rem;
   background-image: url('../images/Hero.jpg');
   background-position: 100%;
+  background-size: 100%;
+  background-repeat: no-repeat;
   padding: 2rem;
   color: #fff;
   margin-right: 20px;
   .wrap {
     font-size: 1.5rem;
-
+   
     ul {
       list-style: disc;
       list-style-position: inside;

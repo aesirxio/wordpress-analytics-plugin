@@ -244,11 +244,9 @@ add_action('admin_init', function () {
     'aesirx_analytics_info',
     '',
     function () {
-      echo '<div class="aesirx_analytics_info"><div class="wrap">Invest $1000 as a seed fund and receive:
-      <ul><li>Rewards worth of $6000!</li><li> Many more exclusive benefits!</li></ul><div>
-
-      <p>* Apply for only the first 2000 investors</p>
-      <a target="_blank" href="https://aesirx.io/seed-round?utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics">Become a Community Investor Now!</a></div>';
+      echo '<div class="aesirx_analytics_info"><div class="wrap">Sign up for a
+      <h3>FREE License</h3><p>at the AesirX Shield of Privacy dApp</p><div>
+      <a target="_blank" href="https://dapp.shield.aesirx.io?utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics">Get Free License</a></div>';
     },
     'aesirx_analytics_info'
   );
