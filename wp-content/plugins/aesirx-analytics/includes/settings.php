@@ -333,6 +333,7 @@ add_action('admin_enqueue_scripts', function ($hook) {
 		  window.env.REACT_APP_DATA_STREAM = JSON.stringify(<?php echo json_encode($streams); ?>);
 		  window.env.PUBLIC_URL="<?php echo plugin_dir_url(__DIR__) ?>";
       window.env.STORAGE="<?php echo $options['storage'] ?>";
+      window.env.REACT_APP_HEADER_JWT=true;
 	  </script>
 	  <?php
   }
