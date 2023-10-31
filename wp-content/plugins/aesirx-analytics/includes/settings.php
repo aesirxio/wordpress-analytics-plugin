@@ -220,15 +220,33 @@ add_action('admin_init', function () {
     'aesirx_analytics_settings'
   );
 
+  add_settings_field(
+    'aesirx_analytics_track_ecommerce',
+    __('Track ecommerce', 'aesirx-analytics'),
+    function () {
+
+        $options = get_option('aesirx_analytics_plugin_options', []);
+        $checked = 'checked="checked"';
+        $storage = $options['track_ecommerce'] ?? 'true';
+        echo '
+        <label>' . __('Yes', 'aesirx-analytics') . ' <input type="radio" class="analytic-track_ecommerce-class" name="aesirx_analytics_plugin_options[track_ecommerce]" ' .
+             ($storage == 'true' ? $checked : '') .
+             ' value="true"  /></label>
+        <label>' . __('No', 'aesirx-analytics') . ' <input type="radio" class="analytic-track_ecommerce-class" name="aesirx_analytics_plugin_options[track_ecommerce]" ' .
+             ($storage == 'false' ? $checked : '') .
+             ' value="false" /></label>';
+    },
+    'aesirx_analytics_plugin',
+    'aesirx_analytics_settings'
+  );
+
   add_settings_section(
     'aesirx_analytics_info',
     '',
     function () {
-      echo '<div class="aesirx_analytics_info"><div class="wrap">Invest $1000 as a seed fund and receive:
-      <ul><li>Rewards worth of $6000!</li><li> Many more exclusive benefits!</li></ul><div>
-
-      <p>* Apply for only the first 2000 investors</p>
-      <a target="_blank" href="https://aesirx.io/seed-round?utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics">Become a Community Investor Now!</a></div>';
+      echo '<div class="aesirx_analytics_info"><div class="wrap">Sign up for a
+      <h3>FREE License</h3><p>at the AesirX Shield of Privacy dApp</p><div>
+      <a target="_blank" href="https://dapp.shield.aesirx.io?utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics">Get Free License</a></div>';
     },
     'aesirx_analytics_info'
   );
@@ -302,15 +320,20 @@ add_action('admin_enqueue_scripts', function ($hook) {
         wp_enqueue_script('aesrix_bi' . md5($js), plugins_url($js, __DIR__), false, null, true);
       }
     }
+
+    $clientId = $options['clientid'];
+    $clientSecret = $options['secret'];
+
     ?>
 	  <script type="text/javascript">
 		  window.env = {};
-		  window.env.REACT_APP_CLIENT_ID = "app";
-		  window.env.REACT_APP_CLIENT_SECRET = "secret";
+		  window.aesirxClientID = "<?php echo $clientId; ?>";
+		  window.aesirxClientSecret = "<?php echo $clientSecret; ?>";
 		  window.env.REACT_APP_ENDPOINT_URL = "<?php echo $endpoint; ?>";
 		  window.env.REACT_APP_DATA_STREAM = JSON.stringify(<?php echo json_encode($streams); ?>);
 		  window.env.PUBLIC_URL="<?php echo plugin_dir_url(__DIR__) ?>";
-	  </script>
+      window.env.STORAGE="<?php echo $options['storage'] ?>";
+      <?php echo $options['storage'] === "external" ? 'window.env.REACT_APP_HEADER_JWT="true";' : '' ?>	  </script>
 	  <?php
   }
 });
