@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "aesirx/aesirx_analytics_lib",
-            "version": "v1.0.3",
+            "version": "v1.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aesirxio/aesirx-analytics-lib.git",
-                "reference": "ce09397ac78423e9e1e6e1b6507115f0c66e3a8e"
+                "reference": "98a11c0c0854dfbdc62a4d8f65ff236a3b521017"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aesirxio/aesirx-analytics-lib/zipball/ce09397ac78423e9e1e6e1b6507115f0c66e3a8e",
-                "reference": "ce09397ac78423e9e1e6e1b6507115f0c66e3a8e",
+                "url": "https://api.github.com/repos/aesirxio/aesirx-analytics-lib/zipball/98a11c0c0854dfbdc62a4d8f65ff236a3b521017",
+                "reference": "98a11c0c0854dfbdc62a4d8f65ff236a3b521017",
                 "shasum": ""
             },
             "require": {
@@ -38,9 +38,9 @@
             ],
             "description": "Aesirx analytics library.",
             "support": {
-                "source": "https://github.com/aesirxio/aesirx-analytics-lib/tree/v1.0.3"
+                "source": "https://github.com/aesirxio/aesirx-analytics-lib/tree/v1.0.4"
             },
-            "time": "2023-09-18T14:46:08+00:00"
+            "time": "2023-10-31T06:47:56+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
