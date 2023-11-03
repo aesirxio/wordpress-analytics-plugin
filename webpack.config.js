@@ -79,19 +79,7 @@ module.exports = {
   },
 
   optimization: {
-    minimizer: [
-      new TerserPlugin({
-        terserOptions: {
-          compress: {
-            drop_console: true,
-          },
-          format: {
-            comments: false,
-          },
-        },
-        extractComments: false,
-      }),
-    ],
+    minimize: false,
     splitChunks: {
       chunks: 'all',
     },
