@@ -1,5 +1,7 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 use AesirxAnalytics\CliFactory;
 
 add_action('admin_init', function () {
@@ -47,11 +49,11 @@ add_action('admin_init', function () {
     'aesirx_analytics_settings',
     'Aesirx Analytics',
     function () {
-      echo
-
-           /* translators: %s: URL to aesir.io read mor details */
-                   sprintf(__('<p>Read more detail at <a target="_blank" href="%s">%s</a></p><p class= "description">
-        <p>Note: Please set Permalink structure is NOT plain.</p></p>', 'aesirx-analytics'), 'https://github.com/aesirxio/analytics#in-ssr-site', 'https://github.com/aesirxio/analytics#in-ssr-site');
+      echo wp_kses_post(
+        /* translators: %s: URL to aesir.io read mor details */
+        sprintf(__('<p>Read more detail at <a target="_blank" href="%s">%s</a></p><p class= "description">
+        <p>Note: Please set Permalink structure is NOT plain.</p></p>', 'aesirx-analytics'), 'https://github.com/aesirxio/analytics#in-ssr-site', 'https://github.com/aesirxio/analytics#in-ssr-site')
+      );
     },
     'aesirx_analytics_plugin'
   );
@@ -113,13 +115,14 @@ add_action('admin_init', function () {
     __('domain <i>(Use next format: http://example.com:1000/)</i>', 'aesirx-analytics'),
     function () {
       $options = get_option('aesirx_analytics_plugin_options', []);
-      echo "<input id='aesirx_analytics_domain' name='aesirx_analytics_plugin_options[domain]' type='text' value='" .
+      echo wp_kses_post ("<input id='aesirx_analytics_domain' name='aesirx_analytics_plugin_options[domain]' type='text' value='" .
         esc_attr($options['domain'] ?? '') .
         "' />"
            /* translators: %s: URL to aesir.io */
            /* translators: %s: URL to aesir.io */
            . sprintf(__("<p class= 'description'>
-		You can setup 1st party server at <a target='_blank' href='%s'>%s</a>.</p>", 'aesirx-analytics'), 'https://github.com/aesirxio/analytics-1stparty', 'https://github.com/aesirxio/analytics-1stparty');
+		    You can setup 1st party server at <a target='_blank' href='%s'>%s</a>.</p>", 'aesirx-analytics'), 'https://github.com/aesirxio/analytics-1stparty', 'https://github.com/aesirxio/analytics-1stparty')
+      );
     },
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
@@ -138,7 +141,7 @@ add_action('admin_init', function () {
                 ) . '</button>';
           }
           catch ( Throwable $e ) {
-            echo '<strong style="color: red">' . __( 'You can\'t use internal server. Error: ' . $e->getMessage(), 'aesirx-analytics' ) . '</strong>';
+            echo wp_kses_post('<strong style="color: red">' . __( 'You can\'t use internal server. Error: ', 'aesirx-analytics' ) . $e->getMessage() . '</strong>');
           }
         },
         'aesirx_analytics_plugin',

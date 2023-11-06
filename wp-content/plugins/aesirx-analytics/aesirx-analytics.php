@@ -11,6 +11,8 @@
  * Requires PHP: 7.2
  **/
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 use AesirxAnalytics\CliFactory;
 use AesirxAnalytics\Track\ApiTracker;
 use AesirxAnalytics\Track\CliTracker;
@@ -22,7 +24,7 @@ use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 use Pecee\SimpleRouter\Route\RouteUrl;
 
-require_once WP_PLUGIN_DIR . '/aesirx-analytics/vendor/autoload.php';
+require_once plugin_dir_path(__FILE__) . 'vendor/autoload.php';
 require_once 'includes/settings.php';
 require_once 'class-tgm-plugin-activation.php';
 
