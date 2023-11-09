@@ -2851,9 +2851,9 @@ if ( ! class_exists( 'TGMPA_List_Table' ) ) {
 
 				if ( is_array( $_POST['plugin'] ) ) {
 					$plugins_to_install = (array) $_POST['plugin'];
-				} elseif ( is_string( $_POST['plugin'] ) ) {
+				} elseif ( is_string( sanitize_key($_POST['plugin'] )) ) {
 					// Received via Filesystem page - un-flatten array (WP bug #19643).
-					$plugins_to_install = explode( ',', $_POST['plugin'] );
+					$plugins_to_install = explode( ',', sanitize_key($_POST['plugin'] ));
 				}
 
 				// Sanitize the received input.

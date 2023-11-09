@@ -291,11 +291,11 @@ add_action('admin_menu', function () {
   );
 });
 
-add_action('admin_init', 'redirect_analytics_config', 1);
-function redirect_analytics_config() {
+add_action('admin_init', 'aesirx_analytics_redirect_config', 1);
+function aesirx_analytics_redirect_config() {
   if ( isset($_GET['page'])
        && $_GET['page'] == 'aesirx-bi-dashboard'
-       && !analytics_config_is_ok()) {
+       && !aesirx_analytics_config_is_ok()) {
     wp_redirect('/wp-admin/options-general.php?page=aesirx-analytics-plugin');
     die;
   }
