@@ -327,18 +327,24 @@ add_action('admin_enqueue_scripts', function ($hook) {
     $clientId = $options['clientid'];
     $clientSecret = $options['secret'];
 
-    ?>
-	  <script type="text/javascript">
-		  window.env = {};
-		  window.aesirxClientID = "<?php echo $clientId; ?>";
-		  window.aesirxClientSecret = "<?php echo $clientSecret; ?>";
-		  window.env.REACT_APP_ENDPOINT_URL = "<?php echo $endpoint; ?>";
-		  window.env.REACT_APP_DATA_STREAM = JSON.stringify(<?php echo json_encode($streams); ?>);
-		  window.env.PUBLIC_URL="<?php echo plugin_dir_url(__DIR__) ?>";
-      window.env.STORAGE="<?php echo $options['storage'] ?>";
-      window.env.REACT_APP_WOOCOMMERCE_MENU="<?php echo $options['track_ecommerce'] ?>";
-      <?php echo $options['storage'] === "external" ? 'window.env.REACT_APP_HEADER_JWT="true";' : '' ?>	  </script>
-	  <?php
+    $jwt = $options['storage'] === "external" ? 'window.env.REACT_APP_HEADER_JWT="true"' : '';
+
+    wp_register_script( 'aesrix_bi_window', '', array(), null );
+
+    wp_enqueue_script('aesrix_bi_window');
+
+    wp_add_inline_script(
+      'aesrix_bi_window',
+      'window.env = {};
+		  window.aesirxClientID = "' .  $clientId . '";
+		  window.aesirxClientSecret = "' . $clientSecret . '";
+		  window.env.REACT_APP_ENDPOINT_URL = "' . $endpoint . '";
+		  window.env.REACT_APP_DATA_STREAM = JSON.stringify(' . json_encode($streams) . ');
+		  window.env.PUBLIC_URL= "' . plugin_dir_url(__DIR__) . '";
+      window.env.STORAGE= "' . $options['storage'] . '";
+      window.env.REACT_APP_WOOCOMMERCE_MENU= "' . $options['track_ecommerce'] . '";
+      ' . $jwt,
+    );
   }
 });
 
