@@ -339,7 +339,6 @@ add_action('admin_menu', function () {
       },
       3);
   }
-  
 });
 
 add_action('admin_init', 'redirect_analytics_config', 1);
