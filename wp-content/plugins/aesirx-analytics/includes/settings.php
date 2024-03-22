@@ -307,6 +307,26 @@ add_action('admin_menu', function () {
     },
     3);
   add_submenu_page(
+    'aesirx-bi-visitors',
+    'AesirX BI Visitors Locations',
+    'Locations',
+    'manage_options',
+    'aesirx-bi-visitors-locations',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    3);
+  add_submenu_page(
+    'aesirx-bi-visitors',
+    'AesirX BI Visitors Flow',
+    'Flow',
+    'manage_options',
+    'aesirx-bi-visitors-flow',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    3);
+  add_submenu_page(
     'aesirx-bi-dashboard',
     'AesirX BI Behavior',
     'Behavior',
@@ -317,11 +337,51 @@ add_action('admin_menu', function () {
     },
     3);
   add_submenu_page(
+    'aesirx-bi-behavior',
+    'AesirX BI Behavior Events',
+    'Behavior Events',
+    'manage_options',
+    'aesirx-bi-behavior-events',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    3);
+  add_submenu_page(
+    'aesirx-bi-behavior',
+    'AesirX BI Behavior Events Generator',
+    'Behavior Events Generator',
+    'manage_options',
+    'aesirx-bi-behavior-events-generator',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    3);
+  add_submenu_page(
     'aesirx-bi-dashboard',
     'AesirX BI UTM Tracking',
     'UTM Tracking',
     'manage_options',
     'aesirx-bi-utm-tracking',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    3);
+  add_submenu_page(
+    'aesirx-bi-visitors',
+    'AesirX BI Visitors Flow Detail',
+    'Flow',
+    'manage_options',
+    'aesirx-bi-flow',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    3);
+  add_submenu_page(
+    'aesirx-bi-utm-tracking',
+    'AesirX BI UTM Tracking Generator',
+    'UTM Tracking Generator',
+    'manage_options',
+    'aesirx-bi-utm-tracking-generator',
     function () {
       ?><div id="biapp" class="aesirxui"></div><?php
     },
@@ -338,13 +398,23 @@ add_action('admin_menu', function () {
         ?><div id="biapp" class="aesirxui"></div><?php
       },
       3);
+    add_submenu_page(
+      'aesirx-bi-woocommerce',
+      'AesirX BI Woocommerce Product',
+      'Woocommerce Product',
+      'manage_options',
+      'aesirx-bi-woocommerce-product',
+      function () {
+        ?><div id="biapp" class="aesirxui"></div><?php
+      },
+      3);
   }
 });
 
 add_action('admin_init', 'redirect_analytics_config', 1);
 function redirect_analytics_config() {
   if ( isset($_GET['page'])
-       && $_GET['page'] == 'aesirx-bi-dashboard'
+       && ($_GET['page'] == 'aesirx-bi-dashboard' || $_GET['page'] == 'aesirx-bi-visitors' || $_GET['page'] == 'aesirx-bi-behavior' || $_GET['page'] == 'aesirx-bi-utm-tracking' || $_GET['page'] == 'aesirx-bi-woocommerce')
        && !analytics_config_is_ok()) {
     wp_redirect('/wp-admin/options-general.php?page=aesirx-analytics-plugin');
     die;
@@ -353,10 +423,21 @@ function redirect_analytics_config() {
 
 add_action('admin_enqueue_scripts', function ($hook) {
   if ($hook === 'toplevel_page_aesirx-bi-dashboard' || 
-      $hook === 'aesirx-bi_page_aesirx-bi-visitors' || 
+      $hook === 'toplevel_page_aesirx-bi-visitors' || 
+      $hook === 'toplevel_page_aesirx-bi-behavior' || 
+      $hook === 'toplevel_page_aesirx-bi-utm-tracking' || 
+      $hook === 'toplevel_page_aesirx-bi-woocommerce' || 
+      $hook === 'aesirx-bi_page_aesirx-bi-visitors' ||
+      $hook === 'admin_page_aesirx-bi-visitors-locations' || 
+      $hook === 'admin_page_aesirx-bi-visitors-flow' || 
+      $hook === 'admin_page_aesirx-bi-flow' || 
       $hook === 'aesirx-bi_page_aesirx-bi-behavior' ||
+      $hook === 'admin_page_aesirx-bi-behavior-events' ||
+      $hook === 'admin_page_aesirx-bi-behavior-events-generator' ||
       $hook === 'aesirx-bi_page_aesirx-bi-utm-tracking' ||
-      $hook === 'aesirx-bi_page_aesirx-bi-woocommerce') {
+      $hook === 'admin_page_aesirx-bi-utm-tracking-generator' ||
+      $hook === 'aesirx-bi_page_aesirx-bi-woocommerce' ||
+      $hook === 'admin_page_aesirx-bi-woocommerce-product') {
 
     $options = get_option('aesirx_analytics_plugin_options');
 
