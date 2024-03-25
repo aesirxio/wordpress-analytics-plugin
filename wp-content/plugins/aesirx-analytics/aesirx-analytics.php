@@ -84,7 +84,7 @@ if (aesirx_analytics_config_is_ok()) {
             session_start();
         }
 
-        $flowUuid = $_SESSION['analytics_flow_uuid'] ?? null;
+        $flowUuid = sanitize_text_field($_SESSION['analytics_flow_uuid']) ?? null;
 
         if (is_null($flowUuid))
         {
@@ -125,7 +125,7 @@ if (!wp_next_scheduled('analytics_cron_geo')) {
 
 add_filter('plugin_action_links_' . plugin_basename(__FILE__), function ($links) {
   $url = esc_url(add_query_arg('page', 'aesirx-analytics-plugin', get_admin_url() . 'admin.php'));
-  array_push($links, "<a href='$url'>" . __('Settings') . '</a>');
+  array_push($links, "<a href='$url'>" . esc_html__('Settings') . '</a>');
   return $links;
 });
 
@@ -201,7 +201,7 @@ function aesirx_analytics_url_handler()
               ->setRequestMethods([Request::REQUEST_TYPE_POST])
       );
 
-      echo $router->start();
+      echo esc_html($router->start());
   } catch (Throwable $e) {
     if ($e instanceof NotFoundHttpException) {
       return;
@@ -217,7 +217,7 @@ function aesirx_analytics_url_handler()
           header( 'Content-Type: application/json; charset=utf-8' );
       }
     http_response_code($code);
-    echo json_encode([
+    echo wp_json_encode([
         'error' => $e->getMessage(),
     ]);
   }
@@ -273,7 +273,7 @@ function aesirx_analytics_display_update_notice(  ) {
         if ($notice instanceof Throwable)
         {
             /* translators: %s: error message */
-            echo '<div class="notice notice-error"><p>' . sprintf(__('Problem with Aesirx Analytics plugin install: %s', 'aesirx-analytics'), $notice->getMessage()) . '</p></div>';
+            echo '<div class="notice notice-error"><p>' . sprintf(esc_html__('Problem with Aesirx Analytics plugin install: %s', 'aesirx-analytics'), $notice->getMessage()) . '</p></div>';
         }
 
         delete_transient( 'aesirx_analytics_update_notice' );
@@ -307,7 +307,7 @@ add_action('admin_init', function () {
             add_settings_error(
                 'aesirx_analytics_plugin_options',
                 'download',
-                __('Library successfully downloaded.', 'aesirx-analytics'),
+                esc_html__('Library successfully downloaded.', 'aesirx-analytics'),
                 'info'
             );
         }
@@ -317,7 +317,7 @@ add_action('admin_init', function () {
                 'aesirx_analytics_plugin_options',
                 'download',
                 /* translators: %s: error message */
-                sprintf(__('Error: %s', 'aesirx-analytics'), $e->getMessage())
+                sprintf(esc_html__('Error: %s', 'aesirx-analytics'), $e->getMessage())
             );
         }
     });

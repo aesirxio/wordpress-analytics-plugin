@@ -17,7 +17,7 @@ add_action('admin_init', function () {
         add_settings_error(
           'aesirx_analytics_plugin_options',
           'license',
-          __('License is empty.', 'aesirx-analytics')
+          esc_html__('License is empty.', 'aesirx-analytics')
         );
       }
     } elseif ($input['storage'] == 'external') {
@@ -26,14 +26,14 @@ add_action('admin_init', function () {
         add_settings_error(
           'aesirx_analytics_plugin_options',
           'domain',
-          __('Domain is empty.', 'aesirx-analytics')
+          esc_html__('Domain is empty.', 'aesirx-analytics')
         );
       } elseif (filter_var($input['domain'], FILTER_VALIDATE_URL) === false) {
         $valid = false;
         add_settings_error(
           'aesirx_analytics_plugin_options',
           'domain',
-          __('Invalid domain format.', 'aesirx-analytics')
+          esc_html__('Invalid domain format.', 'aesirx-analytics')
         );
       }
     }
@@ -51,7 +51,7 @@ add_action('admin_init', function () {
     function () {
       echo wp_kses_post(
         /* translators: %s: URL to aesir.io read mor details */
-        sprintf(__('<p>Read more detail at <a target="_blank" href="%s">%s</a></p><p class= "description">
+        sprintf(esc_html__('<p>Read more detail at <a target="_blank" href="%s">%s</a></p><p class= "description">
         <p>Note: Please set Permalink structure is NOT plain.</p></p>', 'aesirx-analytics'), 'https://github.com/aesirxio/analytics#in-ssr-site', 'https://github.com/aesirxio/analytics#in-ssr-site')
       );
     },
@@ -60,16 +60,16 @@ add_action('admin_init', function () {
 
   add_settings_field(
     'aesirx_analytics_storage',
-    __('1st party server', 'aesirx-analytics'),
+    esc_html__('1st party server', 'aesirx-analytics'),
     function () {
       $options = get_option('aesirx_analytics_plugin_options', []);
       $checked = 'checked="checked"';
       $storage = $options['storage'] ?? 'internal';
       echo '
-    <label>' . __('Internal', 'aesirx-analytics') . ' <input type="radio" class="analytic-storage-class" name="aesirx_analytics_plugin_options[storage]" ' .
+    <label>' . esc_html__('Internal', 'aesirx-analytics') . ' <input type="radio" class="analytic-storage-class" name="aesirx_analytics_plugin_options[storage]" ' .
         ($storage == 'internal' ? $checked : '') .
         ' value="internal"  /></label>
-    <label>' . __('External', 'aesirx-analytics') . ' <input type="radio" class="analytic-storage-class" name="aesirx_analytics_plugin_options[storage]" ' .
+    <label>' . esc_html__('External', 'aesirx-analytics') . ' <input type="radio" class="analytic-storage-class" name="aesirx_analytics_plugin_options[storage]" ' .
         ($storage == 'external' ? $checked : '') .
         ' value="external" /></label>
 
@@ -131,17 +131,17 @@ add_action('admin_init', function () {
   if (!CliFactory::getCli()->analyticsCliExists()) {
     add_settings_field(
         'aesirx_analytics_download',
-        __( 'Download', 'aesirx-analytics' ),
+        esc_html__( 'Download', 'aesirx-analytics' ),
         function () {
           try {
               CliFactory::getCli()->getSupportedArch();
 
-            echo '<button name="submit" id="aesirx_analytics_download" class="button button-primary" type="submit" value="download_analytics_cli">' . __(
+            echo '<button name="submit" id="aesirx_analytics_download" class="button button-primary" type="submit" value="download_analytics_cli">' . esc_html__(
                     'Click to download CLI library! This plugin can\'t work without the library!', 'aesirx-analytics'
                 ) . '</button>';
           }
           catch ( Throwable $e ) {
-            echo wp_kses_post('<strong style="color: red">' . __( 'You can\'t use internal server. Error: ', 'aesirx-analytics' ) . $e->getMessage() . '</strong>');
+            echo wp_kses_post('<strong style="color: red">' . sprintf(esc_html__( 'You can\'t use internal server. Error: %s', 'aesirx-analytics' ) , $e->getMessage()) . '</strong>');
           }
         },
         'aesirx_analytics_plugin',
@@ -154,9 +154,9 @@ add_action('admin_init', function () {
           function () {
               try {
                   CliFactory::getCli()->processAnalytics(['--version']);
-				  echo '<strong style="color: green" id="aesirx_analytics_download">' . __( 'Passed', 'aesirx-analytics' ) . '</strong>';
+				  echo '<strong style="color: green" id="aesirx_analytics_download">' . esc_html__( 'Passed', 'aesirx-analytics' ) . '</strong>';
               } catch (Throwable $e) {
-                  echo '<strong style="color: red" id="aesirx_analytics_download">' . __( 'You can\'t use internal server. Error: ' . $e->getMessage(), 'aesirx-analytics' ) . '</strong>';
+                  echo wp_kses_post('<strong style="color: red" id="aesirx_analytics_download">' . sprintf(esc_html__( 'You can\'t use internal server. Error: $s', 'aesirx-analytics' ), $e->getMessage()) . '</strong>');
 			  }
           },
           'aesirx_analytics_plugin',
@@ -172,10 +172,10 @@ add_action('admin_init', function () {
       $checked = 'checked="checked"';
       $storage = $options['consent'] ?? 'true';
       echo '
-        <label>' . __('Yes', 'aesirx-analytics') . ' <input type="radio" class="analytic-consent-class" name="aesirx_analytics_plugin_options[consent]" ' .
+        <label>' . esc_html__('Yes', 'aesirx-analytics') . ' <input type="radio" class="analytic-consent-class" name="aesirx_analytics_plugin_options[consent]" ' .
             ($storage == 'true' ? $checked : '') .
             ' value="true"  /></label>
-        <label>' . __('No', 'aesirx-analytics') . ' <input type="radio" class="analytic-consent-class" name="aesirx_analytics_plugin_options[consent]" ' .
+        <label>' . esc_html__('No', 'aesirx-analytics') . ' <input type="radio" class="analytic-consent-class" name="aesirx_analytics_plugin_options[consent]" ' .
             ($storage == 'false' ? $checked : '') .
             ' value="false" /></label>';
     }, 
@@ -185,7 +185,7 @@ add_action('admin_init', function () {
 
   add_settings_field(
     'aesirx_analytics_clientid',
-    __('Client ID', 'aesirx-analytics'),
+    esc_html__('Client ID', 'aesirx-analytics'),
     function () {
       $options = get_option('aesirx_analytics_plugin_options', []);
       echo "<input id='aesirx_analytics_clientid' name='aesirx_analytics_plugin_options[clientid]' type='text' value='" .
@@ -198,7 +198,7 @@ add_action('admin_init', function () {
 
   add_settings_field(
     'aesirx_analytics_secret',
-    __('Client secret', 'aesirx-analytics'),
+    esc_html__('Client secret', 'aesirx-analytics'),
     function () {
       $options = get_option('aesirx_analytics_plugin_options', []);
       echo "<input id='aesirx_analytics_secret' name='aesirx_analytics_plugin_options[secret]' type='text' value='" .
@@ -211,7 +211,7 @@ add_action('admin_init', function () {
 
   add_settings_field(
     'aesirx_analytics_license',
-    __('License', 'aesirx-analytics'),
+    esc_html__('License', 'aesirx-analytics'),
     function () {
       $options = get_option('aesirx_analytics_plugin_options', []);
       echo "<input id='aesirx_analytics_license' name='aesirx_analytics_plugin_options[license]' type='text' value='" .
@@ -225,17 +225,17 @@ add_action('admin_init', function () {
 
   add_settings_field(
     'aesirx_analytics_track_ecommerce',
-    __('Track ecommerce', 'aesirx-analytics'),
+    esc_html__('Track ecommerce', 'aesirx-analytics'),
     function () {
 
         $options = get_option('aesirx_analytics_plugin_options', []);
         $checked = 'checked="checked"';
         $storage = $options['track_ecommerce'] ?? 'true';
         echo '
-        <label>' . __('Yes', 'aesirx-analytics') . ' <input type="radio" class="analytic-track_ecommerce-class" name="aesirx_analytics_plugin_options[track_ecommerce]" ' .
+        <label>' . esc_html____('Yes', 'aesirx-analytics') . ' <input type="radio" class="analytic-track_ecommerce-class" name="aesirx_analytics_plugin_options[track_ecommerce]" ' .
              ($storage == 'true' ? $checked : '') .
              ' value="true"  /></label>
-        <label>' . __('No', 'aesirx-analytics') . ' <input type="radio" class="analytic-track_ecommerce-class" name="aesirx_analytics_plugin_options[track_ecommerce]" ' .
+        <label>' . esc_html__('No', 'aesirx-analytics') . ' <input type="radio" class="analytic-track_ecommerce-class" name="aesirx_analytics_plugin_options[track_ecommerce]" ' .
              ($storage == 'false' ? $checked : '') .
              ' value="false" /></label>';
     },
@@ -258,8 +258,8 @@ add_action('admin_init', function () {
 
 add_action('admin_menu', function () {
   add_options_page(
-    __('Aesirx Analytics', 'aesirx-analytics'),
-    __('Aesirx Analytics', 'aesirx-analytics'),
+    esc_html__('Aesirx Analytics', 'aesirx-analytics'),
+    esc_html__('Aesirx Analytics', 'aesirx-analytics'),
     'manage_options',
     'aesirx-analytics-plugin',
     function () {
