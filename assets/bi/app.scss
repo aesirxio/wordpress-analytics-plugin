@@ -22,13 +22,12 @@
   .main_content_dashboard {
     height: 100% !important;
   }
-
-  .sidebar {
-    position: fixed !important;
+  #all_header .wrapper_header_logo {
+    display: none !important;
   }
 
-  .bi-intergration_layout {
-    margin-left: 80px;
+  aside.sidebar {
+    display: none !important;
   }
 }
 
