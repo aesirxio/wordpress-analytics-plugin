@@ -8,8 +8,7 @@ const { GitRevisionPlugin } = require('git-revision-webpack-plugin');
 const gitRevisionPlugin = new GitRevisionPlugin();
 
 module.exports = {
-  mode: 'development',
-  devtool: false,
+  mode: 'production',
   entry: {
     plugin: './assets/plugin/index.tsx',
     bi: './assets/bi/index.tsx',
@@ -80,8 +79,6 @@ module.exports = {
   },
 
   optimization: {
-    usedExports: true,
-    minimize: true,
     minimizer: [
       new TerserPlugin({
         terserOptions: {

@@ -1,5 +1,7 @@
 <?php
 
+use AesirxAnalytics\CliFactory;
+
 add_action('admin_init', function () {
   register_setting('aesirx_analytics_plugin_options', 'aesirx_analytics_plugin_options', function (
     $value
@@ -123,13 +125,13 @@ add_action('admin_init', function () {
     'aesirx_analytics_settings'
   );
 
-  if (!analytics_cli_exists()) {
+  if (!CliFactory::getCli()->analyticsCliExists()) {
     add_settings_field(
         'aesirx_analytics_download',
         __( 'Download', 'aesirx-analytics' ),
         function () {
           try {
-            get_supported_arch();
+              CliFactory::getCli()->getSupportedArch();
 
             echo '<button name="submit" id="aesirx_analytics_download" class="button button-primary" type="submit" value="download_analytics_cli">' . __(
                     'Click to download CLI library! This plugin can\'t work without the library!', 'aesirx-analytics'
@@ -148,7 +150,7 @@ add_action('admin_init', function () {
           __( 'CLI library check', 'aesirx-analytics' ),
           function () {
               try {
-                  process_analytics(['--version']);
+                  CliFactory::getCli()->processAnalytics(['--version']);
 				  echo '<strong style="color: green" id="aesirx_analytics_download">' . __( 'Passed', 'aesirx-analytics' ) . '</strong>';
               } catch (Throwable $e) {
                   echo '<strong style="color: red" id="aesirx_analytics_download">' . __( 'You can\'t use internal server. Error: ' . $e->getMessage(), 'aesirx-analytics' ) . '</strong>';
@@ -160,6 +162,51 @@ add_action('admin_init', function () {
   }
 
   add_settings_field(
+    'aesirx_analytics_consent',
+    __('Consent', 'aesirx-analytics'),
+    function () {
+      $options = get_option('aesirx_analytics_plugin_options', []);
+      $checked = 'checked="checked"';
+      $storage = $options['consent'] ?? 'true';
+      echo '
+        <label>' . __('Yes', 'aesirx-analytics') . ' <input type="radio" class="analytic-consent-class" name="aesirx_analytics_plugin_options[consent]" ' .
+            ($storage == 'true' ? $checked : '') .
+            ' value="true"  /></label>
+        <label>' . __('No', 'aesirx-analytics') . ' <input type="radio" class="analytic-consent-class" name="aesirx_analytics_plugin_options[consent]" ' .
+            ($storage == 'false' ? $checked : '') .
+            ' value="false" /></label>';
+    }, 
+    'aesirx_analytics_plugin',
+    'aesirx_analytics_settings'
+  );
+
+  add_settings_field(
+    'aesirx_analytics_clientid',
+    __('Client ID', 'aesirx-analytics'),
+    function () {
+      $options = get_option('aesirx_analytics_plugin_options', []);
+      echo "<input id='aesirx_analytics_clientid' name='aesirx_analytics_plugin_options[clientid]' type='text' value='" .
+        esc_attr($options['clientid'] ?? '') .
+        "' />";
+    },
+    'aesirx_analytics_plugin',
+    'aesirx_analytics_settings'
+  );
+
+  add_settings_field(
+    'aesirx_analytics_secret',
+    __('Client secret', 'aesirx-analytics'),
+    function () {
+      $options = get_option('aesirx_analytics_plugin_options', []);
+      echo "<input id='aesirx_analytics_secret' name='aesirx_analytics_plugin_options[secret]' type='text' value='" .
+        esc_attr($options['secret'] ?? '') .
+        "' />";
+    },
+    'aesirx_analytics_plugin',
+    'aesirx_analytics_settings'
+  );
+
+  add_settings_field(
     'aesirx_analytics_license',
     __('License', 'aesirx-analytics'),
     function () {
@@ -167,7 +214,27 @@ add_action('admin_init', function () {
       echo "<input id='aesirx_analytics_license' name='aesirx_analytics_plugin_options[license]' type='text' value='" .
         esc_attr($options['license'] ?? '') .
         "' /> <p class= 'description'>
-        Register to AesirX and get your license here: <a target='_blank' href='https://partners.aesirx.io/auth/register'>https://partners.aesirx.io/auth/register</a>.</p>";
+        Register to AesirX and get your client id, client secret and license here: <a target='_blank' href='https://web3id.aesirx.io'>https://web3id.aesirx.io</a>.</p>";
+    },
+    'aesirx_analytics_plugin',
+    'aesirx_analytics_settings'
+  );
+
+  add_settings_field(
+    'aesirx_analytics_track_ecommerce',
+    __('Track ecommerce', 'aesirx-analytics'),
+    function () {
+
+        $options = get_option('aesirx_analytics_plugin_options', []);
+        $checked = 'checked="checked"';
+        $storage = $options['track_ecommerce'] ?? 'true';
+        echo '
+        <label>' . __('Yes', 'aesirx-analytics') . ' <input type="radio" class="analytic-track_ecommerce-class" name="aesirx_analytics_plugin_options[track_ecommerce]" ' .
+             ($storage == 'true' ? $checked : '') .
+             ' value="true"  /></label>
+        <label>' . __('No', 'aesirx-analytics') . ' <input type="radio" class="analytic-track_ecommerce-class" name="aesirx_analytics_plugin_options[track_ecommerce]" ' .
+             ($storage == 'false' ? $checked : '') .
+             ' value="false" /></label>';
     },
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
@@ -177,11 +244,9 @@ add_action('admin_init', function () {
     'aesirx_analytics_info',
     '',
     function () {
-      echo '<div class="aesirx_analytics_info"><div class="wrap">Invest $1000 as a seed fund and receive:
-      <ul><li>Rewards worth of $6000!</li><li> Many more exclusive benefits!</li></ul><div>
-
-      <p>* Apply for only the first 2000 investors</p>
-      <a target="_blank" href="https://aesirx.io/seed-round?utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics">Become a Community Investor Now!</a></div>';
+      echo '<div class="aesirx_analytics_info"><div class="wrap">Sign up for a
+      <h3>FREE License</h3><p>at the AesirX Shield of Privacy dApp</p><div>
+      <a target="_blank" href="https://dapp.shield.aesirx.io?utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics">Get Free License</a></div>';
     },
     'aesirx_analytics_info'
   );
@@ -216,7 +281,7 @@ add_action('admin_menu', function () {
     'manage_options',
     'aesirx-bi-dashboard',
     function () {
-      ?><div id="biapp"></div><?php
+      ?><div id="biapp" class="aesirxui"></div><?php
     },
     'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTExLjI2NjEgMlYyMiIgc3Ryb2tlPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNi4wOTA5IDYuMTk1NjhMMTYuOTk5OSAxNy41MjQ0IiBzdHJva2U9IndoaXRlIi8+Cjwvc3ZnPgo=',
     3
@@ -244,7 +309,7 @@ add_action('admin_enqueue_scripts', function ($hook) {
     $endpoint =
       ($options['storage'] ?? 'internal') == 'internal'
         ? get_bloginfo('url')
-        : $options['domain'] ?? '';
+        : rtrim($options['domain'] ?? '', '/');
 
     $manifest = json_decode(
       file_get_contents(plugin_dir_path(__DIR__) . 'assets-manifest.json', true)
@@ -255,15 +320,20 @@ add_action('admin_enqueue_scripts', function ($hook) {
         wp_enqueue_script('aesrix_bi' . md5($js), plugins_url($js, __DIR__), false, null, true);
       }
     }
+
+    $clientId = $options['clientid'];
+    $clientSecret = $options['secret'];
+
     ?>
 	  <script type="text/javascript">
 		  window.env = {};
-		  window.env.REACT_APP_CLIENT_ID = "app";
-		  window.env.REACT_APP_CLIENT_SECRET = "secret";
+		  window.aesirxClientID = "<?php echo $clientId; ?>";
+		  window.aesirxClientSecret = "<?php echo $clientSecret; ?>";
 		  window.env.REACT_APP_ENDPOINT_URL = "<?php echo $endpoint; ?>";
 		  window.env.REACT_APP_DATA_STREAM = JSON.stringify(<?php echo json_encode($streams); ?>);
 		  window.env.PUBLIC_URL="<?php echo plugin_dir_url(__DIR__) ?>";
-	  </script>
+      window.env.STORAGE="<?php echo $options['storage'] ?>";
+      <?php echo $options['storage'] === "external" ? 'window.env.REACT_APP_HEADER_JWT="true";' : '' ?>	  </script>
 	  <?php
   }
 });

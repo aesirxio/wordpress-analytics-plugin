@@ -9,9 +9,14 @@ updates:
     directory: '/' # Location of package manifests
     schedule:
       interval: 'monthly'
-      
- - package-ecosystem: "composer"
+
+  - package-ecosystem: 'composer'
     # Files stored in repository root
-    directory: "/"
+    directory: '/'
     schedule:
-      interval: "monthly"
+      interval: 'monthly'
+
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'monthly'

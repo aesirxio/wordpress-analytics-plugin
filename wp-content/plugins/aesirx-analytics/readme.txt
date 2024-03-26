@@ -11,6 +11,9 @@ WordPress plugin for tracking and storing the tracking data
 
 == Changelog ==
 
+= 2.2.0 =
+* Consent
+
 = 2.1.1 =
 * Fix CLI
 * Update BI app
