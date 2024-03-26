@@ -57,7 +57,7 @@ function composerTask() {
 
 async function cleanComposerTask() {
   const del = await import('del');
-  return del.deleteAsync(`${dist}/plugins/aesirx-analytics/composer.*`, {
+  return del.deleteAsync(`${dist}/plugins/aesirx-analytics/composer.lock`, {
     force: true,
   });
 }

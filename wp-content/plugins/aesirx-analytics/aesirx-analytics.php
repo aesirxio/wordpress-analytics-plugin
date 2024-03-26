@@ -8,7 +8,10 @@
  * Author URI: https://aesirx.io/
  * Domain Path: /languages
  * Text Domain: aesirx-analytics
- * Requires PHP: 7.2
+ * Requires PHP: 8.1
+ * License: GPL v3 or later
+ * License URI: https://www.gnu.org/licenses/gpl-3.0.html
+ * 
  **/
 
 use AesirxAnalytics\CliFactory;
