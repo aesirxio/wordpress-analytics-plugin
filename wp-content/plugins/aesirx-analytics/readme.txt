@@ -1,6 +1,9 @@
 === AesirX Analytics ===
 Contributors: aesirx
 Tags: analytics
+Requires at least: 6.3
+Tested up to: 6.4
+Stable tag: 3.0.0
 Requires PHP: 7.2
 License: GPL-3.0-only
 
