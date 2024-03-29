@@ -34,7 +34,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-if ( ! class_exists( 'TGM_Plugin_Activation' ) ) {
+if ( ! class_exists( 'Aesirx_Analytics_TGM_Plugin_Activation' ) ) {
 
 	/**
 	 * Automatic plugin installation and activation library.
@@ -49,7 +49,7 @@ if ( ! class_exists( 'TGM_Plugin_Activation' ) ) {
 	 * @author  Thomas Griffin
 	 * @author  Gary Jones
 	 */
-	class TGM_Plugin_Activation {
+	class Aesirx_Analytics_TGM_Plugin_Activation {
 		/**
 		 * TGMPA version number.
 		 *
@@ -82,7 +82,7 @@ if ( ! class_exists( 'TGM_Plugin_Activation' ) ) {
 		 *
 		 * @since 1.0.0
 		 *
-		 * @var TGM_Plugin_Activation
+		 * @var Aesirx_Analytics_TGM_Plugin_Activation
 		 */
 		public static $instance;
 
@@ -252,7 +252,7 @@ if ( ! class_exists( 'TGM_Plugin_Activation' ) ) {
 		 *
 		 * @since 1.0.0
 		 *
-		 * @see TGM_Plugin_Activation::init()
+		 * @see Aesirx_Analytics_TGM_Plugin_Activation::init()
 		 */
 		public function __construct() {
 			// Set the current WordPress version.
@@ -313,9 +313,9 @@ if ( ! class_exists( 'TGM_Plugin_Activation' ) ) {
 		 *
 		 * @since 2.0.0
 		 *
-		 * @see TGM_Plugin_Activation::admin_menu()
-		 * @see TGM_Plugin_Activation::notices()
-		 * @see TGM_Plugin_Activation::styles()
+		 * @see Aesirx_Analytics_TGM_Plugin_Activation::admin_menu()
+		 * @see Aesirx_Analytics_TGM_Plugin_Activation::notices()
+		 * @see Aesirx_Analytics_TGM_Plugin_Activation::styles()
 		 */
 		public function init() {
 			/**
@@ -686,8 +686,8 @@ if ( ! class_exists( 'TGM_Plugin_Activation' ) ) {
 		 *
 		 * @since 1.0.0
 		 *
-		 * @see TGM_Plugin_Activation::init()
-		 * @see TGM_Plugin_Activation::install_plugins_page()
+		 * @see Aesirx_Analytics_TGM_Plugin_Activation::init()
+		 * @see Aesirx_Analytics_TGM_Plugin_Activation::install_plugins_page()
 		 *
 		 * @return null Return early if user lacks capability to install a plugin.
 		 */
@@ -2060,7 +2060,7 @@ if ( ! class_exists( 'TGM_Plugin_Activation' ) ) {
 			}
 
 			if ( ! empty( $deactivated ) ) {
-				update_option( 'recently_activated', $deactivated + (array) get_option( 'recently_activated' ) );
+				update_option( 'aesirx_analytics_recently_activated', $deactivated + (array) get_option( 'aesirx_analytics_recently_activated' ) );
 			}
 		}
 
@@ -2076,7 +2076,7 @@ if ( ! class_exists( 'TGM_Plugin_Activation' ) ) {
 		 *
 		 * @since 2.4.0
 		 *
-		 * @return \TGM_Plugin_Activation The TGM_Plugin_Activation object.
+		 * @return \Aesirx_Analytics_TGM_Plugin_Activation The Aesirx_Analytics_TGM_Plugin_Activation object.
 		 */
 		public static function get_instance() {
 			if ( ! isset( self::$instance ) && ! ( self::$instance instanceof self ) ) {
@@ -2087,21 +2087,21 @@ if ( ! class_exists( 'TGM_Plugin_Activation' ) ) {
 		}
 	}
 
-	if ( ! function_exists( 'load_tgm_plugin_activation' ) ) {
+	if ( ! function_exists( 'load_aesirx_analytics_tgm_plugin_activation' ) ) {
 		/**
 		 * Ensure only one instance of the class is ever invoked.
 		 *
 		 * @since 2.5.0
 		 */
-		function load_tgm_plugin_activation() {
-			$GLOBALS['tgmpa'] = TGM_Plugin_Activation::get_instance();
+		function load_aesirx_analytics_tgm_plugin_activation() {
+			$GLOBALS['tgmpa'] = Aesirx_Analytics_TGM_Plugin_Activation::get_instance();
 		}
 	}
 
 	if ( did_action( 'plugins_loaded' ) ) {
-		load_tgm_plugin_activation();
+		load_aesirx_analytics_tgm_plugin_activation();
 	} else {
-		add_action( 'plugins_loaded', 'load_tgm_plugin_activation' );
+		add_action( 'plugins_loaded', 'load_aesirx_analytics_tgm_plugin_activation' );
 	}
 }
 
@@ -2950,7 +2950,7 @@ if ( ! class_exists( 'TGMPA_List_Table' ) ) {
 
 				// Create a new instance of TGMPA_Bulk_Installer.
 				$installer = new TGMPA_Bulk_Installer(
-					new TGMPA_Bulk_Installer_Skin(
+					new Aesirx_Analytics_TGMPA_Bulk_Installer_Skin(
 						array(
 							'url'          => esc_url_raw( $this->tgmpa->get_tgmpa_url() ),
 							'nonce'        => 'bulk-' . $this->_args['plural'],
@@ -3039,13 +3039,13 @@ if ( ! class_exists( 'TGMPA_List_Table' ) ) {
 					);
 
 					// Update recently activated plugins option.
-					$recent = (array) get_option( 'recently_activated' );
+					$recent = (array) get_option( 'aesirx_analytics_recently_activated' );
 					foreach ( $plugins_to_activate as $plugin => $time ) {
 						if ( isset( $recent[ $plugin ] ) ) {
 							unset( $recent[ $plugin ] );
 						}
 					}
-					update_option( 'recently_activated', $recent );
+					update_option( 'aesirx_analytics_recently_activated', $recent );
 				}
 
 				unset( $_POST ); // Reset the $_POST variable in case user wants to perform one action after another.
@@ -3083,15 +3083,15 @@ if ( ! class_exists( 'TGMPA_List_Table' ) ) {
 		 * Retrieve plugin data, given the plugin name.
 		 *
 		 * @since      2.2.0
-		 * @deprecated 2.5.0 use {@see TGM_Plugin_Activation::_get_plugin_data_from_name()} instead.
-		 * @see        TGM_Plugin_Activation::_get_plugin_data_from_name()
+		 * @deprecated 2.5.0 use {@see Aesirx_Analytics_TGM_Plugin_Activation::_get_plugin_data_from_name()} instead.
+		 * @see        Aesirx_Analytics_TGM_Plugin_Activation::_get_plugin_data_from_name()
 		 *
 		 * @param string $name Name of the plugin, as it was registered.
 		 * @param string $data Optional. Array key of plugin data to return. Default is slug.
 		 * @return string|boolean Plugin slug if found, false otherwise.
 		 */
 		protected function _get_plugin_data_from_name( $name, $data = 'slug' ) {
-			_deprecated_function( __FUNCTION__, 'TGMPA 2.5.0', 'TGM_Plugin_Activation::_get_plugin_data_from_name()' );
+			_deprecated_function( __FUNCTION__, 'TGMPA 2.5.0', 'Aesirx_Analytics_TGM_Plugin_Activation::_get_plugin_data_from_name()' );
 
 			return $this->tgmpa->_get_plugin_data_from_name( $name, $data );
 		}
@@ -3099,30 +3099,30 @@ if ( ! class_exists( 'TGMPA_List_Table' ) ) {
 }
 
 
-if ( ! class_exists( 'TGM_Bulk_Installer' ) ) {
+if ( ! class_exists( 'Aesirx_Analytics_TGM_Bulk_Installer' ) ) {
 
 	/**
 	 * Hack: Prevent TGMPA v2.4.1- bulk installer class from being loaded if 2.4.1- is loaded after 2.5+.
 	 *
 	 * @since 2.5.2
 	 *
-	 * {@internal The TGMPA_Bulk_Installer class was originally called TGM_Bulk_Installer.
+	 * {@internal The Aesirx_Analytics_TGM_Bulk_Installer class was originally called Aesirx_Analytics_TGM_Bulk_Installer.
 	 *            For more information, see that class.}}
 	 */
-	class TGM_Bulk_Installer {
+	class Aesirx_Analytics_TGM_Bulk_Installer {
 	}
 }
-if ( ! class_exists( 'TGM_Bulk_Installer_Skin' ) ) {
+if ( ! class_exists( 'Aesirx_Analytics_TGM_Bulk_Installer_Skin' ) ) {
 
 	/**
 	 * Hack: Prevent TGMPA v2.4.1- bulk installer skin class from being loaded if 2.4.1- is loaded after 2.5+.
 	 *
 	 * @since 2.5.2
 	 *
-	 * {@internal The TGMPA_Bulk_Installer_Skin class was originally called TGM_Bulk_Installer_Skin.
+	 * {@internal The Aesirx_Analytics_TGMPA_Bulk_Installer_Skin class was originally called Aesirx_Analytics_TGM_Bulk_Installer_Skin.
 	 *            For more information, see that class.}}
 	 */
-	class TGM_Bulk_Installer_Skin {
+	class Aesirx_Analytics_TGM_Bulk_Installer_Skin {
 	}
 }
 
@@ -3166,7 +3166,7 @@ if ( ! function_exists( 'tgmpa_load_bulk_installer' ) ) {
 				 * @since 2.2.0
 				 *
 				 * {@internal Since 2.5.0 the class is an extension of Plugin_Upgrader rather than WP_Upgrader.}}
-				 * {@internal Since 2.5.2 the class has been renamed from TGM_Bulk_Installer to TGMPA_Bulk_Installer.
+				 * {@internal Since 2.5.2 the class has been renamed from Aesirx_Analytics_TGM_Bulk_Installer to TGMPA_Bulk_Installer.
 				 *            This was done to prevent backward compatibility issues with v2.3.6.}}
 				 *
 				 * @package TGM-Plugin-Activation
@@ -3484,7 +3484,7 @@ if ( ! function_exists( 'tgmpa_load_bulk_installer' ) ) {
 				}
 			}
 
-			if ( ! class_exists( 'TGMPA_Bulk_Installer_Skin' ) ) {
+			if ( ! class_exists( 'Aesirx_Analytics_TGMPA_Bulk_Installer_Skin' ) ) {
 
 				/**
 				 * Installer skin to set strings for the bulk plugin installations..
@@ -3494,8 +3494,8 @@ if ( ! function_exists( 'tgmpa_load_bulk_installer' ) ) {
 				 *
 				 * @since 2.2.0
 				 *
-				 * {@internal Since 2.5.2 the class has been renamed from TGM_Bulk_Installer_Skin to
-				 *            TGMPA_Bulk_Installer_Skin.
+				 * {@internal Since 2.5.2 the class has been renamed from Aesirx_Analytics_TGM_Bulk_Installer_Skin to
+				 *            Aesirx_Analytics_TGMPA_Bulk_Installer_Skin.
 				 *            This was done to prevent backward compatibility issues with v2.3.6.}}
 				 *
 				 * @see https://core.trac.wordpress.org/browser/trunk/src/wp-admin/includes/class-wp-upgrader-skins.php
@@ -3504,7 +3504,7 @@ if ( ! function_exists( 'tgmpa_load_bulk_installer' ) ) {
 				 * @author  Thomas Griffin
 				 * @author  Gary Jones
 				 */
-				class TGMPA_Bulk_Installer_Skin extends Bulk_Upgrader_Skin {
+				class Aesirx_Analytics_TGMPA_Bulk_Installer_Skin extends Bulk_Upgrader_Skin {
 					/**
 					 * Holds plugin info for each individual plugin installation.
 					 *
