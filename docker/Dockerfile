@@ -1,4 +1,4 @@
-FROM php:7.2-cli-buster
+FROM php:7.4-cli-buster
 
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
     apt-get install -y nodejs git zip && \
