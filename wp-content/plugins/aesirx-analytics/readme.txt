@@ -4,7 +4,7 @@ Tags: analytics
 Requires at least: 6.3
 Tested up to: 6.4
 Stable tag: 3.0.0
-Requires PHP: 7.2
+Requires PHP: 8.1
 License: GPL-3.0-only
 
 WordPress plugin for tracking and storing the tracking data
@@ -13,6 +13,16 @@ WordPress plugin for tracking and storing the tracking data
 WordPress plugin for tracking and storing the tracking data
 
 == Changelog ==
+
+= 3.1.0 =
+* Add option menu
+* Adjust menu
+* Adding requerd values in readme
+* Bugfixes update of dependencies
+
+= 3.0.0 =
+* Reuse of the AesirX Library
+* Add tracking for Woo revenue
 
 = 2.2.0 =
 * Consent
