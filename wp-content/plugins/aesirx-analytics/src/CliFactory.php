@@ -29,6 +29,13 @@ class CliFactory {
             }
         }
 
+        $upload_dir = wp_upload_dir()['basedir'] . '/aesirx-analytics/assets';
+
+        if (!is_dir($upload_dir))
+        {
+            wp_mkdir_p($upload_dir);
+        }
+
         static::$instance = new AesirxAnalyticsCli(
             new Env(
                 $options['license'] ?? '',
@@ -39,7 +46,7 @@ class CliFactory {
                 $host,
                 $port
             ),
-            WP_PLUGIN_DIR . '/aesirx-analytics/assets/analytics-cli'
+            $upload_dir . '/analytics-cli'
         );
 
         return static::$instance;
