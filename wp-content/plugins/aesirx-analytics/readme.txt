@@ -4,7 +4,11 @@ Tags: analytics
 Requires at least: 6.3
 Tested up to: 6.4
 Stable tag: 3.0.0
+<<<<<<< HEAD
 Requires PHP: 8.1
+=======
+Requires PHP: 7.4
+>>>>>>> 1a7a77839023fbf42c9d07626511c6294ea41b24
 License: GPL-3.0-only
 
 WordPress plugin for tracking and storing the tracking data
