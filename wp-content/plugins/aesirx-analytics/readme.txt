@@ -12,6 +12,14 @@ WordPress plugin for tracking and storing the tracking data
 == Description ==
 WordPress plugin for tracking and storing the tracking data
 
+== 3rd party services ==
+
+We use https://walletconnect.com/ for connecting the wallet in your browser with our consent.
+The Terms of service can be found here https://walletconnect.com/terms and the Privacy policy is here https://walletconnect.com/privacy.
+
+We use https://www.concordium.com/ to connect the your wallet with our consent form.
+The Privacy policy can be found here https://www.concordium.com/privacy-policy.
+
 == Changelog ==
 
 = 3.1.0 =
