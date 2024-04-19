@@ -75,9 +75,8 @@ msgstr[1] ""
 #, php-format
 msgid "There is an update available for: %1$s."
 msgid_plural "There are updates available for the following plugins: %1$s."
-msgstr[0] "Il existe une mise à jour disponible pour : %1$s."
-msgstr[1] ""
-"Il existe des mises à jour disponibles pour les extensions suivantes : %1$s."
+msgstr[0] "Il existe une mise à jour disponible pour l'extension : %1$s."
+msgstr[1] "Il existe des mises à jour disponibles pour les extensions suivantes : %1$s."
 
 #. translators: 1: plugin name(s).
 #: class-tgm-plugin-activation.php:367
@@ -85,8 +84,7 @@ msgstr[1] ""
 msgid "The following required plugin is currently inactive: %1$s."
 msgid_plural "The following required plugins are currently inactive: %1$s."
 msgstr[0] "L’extension requise suivante est actuellement inactive : %1$s."
-msgstr[1] ""
-"Les extensions requise suivantes sont actuellement inactives : %1$s."
+msgstr[1] "Les extensions requises suivantes sont actuellement inactives : %1$s."
 
 #. translators: 1: plugin name(s).
 #: class-tgm-plugin-activation.php:373
@@ -94,8 +92,7 @@ msgstr[1] ""
 msgid "The following recommended plugin is currently inactive: %1$s."
 msgid_plural "The following recommended plugins are currently inactive: %1$s."
 msgstr[0] "L’extension recommandée suivante est actuellement inactive : %1$s."
-msgstr[1] ""
-"Les extensions recommandées suivantes sont actuellement inactives : %1$s."
+msgstr[1] "Les extensions recommandées suivantes sont actuellement inactives : %1$s."
 
 #: class-tgm-plugin-activation.php:378
 msgid "Begin installing plugin"
@@ -165,7 +162,7 @@ msgid ""
 "There are one or more required or recommended plugins to install, update or "
 "activate."
 msgstr ""
-"Il y a une ou plusieurs extensions requise ou recommandées à installer, "
+"Il y a une ou plusieurs extension(s) requise(s) ou recommandée(s) qu'il est recommandé d’installer, "
 "mettre à jour ou activer."
 
 #: class-tgm-plugin-activation.php:404
@@ -382,15 +379,11 @@ msgstr "Activer"
 
 #: class-tgm-plugin-activation.php:2850
 msgid "No plugins were selected to be installed. No action taken."
-msgstr ""
-"Aucune extension n’a été sélectionnée pour être installée. Aucune action n’a "
-"été effectuée."
+msgstr "Aucune extension n’a été sélectionnée pour être installée. Aucune action n’a été effectuée."
 
 #: class-tgm-plugin-activation.php:2852
 msgid "No plugins were selected to be updated. No action taken."
-msgstr ""
-"Aucune extension n’a été sélectionnée pour être mise à jour. Aucune action "
-"n’a été effectuée."
+msgstr "Aucune extension n’a été sélectionnée pour être mise à jour. Aucune action n’a été effectuée."
 
 #: class-tgm-plugin-activation.php:2893
 msgid "No plugins are available to be installed at this time."
@@ -402,9 +395,7 @@ msgstr "Aucune extension à mettre à jour pour le moment."
 
 #: class-tgm-plugin-activation.php:3001
 msgid "No plugins were selected to be activated. No action taken."
-msgstr ""
-"Aucune extension n’a été sélectionnée pour être activée. Aucune action n’a "
-"été effectuée."
+msgstr "Aucune extension n’a été sélectionnée pour être activée. Aucune action n’a été effectuée."
 
 #: class-tgm-plugin-activation.php:3027
 msgid "No plugins are available to be activated at this time."
