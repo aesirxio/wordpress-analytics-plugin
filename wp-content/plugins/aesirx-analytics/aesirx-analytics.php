@@ -11,6 +11,7 @@
  * Requires PHP: 7.4
  * License: GPL v3 or later
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
+ * Requires Plugins: wp-crontrol
  * 
  **/
 
@@ -29,7 +30,6 @@ use Pecee\SimpleRouter\Route\RouteUrl;
 
 require_once plugin_dir_path(__FILE__) . 'vendor/autoload.php';
 require_once 'includes/settings.php';
-require_once 'class-tgm-plugin-activation.php';
 
 function aesirx_analytics_config_is_ok(string $isStorage = null): bool {
     $options = get_option('aesirx_analytics_plugin_options');
@@ -204,7 +204,7 @@ function aesirx_analytics_url_handler()
               ->setRequestMethods([Request::REQUEST_TYPE_POST])
       );
 
-      echo esc_html($router->start());
+      echo $router->start();
   } catch (Throwable $e) {
     if ($e instanceof NotFoundHttpException) {
       return;

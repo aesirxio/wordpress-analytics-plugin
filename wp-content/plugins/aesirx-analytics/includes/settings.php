@@ -232,7 +232,7 @@ add_action('admin_init', function () {
         $checked = 'checked="checked"';
         $storage = $options['track_ecommerce'] ?? 'true';
         echo '
-        <label>' . esc_html____('Yes', 'aesirx-analytics') . ' <input type="radio" class="analytic-track_ecommerce-class" name="aesirx_analytics_plugin_options[track_ecommerce]" ' .
+        <label>' . esc_html__('Yes', 'aesirx-analytics') . ' <input type="radio" class="analytic-track_ecommerce-class" name="aesirx_analytics_plugin_options[track_ecommerce]" ' .
              ($storage == 'true' ? $checked : '') .
              ' value="true"  /></label>
         <label>' . esc_html__('No', 'aesirx-analytics') . ' <input type="radio" class="analytic-track_ecommerce-class" name="aesirx_analytics_plugin_options[track_ecommerce]" ' .
