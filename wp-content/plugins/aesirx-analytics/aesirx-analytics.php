@@ -9,7 +9,7 @@
  * Domain Path: /languages
  * Text Domain: aesirx-analytics
  * Requires PHP: 7.4
- * License: GPL v3 or later
+ * License: GPL v3
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  * 
  **/
