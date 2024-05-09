@@ -1,5 +1,7 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 use AesirxAnalytics\CliFactory;
 
 add_action('admin_init', function () {
@@ -15,7 +17,7 @@ add_action('admin_init', function () {
         add_settings_error(
           'aesirx_analytics_plugin_options',
           'license',
-          __('License is empty.', 'aesirx-analytics')
+          esc_html__('License is empty.', 'aesirx-analytics')
         );
       }
     } elseif ($input['storage'] == 'external') {
@@ -24,14 +26,14 @@ add_action('admin_init', function () {
         add_settings_error(
           'aesirx_analytics_plugin_options',
           'domain',
-          __('Domain is empty.', 'aesirx-analytics')
+          esc_html__('Domain is empty.', 'aesirx-analytics')
         );
       } elseif (filter_var($input['domain'], FILTER_VALIDATE_URL) === false) {
         $valid = false;
         add_settings_error(
           'aesirx_analytics_plugin_options',
           'domain',
-          __('Invalid domain format.', 'aesirx-analytics')
+          esc_html__('Invalid domain format.', 'aesirx-analytics')
         );
       }
     }
@@ -47,27 +49,27 @@ add_action('admin_init', function () {
     'aesirx_analytics_settings',
     'Aesirx Analytics',
     function () {
-      echo
-
-           /* translators: %s: URL to aesir.io read mor details */
-                   sprintf(__('<p>Read more detail at <a target="_blank" href="%s">%s</a></p><p class= "description">
-        <p>Note: Please set Permalink structure is NOT plain.</p></p>', 'aesirx-analytics'), 'https://github.com/aesirxio/analytics#in-ssr-site', 'https://github.com/aesirxio/analytics#in-ssr-site');
+      echo wp_kses_post(
+        /* translators: %s: URL to aesir.io read mor details */
+        sprintf(esc_html__('<p>Read more detail at <a target="_blank" href="%s">%s</a></p><p class= "description">
+        <p>Note: Please set Permalink structure is NOT plain.</p></p>', 'aesirx-analytics'), 'https://github.com/aesirxio/analytics#in-ssr-site', 'https://github.com/aesirxio/analytics#in-ssr-site')
+      );
     },
     'aesirx_analytics_plugin'
   );
 
   add_settings_field(
     'aesirx_analytics_storage',
-    __('1st party server', 'aesirx-analytics'),
+    esc_html__('1st party server', 'aesirx-analytics'),
     function () {
       $options = get_option('aesirx_analytics_plugin_options', []);
       $checked = 'checked="checked"';
       $storage = $options['storage'] ?? 'internal';
       echo '
-    <label>' . __('Internal', 'aesirx-analytics') . ' <input type="radio" class="analytic-storage-class" name="aesirx_analytics_plugin_options[storage]" ' .
+    <label>' . esc_html__('Internal', 'aesirx-analytics') . ' <input type="radio" class="analytic-storage-class" name="aesirx_analytics_plugin_options[storage]" ' .
         ($storage == 'internal' ? $checked : '') .
         ' value="internal"  /></label>
-    <label>' . __('External', 'aesirx-analytics') . ' <input type="radio" class="analytic-storage-class" name="aesirx_analytics_plugin_options[storage]" ' .
+    <label>' . esc_html__('External', 'aesirx-analytics') . ' <input type="radio" class="analytic-storage-class" name="aesirx_analytics_plugin_options[storage]" ' .
         ($storage == 'external' ? $checked : '') .
         ' value="external" /></label>
 
@@ -113,13 +115,14 @@ add_action('admin_init', function () {
     __('domain <i>(Use next format: http://example.com:1000/)</i>', 'aesirx-analytics'),
     function () {
       $options = get_option('aesirx_analytics_plugin_options', []);
-      echo "<input id='aesirx_analytics_domain' name='aesirx_analytics_plugin_options[domain]' type='text' value='" .
+      echo wp_kses_post ("<input id='aesirx_analytics_domain' name='aesirx_analytics_plugin_options[domain]' type='text' value='" .
         esc_attr($options['domain'] ?? '') .
         "' />"
            /* translators: %s: URL to aesir.io */
            /* translators: %s: URL to aesir.io */
            . sprintf(__("<p class= 'description'>
-		You can setup 1st party server at <a target='_blank' href='%s'>%s</a>.</p>", 'aesirx-analytics'), 'https://github.com/aesirxio/analytics-1stparty', 'https://github.com/aesirxio/analytics-1stparty');
+		    You can setup 1st party server at <a target='_blank' href='%s'>%s</a>.</p>", 'aesirx-analytics'), 'https://github.com/aesirxio/analytics-1stparty', 'https://github.com/aesirxio/analytics-1stparty')
+      );
     },
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
@@ -128,17 +131,17 @@ add_action('admin_init', function () {
   if (!CliFactory::getCli()->analyticsCliExists()) {
     add_settings_field(
         'aesirx_analytics_download',
-        __( 'Download', 'aesirx-analytics' ),
+        esc_html__( 'Download', 'aesirx-analytics' ),
         function () {
           try {
               CliFactory::getCli()->getSupportedArch();
 
-            echo '<button name="submit" id="aesirx_analytics_download" class="button button-primary" type="submit" value="download_analytics_cli">' . __(
+            echo '<button name="submit" id="aesirx_analytics_download" class="button button-primary" type="submit" value="download_analytics_cli">' . esc_html__(
                     'Click to download CLI library! This plugin can\'t work without the library!', 'aesirx-analytics'
                 ) . '</button>';
           }
           catch ( Throwable $e ) {
-            echo '<strong style="color: red">' . __( 'You can\'t use internal server. Error: ' . $e->getMessage(), 'aesirx-analytics' ) . '</strong>';
+            echo wp_kses_post('<strong style="color: red">' . sprintf(esc_html__( 'You can\'t use internal server. Error: %s', 'aesirx-analytics' ) , $e->getMessage()) . '</strong>');
           }
         },
         'aesirx_analytics_plugin',
@@ -151,9 +154,9 @@ add_action('admin_init', function () {
           function () {
               try {
                   CliFactory::getCli()->processAnalytics(['--version']);
-				  echo '<strong style="color: green" id="aesirx_analytics_download">' . __( 'Passed', 'aesirx-analytics' ) . '</strong>';
+				  echo '<strong style="color: green" id="aesirx_analytics_download">' . esc_html__( 'Passed', 'aesirx-analytics' ) . '</strong>';
               } catch (Throwable $e) {
-                  echo '<strong style="color: red" id="aesirx_analytics_download">' . __( 'You can\'t use internal server. Error: ' . $e->getMessage(), 'aesirx-analytics' ) . '</strong>';
+                  echo wp_kses_post('<strong style="color: red" id="aesirx_analytics_download">' . sprintf(esc_html__( 'You can\'t use internal server. Error: $s', 'aesirx-analytics' ), $e->getMessage()) . '</strong>');
 			  }
           },
           'aesirx_analytics_plugin',
@@ -169,10 +172,10 @@ add_action('admin_init', function () {
       $checked = 'checked="checked"';
       $storage = $options['consent'] ?? 'true';
       echo '
-        <label>' . __('Yes', 'aesirx-analytics') . ' <input type="radio" class="analytic-consent-class" name="aesirx_analytics_plugin_options[consent]" ' .
+        <label>' . esc_html__('Yes', 'aesirx-analytics') . ' <input type="radio" class="analytic-consent-class" name="aesirx_analytics_plugin_options[consent]" ' .
             ($storage == 'true' ? $checked : '') .
             ' value="true"  /></label>
-        <label>' . __('No', 'aesirx-analytics') . ' <input type="radio" class="analytic-consent-class" name="aesirx_analytics_plugin_options[consent]" ' .
+        <label>' . esc_html__('No', 'aesirx-analytics') . ' <input type="radio" class="analytic-consent-class" name="aesirx_analytics_plugin_options[consent]" ' .
             ($storage == 'false' ? $checked : '') .
             ' value="false" /></label>';
     }, 
@@ -182,7 +185,7 @@ add_action('admin_init', function () {
 
   add_settings_field(
     'aesirx_analytics_clientid',
-    __('Client ID', 'aesirx-analytics'),
+    esc_html__('Client ID', 'aesirx-analytics'),
     function () {
       $options = get_option('aesirx_analytics_plugin_options', []);
       echo "<input id='aesirx_analytics_clientid' name='aesirx_analytics_plugin_options[clientid]' type='text' value='" .
@@ -195,7 +198,7 @@ add_action('admin_init', function () {
 
   add_settings_field(
     'aesirx_analytics_secret',
-    __('Client secret', 'aesirx-analytics'),
+    esc_html__('Client secret', 'aesirx-analytics'),
     function () {
       $options = get_option('aesirx_analytics_plugin_options', []);
       echo "<input id='aesirx_analytics_secret' name='aesirx_analytics_plugin_options[secret]' type='text' value='" .
@@ -208,7 +211,7 @@ add_action('admin_init', function () {
 
   add_settings_field(
     'aesirx_analytics_license',
-    __('License', 'aesirx-analytics'),
+    esc_html__('License', 'aesirx-analytics'),
     function () {
       $options = get_option('aesirx_analytics_plugin_options', []);
       echo "<input id='aesirx_analytics_license' name='aesirx_analytics_plugin_options[license]' type='text' value='" .
@@ -222,17 +225,17 @@ add_action('admin_init', function () {
 
   add_settings_field(
     'aesirx_analytics_track_ecommerce',
-    __('Track ecommerce', 'aesirx-analytics'),
+    esc_html__('Track ecommerce', 'aesirx-analytics'),
     function () {
 
         $options = get_option('aesirx_analytics_plugin_options', []);
         $checked = 'checked="checked"';
         $storage = $options['track_ecommerce'] ?? 'true';
         echo '
-        <label>' . __('Yes', 'aesirx-analytics') . ' <input type="radio" class="analytic-track_ecommerce-class" name="aesirx_analytics_plugin_options[track_ecommerce]" ' .
+        <label>' . esc_html____('Yes', 'aesirx-analytics') . ' <input type="radio" class="analytic-track_ecommerce-class" name="aesirx_analytics_plugin_options[track_ecommerce]" ' .
              ($storage == 'true' ? $checked : '') .
              ' value="true"  /></label>
-        <label>' . __('No', 'aesirx-analytics') . ' <input type="radio" class="analytic-track_ecommerce-class" name="aesirx_analytics_plugin_options[track_ecommerce]" ' .
+        <label>' . esc_html__('No', 'aesirx-analytics') . ' <input type="radio" class="analytic-track_ecommerce-class" name="aesirx_analytics_plugin_options[track_ecommerce]" ' .
              ($storage == 'false' ? $checked : '') .
              ' value="false" /></label>';
     },
@@ -255,8 +258,8 @@ add_action('admin_init', function () {
 
 add_action('admin_menu', function () {
   add_options_page(
-    __('Aesirx Analytics', 'aesirx-analytics'),
-    __('Aesirx Analytics', 'aesirx-analytics'),
+    esc_html__('Aesirx Analytics', 'aesirx-analytics'),
+    esc_html__('Aesirx Analytics', 'aesirx-analytics'),
     'manage_options',
     'aesirx-analytics-plugin',
     function () {
@@ -292,6 +295,36 @@ add_action('admin_menu', function () {
     'Dashboard',
     'manage_options',
     'aesirx-bi-dashboard',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    3);
+  add_submenu_page(
+    'aesirx-bi-dashboard',
+    'AesirX BI Acquisition',
+    'Acquisition',
+    'manage_options',
+    'aesirx-bi-acquisition',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    3);
+  add_submenu_page(
+    'aesirx-bi-acquisition',
+    'AesirX BI Acquisition Search Engine',
+    'Acquisition Search Engine',
+    'manage_options',
+    'aesirx-bi-acquisition-search-engines',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    3);
+  add_submenu_page(
+    'aesirx-bi-acquisition',
+    'AesirX BI Acquisition Campaigns',
+    'Acquisition Campaigns',
+    'manage_options',
+    'aesirx-bi-acquisition-campaigns',
     function () {
       ?><div id="biapp" class="aesirxui"></div><?php
     },
@@ -417,32 +450,23 @@ add_action('admin_menu', function () {
       ?><div id="biapp" class="aesirxui"></div><?php
     },
     3);
+
   add_submenu_page(
     'aesirx-bi-dashboard',
-    'AesirX BI Acquisition',
-    'Acquisition',
+    'AesirX BI Consents',
+    'Consent',
     'manage_options',
-    'aesirx-bi-acquisition',
+    'aesirx-bi-consents',
     function () {
       ?><div id="biapp" class="aesirxui"></div><?php
     },
-    3);
+    3); 
   add_submenu_page(
-    'aesirx-bi-acquisition',
-    'AesirX BI Acquisition Search Engine',
-    'Acquisition Search Engine',
+    'aesirx-bi-consents',
+    'AesirX BI Consents Template',
+    'Consents Template',
     'manage_options',
-    'aesirx-bi-acquisition-search-engines',
-    function () {
-      ?><div id="biapp" class="aesirxui"></div><?php
-    },
-    3);
-  add_submenu_page(
-    'aesirx-bi-acquisition',
-    'AesirX BI Acquisition Campaigns',
-    'Acquisition Campaigns',
-    'manage_options',
-    'aesirx-bi-acquisition-campaigns',
+    'aesirx-bi-consents-template',
     function () {
       ?><div id="biapp" class="aesirxui"></div><?php
     },
@@ -472,10 +496,10 @@ add_action('admin_menu', function () {
   }
 });
 
-add_action('admin_init', 'redirect_analytics_config', 1);
-function redirect_analytics_config() {
+add_action('admin_init', 'aesirx_analytics_redirect_config', 1);
+function aesirx_analytics_redirect_config() {
   if ( isset($_GET['page'])
-       && ($_GET['page'] == 'aesirx-bi-dashboard' || $_GET['page'] == 'aesirx-bi-visitors' || $_GET['page'] == 'aesirx-bi-behavior' || $_GET['page'] == 'aesirx-bi-utm-tracking' || $_GET['page'] == 'aesirx-bi-woocommerce')
+       && ($_GET['page'] == 'aesirx-bi-dashboard' || $_GET['page'] == 'aesirx-bi-visitors' || $_GET['page'] == 'aesirx-bi-behavior' || $_GET['page'] == 'aesirx-bi-utm-tracking' || $_GET['page'] == 'aesirx-bi-woocommerce' || $_GET['page'] == 'aesirx-bi-consents')
        && !analytics_config_is_ok()) {
     wp_redirect('/wp-admin/options-general.php?page=aesirx-analytics-plugin');
     die;
@@ -487,6 +511,7 @@ add_action('admin_enqueue_scripts', function ($hook) {
       $hook === 'toplevel_page_aesirx-bi-visitors' || 
       $hook === 'toplevel_page_aesirx-bi-behavior' || 
       $hook === 'toplevel_page_aesirx-bi-utm-tracking' || 
+      $hook === 'toplevel_page_aesirx-bi-consents' || 
       $hook === 'toplevel_page_aesirx-bi-woocommerce' || 
       $hook === 'toplevel_page_aesirx-bi-acquisition' || 
       $hook === 'aesirx-bi_page_aesirx-bi-visitors' ||
@@ -501,6 +526,8 @@ add_action('admin_enqueue_scripts', function ($hook) {
       $hook === 'admin_page_aesirx-bi-behavior-users-flow' ||
       $hook === 'aesirx-bi_page_aesirx-bi-utm-tracking' ||
       $hook === 'admin_page_aesirx-bi-utm-tracking-generator' ||
+      $hook === 'aesirx-bi_page_aesirx-bi-consents' ||
+      $hook === 'admin_page_aesirx-bi-consents-template' ||
       $hook === 'aesirx-bi_page_aesirx-bi-acquisition' ||
       $hook === 'admin_page_aesirx-bi-acquisition-search-engines' ||
       $hook === 'admin_page_aesirx-bi-acquisition-campaigns' ||
@@ -530,18 +557,24 @@ add_action('admin_enqueue_scripts', function ($hook) {
     $clientId = $options['clientid'];
     $clientSecret = $options['secret'];
 
-    ?>
-	  <script type="text/javascript">
-		  window.env = {};
-		  window.aesirxClientID = "<?php echo $clientId; ?>";
-		  window.aesirxClientSecret = "<?php echo $clientSecret; ?>";
-		  window.env.REACT_APP_ENDPOINT_URL = "<?php echo $endpoint; ?>";
-		  window.env.REACT_APP_DATA_STREAM = JSON.stringify(<?php echo json_encode($streams); ?>);
-		  window.env.PUBLIC_URL="<?php echo plugin_dir_url(__DIR__) ?>";
-      window.env.STORAGE="<?php echo $options['storage'] ?>";
-      window.env.REACT_APP_WOOCOMMERCE_MENU="<?php echo $options['track_ecommerce'] ?>";
-      <?php echo $options['storage'] === "external" ? 'window.env.REACT_APP_HEADER_JWT="true";' : '' ?>	  </script>
-	  <?php
+    $jwt = $options['storage'] === "external" ? 'window.env.REACT_APP_HEADER_JWT="true"' : '';
+
+    wp_register_script( 'aesrix_bi_window', '', array(), null );
+
+    wp_enqueue_script('aesrix_bi_window');
+
+    wp_add_inline_script(
+      'aesrix_bi_window',
+      'window.env = {};
+		  window.aesirxClientID = "' .  $clientId . '";
+		  window.aesirxClientSecret = "' . $clientSecret . '";
+		  window.env.REACT_APP_ENDPOINT_URL = "' . $endpoint . '";
+		  window.env.REACT_APP_DATA_STREAM = JSON.stringify(' . json_encode($streams) . ');
+		  window.env.PUBLIC_URL= "' . plugin_dir_url(__DIR__) . '";
+      window.env.STORAGE= "' . $options['storage'] . '";
+      window.env.REACT_APP_WOOCOMMERCE_MENU= "' . $options['track_ecommerce'] . '";
+      ' . $jwt,
+    );
   }
 });
 
