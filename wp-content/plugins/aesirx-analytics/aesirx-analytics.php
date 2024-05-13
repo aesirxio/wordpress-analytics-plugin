@@ -11,6 +11,7 @@
  * Requires PHP: 7.4
  * License: GPL v3
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
+ * Requires Plugins: wp-crontrol
  * 
  **/
 
@@ -29,7 +30,6 @@ use Pecee\SimpleRouter\Route\RouteUrl;
 
 require_once plugin_dir_path(__FILE__) . 'vendor/autoload.php';
 require_once 'includes/settings.php';
-require_once 'class-tgm-plugin-activation.php';
 
 function aesirx_analytics_config_is_ok(string $isStorage = null): bool {
     $options = get_option('aesirx_analytics_plugin_options');
@@ -204,7 +204,7 @@ function aesirx_analytics_url_handler()
               ->setRequestMethods([Request::REQUEST_TYPE_POST])
       );
 
-      echo esc_html($router->start());
+      echo wp_kses_post($router->start());
   } catch (Throwable $e) {
     if ($e instanceof NotFoundHttpException) {
       return;
@@ -276,7 +276,7 @@ function aesirx_analytics_display_update_notice(  ) {
         if ($notice instanceof Throwable)
         {
             /* translators: %s: error message */
-            echo '<div class="notice notice-error"><p>' . sprintf(esc_html__('Problem with Aesirx Analytics plugin install: %s', 'aesirx-analytics'), $notice->getMessage()) . '</p></div>';
+            echo aesirx_analytics_escape_html('<div class="notice notice-error"><p>' . sprintf(esc_html__('Problem with Aesirx Analytics plugin install: %s', 'aesirx-analytics'), $notice->getMessage()) . '</p></div>');
         }
 
         delete_transient( 'aesirx_analytics_update_notice' );
