@@ -3,9 +3,9 @@ Contributors: aesirx
 Tags: analytics
 Requires at least: 6.3
 Tested up to: 6.4
-Stable tag: 3.0.0
+Stable tag: 3.1.0
 Requires PHP: 7.4
-License: GPL-3.0-only
+License: GPL 3.0
 
 WordPress plugin for tracking and storing the tracking data
 
@@ -19,6 +19,12 @@ The Terms of service can be found here https://walletconnect.com/terms and the P
 
 We use https://www.concordium.com/ to connect the your wallet with our consent form.
 The Privacy policy can be found here https://www.concordium.com/privacy-policy.
+
+== Source code for compressed content ==
+
+We use the Analytics and the Business Intelligence to store and maneage analytics data from from your site and dispaly the relevant data.
+The human readeble source code for the Aesirx Analytics javascript files can be found here https://github.com/aesirxio/analytics.
+The human readeble source code for the Aesirx Business Intelligence javacript files can be found here https://github.com/aesirxio/bi-app
 
 == Changelog ==
 
