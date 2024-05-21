@@ -401,6 +401,26 @@ add_action('admin_menu', function () {
     4);
   add_submenu_page(
     'aesirx-bi-dashboard',
+    'AesirX BI UTM Tracking',
+    'Tracking',
+    'manage_options',
+    'aesirx-bi-utm-tracking',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    5);
+  add_submenu_page(
+    'aesirx-bi-utm-tracking',
+    'AesirX BI UTM Tracking Generator',
+    'UTM Tracking Generator',
+    'manage_options',
+    'aesirx-bi-utm-tracking-generator',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    5);
+  add_submenu_page(
+    'aesirx-bi-dashboard',
     'AesirX BI Visitors',
     'Visitors',
     'manage_options',
@@ -408,7 +428,7 @@ add_action('admin_menu', function () {
     function () {
       ?><div id="biapp" class="aesirxui"></div><?php
     },
-    5);
+    6);
   add_submenu_page(
     'aesirx-bi-visitors',
     'AesirX BI Visitors Locations',
@@ -418,7 +438,7 @@ add_action('admin_menu', function () {
     function () {
       ?><div id="biapp" class="aesirxui"></div><?php
     },
-    5);
+    6);
   add_submenu_page(
     'aesirx-bi-visitors',
     'AesirX BI Visitors Flow',
@@ -428,7 +448,7 @@ add_action('admin_menu', function () {
     function () {
       ?><div id="biapp" class="aesirxui"></div><?php
     },
-    5);
+    6);
 
   add_submenu_page(
     'aesirx-bi-visitors',
@@ -439,33 +459,13 @@ add_action('admin_menu', function () {
     function () {
       ?><div id="biapp" class="aesirxui"></div><?php
     },
-    5);
+    6);
   add_submenu_page(
     'aesirx-bi-visitors',
     'AesirX BI Visitors Flow Detail',
     'Flow',
     'manage_options',
     'aesirx-bi-flow',
-    function () {
-      ?><div id="biapp" class="aesirxui"></div><?php
-    },
-    5);
-  add_submenu_page(
-    'aesirx-bi-dashboard',
-    'AesirX BI UTM Tracking',
-    'UTM Tracking',
-    'manage_options',
-    'aesirx-bi-utm-tracking',
-    function () {
-      ?><div id="biapp" class="aesirxui"></div><?php
-    },
-    6);
-  add_submenu_page(
-    'aesirx-bi-utm-tracking',
-    'AesirX BI UTM Tracking Generator',
-    'UTM Tracking Generator',
-    'manage_options',
-    'aesirx-bi-utm-tracking-generator',
     function () {
       ?><div id="biapp" class="aesirxui"></div><?php
     },
