@@ -128,7 +128,7 @@ if (!wp_next_scheduled('analytics_cron_geo')) {
 
 add_filter('plugin_action_links_' . plugin_basename(__FILE__), function ($links) {
   $url = esc_url(add_query_arg('page', 'aesirx-analytics-plugin', get_admin_url() . 'admin.php'));
-  array_push($links, "<a href='$url'>" . esc_html__('Settings') . '</a>');
+  array_push($links, "<a href='$url'>" . esc_html__('Settings', 'aesirx-analytics') . '</a>');
   return $links;
 });
 

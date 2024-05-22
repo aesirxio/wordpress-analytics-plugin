@@ -270,7 +270,7 @@ add_action('admin_menu', function () {
     do_settings_sections('aesirx_analytics_plugin');
     ?>
 				<input name="submit" class="button button-primary" type="submit" value="<?php esc_attr_e(
-      'Save'
+      'Save', 'aesirx-analytics'
     ); ?>"/>
 			</form>
 			<?php
