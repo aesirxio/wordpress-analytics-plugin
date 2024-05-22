@@ -1,10 +1,10 @@
 === AesirX Analytics ===
 Contributors: aesirx
 Tags: analytics
-Requires at least: 6.3
-Tested up to: 6.4
-Stable tag: 3.1.0
-Requires PHP: 7.4
+Requires at least: 6.5
+Tested up to: 6.5.3
+Stable tag: 3.1.2
+Requires PHP: 8.1
 License: GPL 3.0
 
 WordPress plugin for tracking and storing the tracking data
