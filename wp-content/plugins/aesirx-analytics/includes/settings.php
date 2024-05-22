@@ -270,7 +270,7 @@ add_action('admin_menu', function () {
     do_settings_sections('aesirx_analytics_plugin');
     ?>
 				<input name="submit" class="button button-primary" type="submit" value="<?php esc_attr_e(
-      'Save'
+      'Save', 'aesirx-analytics'
     ); ?>"/>
 			</form>
 			<?php
@@ -331,47 +331,6 @@ add_action('admin_menu', function () {
     3);
   add_submenu_page(
     'aesirx-bi-dashboard',
-    'AesirX BI Visitors',
-    'Visitors',
-    'manage_options',
-    'aesirx-bi-visitors',
-    function () {
-      ?><div id="biapp" class="aesirxui"></div><?php
-    },
-    3);
-  add_submenu_page(
-    'aesirx-bi-visitors',
-    'AesirX BI Visitors Locations',
-    'Locations',
-    'manage_options',
-    'aesirx-bi-visitors-locations',
-    function () {
-      ?><div id="biapp" class="aesirxui"></div><?php
-    },
-    3);
-  add_submenu_page(
-    'aesirx-bi-visitors',
-    'AesirX BI Visitors Flow',
-    'Flow',
-    'manage_options',
-    'aesirx-bi-visitors-flow',
-    function () {
-      ?><div id="biapp" class="aesirxui"></div><?php
-    },
-    3);
-
-  add_submenu_page(
-    'aesirx-bi-visitors',
-    'AesirX BI Visitors Platforms',
-    'Platforms',
-    'manage_options',
-    'aesirx-bi-visitors-platforms',
-    function () {
-      ?><div id="biapp" class="aesirxui"></div><?php
-    },
-    3);
-  add_submenu_page(
-    'aesirx-bi-dashboard',
     'AesirX BI Behavior',
     'Behavior',
     'manage_options',
@@ -422,37 +381,6 @@ add_action('admin_menu', function () {
     3);
   add_submenu_page(
     'aesirx-bi-dashboard',
-    'AesirX BI UTM Tracking',
-    'UTM Tracking',
-    'manage_options',
-    'aesirx-bi-utm-tracking',
-    function () {
-      ?><div id="biapp" class="aesirxui"></div><?php
-    },
-    3);
-  add_submenu_page(
-    'aesirx-bi-visitors',
-    'AesirX BI Visitors Flow Detail',
-    'Flow',
-    'manage_options',
-    'aesirx-bi-flow',
-    function () {
-      ?><div id="biapp" class="aesirxui"></div><?php
-    },
-    3);
-  add_submenu_page(
-    'aesirx-bi-utm-tracking',
-    'AesirX BI UTM Tracking Generator',
-    'UTM Tracking Generator',
-    'manage_options',
-    'aesirx-bi-utm-tracking-generator',
-    function () {
-      ?><div id="biapp" class="aesirxui"></div><?php
-    },
-    3);
-
-  add_submenu_page(
-    'aesirx-bi-dashboard',
     'AesirX BI Consents',
     'Consent',
     'manage_options',
@@ -460,7 +388,7 @@ add_action('admin_menu', function () {
     function () {
       ?><div id="biapp" class="aesirxui"></div><?php
     },
-    3); 
+    4); 
   add_submenu_page(
     'aesirx-bi-consents',
     'AesirX BI Consents Template',
@@ -470,7 +398,78 @@ add_action('admin_menu', function () {
     function () {
       ?><div id="biapp" class="aesirxui"></div><?php
     },
-    3);
+    4);
+  add_submenu_page(
+    'aesirx-bi-dashboard',
+    'AesirX BI UTM Tracking',
+    'Tracking',
+    'manage_options',
+    'aesirx-bi-utm-tracking',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    5);
+  add_submenu_page(
+    'aesirx-bi-utm-tracking',
+    'AesirX BI UTM Tracking Generator',
+    'UTM Tracking Generator',
+    'manage_options',
+    'aesirx-bi-utm-tracking-generator',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    5);
+  add_submenu_page(
+    'aesirx-bi-dashboard',
+    'AesirX BI Visitors',
+    'Visitors',
+    'manage_options',
+    'aesirx-bi-visitors',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    6);
+  add_submenu_page(
+    'aesirx-bi-visitors',
+    'AesirX BI Visitors Locations',
+    'Locations',
+    'manage_options',
+    'aesirx-bi-visitors-locations',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    6);
+  add_submenu_page(
+    'aesirx-bi-visitors',
+    'AesirX BI Visitors Flow',
+    'Flow',
+    'manage_options',
+    'aesirx-bi-visitors-flow',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    6);
+
+  add_submenu_page(
+    'aesirx-bi-visitors',
+    'AesirX BI Visitors Platforms',
+    'Platforms',
+    'manage_options',
+    'aesirx-bi-visitors-platforms',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    6);
+  add_submenu_page(
+    'aesirx-bi-visitors',
+    'AesirX BI Visitors Flow Detail',
+    'Flow',
+    'manage_options',
+    'aesirx-bi-flow',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    6);
   $options = get_option('aesirx_analytics_plugin_options');
   if($options['track_ecommerce'] === "true") {
     add_submenu_page(
@@ -482,7 +481,7 @@ add_action('admin_menu', function () {
       function () {
         ?><div id="biapp" class="aesirxui"></div><?php
       },
-      3);
+      7);
     add_submenu_page(
       'aesirx-bi-woocommerce',
       'AesirX BI Woocommerce Product',
@@ -492,7 +491,7 @@ add_action('admin_menu', function () {
       function () {
         ?><div id="biapp" class="aesirxui"></div><?php
       },
-      3);
+      7);
   }
 });
 
