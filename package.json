@@ -1,6 +1,6 @@
 {
   "name": "aesirx_analytics",
-  "version": "3.1.0",
+  "version": "3.1.2",
   "description": "analytics via aesirx",
   "private": true,
   "scripts": {
@@ -13,7 +13,7 @@
   "devDependencies": {
     "@prettier/plugin-php": "^0.22.1",
     "@types/react": "^18.2.8",
-    "@types/react-dom": "^18.2.8",
+    "@types/react-dom": "^18.3.0",
     "css-loader": "^6.8.1",
     "del": "^7.0.0",
     "dotenv": "^16.3.1",
@@ -26,7 +26,7 @@
     "prettier": "^3.0.3",
     "process": "^0.11.10",
     "sass": "^1.69.3",
-    "sass-loader": "^14.1.1",
+    "sass-loader": "^14.2.1",
     "style-loader": "^3.3.2",
     "terser-webpack-plugin": "^5.3.7",
     "ts-loader": "^9.5.1",
@@ -39,7 +39,7 @@
     "aesirx-analytics": "^2.2.8",
     "aesirx-bi-app": "^2.0.6",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react-dom": "^18.3.1",
     "react-spinners": "^0.13.8"
   },
   "resolutions": {

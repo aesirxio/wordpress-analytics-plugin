@@ -593,6 +593,13 @@ function aesirx_analytics_escape_html($string) {
      'div' => array(
         'class' => array(),
      ),
+     'button' => array(
+        'type'  => array(),
+        'id'    => array(),
+        'name'  => array(),
+        'value' => array(),
+        'class' => array(),
+    ),
   );
 
   return wp_kses($string, $allowed_html);

@@ -59,7 +59,7 @@ class ConversionMessage extends AbstractMessage {
         return round($val * 100);
     }
 
-    public function __serialize(): string {
+    public function __serialize(): array {
 
         $subtotal = 0;
         $items = [];
