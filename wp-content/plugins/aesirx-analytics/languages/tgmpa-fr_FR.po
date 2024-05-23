@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: TGM Plugin Activation v2.6.1\n"
 "POT-Creation-Date: 2016-05-19 03:01+0200\n"
 "PO-Revision-Date: 2016-05-19 03:01+0200\n"
-"Last-Translator: Hedi Chaibi <contact@hedichaibi.com>\n"
+"Last-Translator: Marc Antoine Thevenet <mat@aesirx.io>\n"
 "Language-Team: TGMPA\n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
@@ -171,9 +171,7 @@ msgstr "Veuillez contacter l’administrateur du site pour obtenir de l’aide."
 
 #: class-tgm-plugin-activation.php:607
 msgid "This plugin needs to be updated to be compatible with your theme."
-msgstr ""
-"Cette extension a besoin d’être mise à jour pour être compatible avec votre "
-"thème."
+msgstr "Cette extension a besoin d’être mise à jour pour être compatible avec votre thème."
 
 #: class-tgm-plugin-activation.php:608
 msgid "Update Required"
@@ -415,9 +413,7 @@ msgstr "Mise à jour de l’extension %1$s (%2$d/%3$d)"
 #: class-tgm-plugin-activation.php:3594
 #, php-format
 msgid "An error occurred while installing %1$s: <strong>%2$s</strong>."
-msgstr ""
-"Une erreur est survenue lors de l’installation de %1$s: <strong>%2$s</"
-"strong>."
+msgstr "Une erreur est survenue lors de l’installation de %1$s : <strong>%2$s</strong>."
 
 #. translators: 1: plugin name.
 #: class-tgm-plugin-activation.php:3596
