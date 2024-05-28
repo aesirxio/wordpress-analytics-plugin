@@ -8,7 +8,7 @@
  * Author URI: https://aesirx.io/
  * Domain Path: /languages
  * Text Domain: aesirx-analytics
- * Requires PHP: 7.4
+ * Requires PHP: 8.1
  * License: GPL v3
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  * Requires Plugins: wp-crontrol
