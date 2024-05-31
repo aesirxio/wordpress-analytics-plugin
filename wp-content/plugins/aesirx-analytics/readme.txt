@@ -3,7 +3,7 @@ Contributors: aesirx
 Tags: analytics
 Requires at least: 6.5
 Tested up to: 6.5.3
-Stable tag: 3.1.2
+Stable tag: 3.1.3
 Requires PHP: 8.1
 License: GPL 3.0
 
@@ -27,6 +27,26 @@ The human readeble source code for the Aesirx Analytics javascript files can be 
 The human readeble source code for the Aesirx Business Intelligence javacript files can be found here https://github.com/aesirxio/bi-app
 
 == Changelog ==
+
+= 3.1.3 =
+* Update BI app
+* Update AesirX Analytics
+* Update of AesirX Library
+* Update FR translation
+
+= 3.1.2 =
+* Update BI app
+* Update AesirX Analytics
+* Update of AesirX Library
+* Update Requires at least 6.5
+* Bugfixes and minor updates
+
+= 3.1.1 =
+* Update BI app
+* Update AesirX Analytics
+* Update of AesirX Library
+* Minor fixes
+* Update FR translation
 
 = 3.1.0 =
 * Add option menu
