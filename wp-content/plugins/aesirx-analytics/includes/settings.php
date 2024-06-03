@@ -79,11 +79,15 @@ add_action('admin_init', function () {
         var donwload = jQuery("#aesirx_analytics_download");
         if (test === "internal") {
           jQuery("#aesirx_analytics_domain").parents("tr").hide();
+          jQuery("#aesirx_analytics_clientid").parents("tr").hide();
+          jQuery("#aesirx_analytics_secret").parents("tr").hide();
           jQuery("#aesirx_analytics_license").parents("tr").show();
           donwload.parents("tr").show();
         } else {
           jQuery("#aesirx_analytics_domain").parents("tr").show();
           jQuery("#aesirx_analytics_license").parents("tr").hide();
+          jQuery("#aesirx_analytics_clientid").parents("tr").show();
+          jQuery("#aesirx_analytics_secret").parents("tr").show();
           donwload.parents("tr").hide();
         }
       }
