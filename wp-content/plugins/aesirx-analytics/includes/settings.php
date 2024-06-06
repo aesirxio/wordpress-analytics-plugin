@@ -79,11 +79,15 @@ add_action('admin_init', function () {
         var donwload = jQuery("#aesirx_analytics_download");
         if (test === "internal") {
           jQuery("#aesirx_analytics_domain").parents("tr").hide();
+          jQuery("#aesirx_analytics_clientid").parents("tr").hide();
+          jQuery("#aesirx_analytics_secret").parents("tr").hide();
           jQuery("#aesirx_analytics_license").parents("tr").show();
           donwload.parents("tr").show();
         } else {
           jQuery("#aesirx_analytics_domain").parents("tr").show();
           jQuery("#aesirx_analytics_license").parents("tr").hide();
+          jQuery("#aesirx_analytics_clientid").parents("tr").show();
+          jQuery("#aesirx_analytics_secret").parents("tr").show();
           donwload.parents("tr").hide();
         }
       }
@@ -470,28 +474,38 @@ add_action('admin_menu', function () {
       ?><div id="biapp" class="aesirxui"></div><?php
     },
     6);
+  add_submenu_page(
+    'aesirx-bi-dashboard',
+    'AesirX BI User Experience',
+    'User Experience',
+    'manage_options',
+    'aesirx-bi-flow-list',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    7);
   $options = get_option('aesirx_analytics_plugin_options');
   if($options['track_ecommerce'] === "true") {
     add_submenu_page(
       'aesirx-bi-dashboard',
       'AesirX BI Woocommerce',
-      'Woocommerce',
+      'Woo',
       'manage_options',
       'aesirx-bi-woocommerce',
       function () {
         ?><div id="biapp" class="aesirxui"></div><?php
       },
-      7);
+      8);
     add_submenu_page(
       'aesirx-bi-woocommerce',
       'AesirX BI Woocommerce Product',
-      'Woocommerce Product',
+      'Woo Product',
       'manage_options',
       'aesirx-bi-woocommerce-product',
       function () {
         ?><div id="biapp" class="aesirxui"></div><?php
       },
-      7);
+      8);
   }
 });
 
@@ -514,6 +528,7 @@ add_action('admin_enqueue_scripts', function ($hook) {
       $hook === 'toplevel_page_aesirx-bi-woocommerce' || 
       $hook === 'toplevel_page_aesirx-bi-acquisition' || 
       $hook === 'aesirx-bi_page_aesirx-bi-visitors' ||
+      $hook === 'aesirx-bi_page_aesirx-bi-flow-list' ||
       $hook === 'admin_page_aesirx-bi-visitors-locations' || 
       $hook === 'admin_page_aesirx-bi-visitors-flow' || 
       $hook === 'admin_page_aesirx-bi-visitors-platforms' || 
