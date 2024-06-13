@@ -26,8 +26,13 @@
     display: none !important;
   }
 
-  aside.sidebar, .item_collap {
+  aside.sidebar,
+  .item_collap {
     display: none !important;
+  }
+
+  .aesirxui .h-80 {
+    height: 64px;
   }
 }
 
