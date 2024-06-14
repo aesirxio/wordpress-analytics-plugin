@@ -150,7 +150,7 @@ function aesirx_analytics_url_handler()
     $callCommand = function (array $command): string {
         try
         {
-            $process = CliFactory::getCli()->processAnalytics($command);
+            // $process = CliFactory::getCli()->processAnalytics($command);
         }
         catch (Throwable $e)
         {
