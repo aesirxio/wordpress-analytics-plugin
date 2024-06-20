@@ -150,7 +150,7 @@ function aesirx_analytics_url_handler()
     $callCommand = function (array $command): string {
         try
         {
-            $process = CliFactory::getCli()->processAnalytics($command);
+            $data = CliFactory::getCli()->processAnalytics($command);
         }
         catch (Throwable $e)
         {
@@ -178,7 +178,7 @@ function aesirx_analytics_url_handler()
         if (!headers_sent()) {
             header( 'Content-Type: application/json; charset=utf-8' );
         }
-        return $process->getOutput();
+        return $data;
     };
 
   try {
