@@ -1,10 +1,9 @@
 <?php
 
-// namespace AesirxAnalytics\Mysql;
 
-use AesirxAnalytics\MysqlHelper;
+use AesirxAnalytics\AesirxAnalyticsMysqlHelper;
 
-Class AesirX_Analytics_Get_All_Channels extends MysqlHelper
+Class AesirX_Analytics_Get_All_Channels extends AesirxAnalyticsMysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
@@ -32,7 +31,7 @@ Class AesirX_Analytics_Get_All_Channels extends MysqlHelper
             "coalesce((count(DISTINCT CASE WHEN #__analytics_flows.multiple_events = 0 THEN #__analytics_flows.uuid END) * 100) / count(DISTINCT (#__analytics_flows.uuid)), 0) DIV 1 as bounce_rate",
         ];
 
-        parent::add_filters($params, $where_clause);
+        parent::aesirx_analytics_add_filters($params, $where_clause);
 
         $acquisition = false;
         foreach ($params['filter'] as $key => $vals) {
@@ -86,12 +85,12 @@ Class AesirX_Analytics_Get_All_Channels extends MysqlHelper
             "bounce_rate",
         ];
 
-        $sort = self::add_sort($params, $allowed, "channel");
+        $sort = self::aesirx_analytics_add_sort($params, $allowed, "channel");
 
         if (!empty($sort)) {
             $sql .= " ORDER BY " . implode(", ", $sort);
         }
 
-        return parent::get_list($sql, $total_sql, $params, $allowed);
+        return parent::aesirx_analytics_get_list($sql, $total_sql, $params, $allowed);
     }
 }

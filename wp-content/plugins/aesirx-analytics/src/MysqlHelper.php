@@ -2,9 +2,9 @@
 
 namespace AesirxAnalytics;
 
-Class MysqlHelper
+Class AesirxAnalyticsMysqlHelper
 {
-    public function get_list($sql, $total_sql, $params, $allowed = []) {
+    public function aesirx_analytics_get_list($sql, $total_sql, $params) {
         global $wpdb;
 
         $page = $params['page'] ?? 1;
@@ -16,25 +16,11 @@ Class MysqlHelper
         $sql = str_replace("#__", "wp_", $sql);
         $total_sql = str_replace("#__", "wp_", $total_sql);
 
-        // echo $sql;
-        // echo $total_sql;
-
         $total_elements = (int) $wpdb->get_var($total_sql);
         $total_pages = ceil($total_elements / $pageSize);
 
         try {
             $collection = $wpdb->get_results($sql, ARRAY_A);
-
-            // foreach ($collection as $items) {
-            //     foreach ($items as $key => $value) {
-            //         if (in_array($key, $allowed)) {
-            //             $collection[$key] = (int) $value;
-            //         }
-            //         else {
-            //             $collection[$key] = $value;
-            //         }
-            //     }
-            // }
 
             $list_response = [
                 'collection' => $collection,
@@ -56,7 +42,7 @@ Class MysqlHelper
         }
     }
 
-    public function get_statistics_per_field_wp($groups = [], $selects = [], $params = []) {
+    public function aesirx_analytics_get_statistics_per_field($groups = [], $selects = [], $params = []) {
         global $wpdb;
 
         $select = [
@@ -91,7 +77,7 @@ Class MysqlHelper
             "#__analytics_events.event_type = 'action'",
         ];
 
-        self::add_filters($params, $where_clause);
+        self::aesirx_analytics_add_filters($params, $where_clause);
 
         $acquisition = false;
         foreach ($params['filter'] as $key => $vals) {
@@ -141,16 +127,16 @@ Class MysqlHelper
             $allowed[] = $additional_result;
         }
 
-        $sort = self::add_sort($params, $allowed, $default);
+        $sort = self::aesirx_analytics_add_sort($params, $allowed, $default);
 
         if (!empty($sort)) {
             $sql .= " ORDER BY " . implode(", ", $sort);
         }
 
-        return self::get_list($sql, $total_sql, $params, $allowed);
+        return self::aesirx_analytics_get_list($sql, $total_sql, $params, $allowed);
     }
 
-    function add_sort($params, $allowed, $default) {
+    function aesirx_analytics_add_sort($params, $allowed, $default) {
         $ret = [];
         $dirs = [];
 
@@ -184,7 +170,7 @@ Class MysqlHelper
         return $ret;
     }
 
-    function add_filters($params, &$where_clause) {
+    function aesirx_analytics_add_filters($params, &$where_clause) {
         foreach ([$params['filter'], $params['filter_not']] as $filter_array) {
             if (empty($filter_array)) {
                 continue;

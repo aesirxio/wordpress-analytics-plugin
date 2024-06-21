@@ -1,10 +1,9 @@
 <?php
 
-// namespace AesirxAnalytics\Mysql;
 
-use AesirxAnalytics\MysqlHelper;
+use AesirxAnalytics\AesirxAnalyticsMysqlHelper;
 
-Class AesirX_Analytics_Get_All_Visitors extends MysqlHelper
+Class AesirX_Analytics_Get_All_Visitors extends AesirxAnalyticsMysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
@@ -14,7 +13,7 @@ Class AesirX_Analytics_Get_All_Visitors extends MysqlHelper
             "#__analytics_events.event_type = 'action'",
         ];
 
-        self::add_filters($params, $where_clause);
+        self::aesirx_analytics_add_filters($params, $where_clause);
 
         $sql = "SELECT
             DATE_FORMAT(start, '%Y-%m-%d') as date,
@@ -31,12 +30,12 @@ Class AesirX_Analytics_Get_All_Visitors extends MysqlHelper
             left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
             WHERE " . implode(" AND ", $where_clause);
 
-        $sort = self::add_sort($params, ["date", "visits", "total_page_views"], "date");
+        $sort = self::aesirx_analytics_add_sort($params, ["date", "visits", "total_page_views"], "date");
 
         if (!empty($sort)) {
             $sql .= " ORDER BY " . implode(", ", $sort);
         }
 
-        return parent::get_list($sql, $total_sql, $params);
+        return parent::aesirx_analytics_get_list($sql, $total_sql, $params);
     }
 }

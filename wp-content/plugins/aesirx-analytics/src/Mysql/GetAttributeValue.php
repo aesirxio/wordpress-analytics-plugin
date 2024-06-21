@@ -1,16 +1,15 @@
 <?php
 
-// namespace AesirxAnalytics\Mysql;
 
-use AesirxAnalytics\MysqlHelper;
+use AesirxAnalytics\AesirxAnalyticsMysqlHelper;
 
-Class AesirX_Analytics_Get_Attribute_Value extends MysqlHelper
+Class AesirX_Analytics_Get_Attribute_Value extends AesirxAnalyticsMysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
         global $wpdb;
 
-        self::add_filters($params, $where_clause);
+        self::aesirx_analytics_add_filters($params, $where_clause);
 
         // add_attribute_filters(params, &mut where_clause, &mut bind);
 
@@ -28,7 +27,7 @@ Class AesirX_Analytics_Get_Attribute_Value extends MysqlHelper
             left join #__analytics_visitors on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
             WHERE " . implode(" AND ", $where_clause);
 
-        $sort = self::add_sort($params, ["name"], "name");
+        $sort = self::aesirx_analytics_add_sort($params, ["name"], "name");
 
         if (!empty($sort)) {
             $sql .= " ORDER BY " . implode(", ", $sort);

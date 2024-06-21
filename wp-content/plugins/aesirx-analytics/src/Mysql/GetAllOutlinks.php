@@ -1,10 +1,9 @@
 <?php
 
-// namespace AesirxAnalytics\Mysql;
 
-use AesirxAnalytics\MysqlHelper;
+use AesirxAnalytics\AesirxAnalyticsMysqlHelper;
 
-Class AesirX_Analytics_Get_All_Outlinks extends MysqlHelper
+Class AesirX_Analytics_Get_All_Outlinks extends AesirxAnalyticsMysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
@@ -31,7 +30,7 @@ Class AesirX_Analytics_Get_All_Outlinks extends MysqlHelper
             $where_clause[] = "#__analytics_events.referer LIKE '%duckduckgo.%'";
         }
 
-        self::add_filters($params, $where_clause);
+        self::aesirx_analytics_add_filters($params, $where_clause);
 
         $sql =
             "SELECT
@@ -51,7 +50,7 @@ Class AesirX_Analytics_Get_All_Outlinks extends MysqlHelper
             left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
             WHERE " . implode(" AND ", $where_clause);
 
-        $sort = self::add_sort(
+        $sort = self::aesirx_analytics_add_sort(
             $params,
             [
                 "referer",

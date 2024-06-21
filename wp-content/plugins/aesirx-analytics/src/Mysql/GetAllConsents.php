@@ -1,10 +1,9 @@
 <?php
 
-// namespace AesirxAnalyticsMysql;
 
-use AesirxAnalytics\MysqlHelper;
+use AesirxAnalytics\AesirxAnalyticsMysqlHelper;
 
-Class AesirX_Analytics_Get_All_Consents extends MysqlHelper
+Class AesirX_Analytics_Get_All_Consents extends AesirxAnalyticsMysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
@@ -44,7 +43,7 @@ Class AesirX_Analytics_Get_All_Consents extends MysqlHelper
             LEFT JOIN #__analytics_wallet AS wallet ON wallet.uuid = consent.wallet_uuid 
             WHERE " . implode(" AND ", $where_clause);
 
-        $sort = self::add_sort(
+        $sort = self::aesirx_analytics_add_sort(
             $params,
             [
                 "datetime",

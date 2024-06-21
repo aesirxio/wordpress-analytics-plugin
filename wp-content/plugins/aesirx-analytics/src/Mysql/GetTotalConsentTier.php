@@ -1,10 +1,9 @@
 <?php
 
-// namespace AesirxAnalyticsMysql;
 
-use AesirxAnalytics\MysqlHelper;
+use AesirxAnalytics\AesirxAnalyticsMysqlHelper;
 
-Class AesirX_Analytics_Get_Total_Consent_Tier extends MysqlHelper
+Class AesirX_Analytics_Get_Total_Consent_Tier extends AesirxAnalyticsMysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
@@ -40,12 +39,12 @@ Class AesirX_Analytics_Get_Total_Consent_Tier extends MysqlHelper
             LEFT JOIN `#__analytics_consent` AS consent ON consent.uuid = visitor_consent.consent_uuid 
             WHERE " . implode(" AND ", $where_clause);
 
-        $sort = self::add_sort($params, ["tier", "total"], "tier");
+        $sort = self::aesirx_analytics_add_sort($params, ["tier", "total"], "tier");
 
         if (!empty($sort)) {
             $sql .= " ORDER BY " . implode(", ", $sort);
         }
 
-        return parent::get_list($sql, $total_sql, $params);
+        return parent::aesirx_analytics_get_list($sql, $total_sql, $params);
     }
 }

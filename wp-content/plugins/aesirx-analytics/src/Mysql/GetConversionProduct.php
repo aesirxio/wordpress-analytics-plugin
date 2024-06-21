@@ -1,10 +1,9 @@
 <?php
 
-// namespace AesirxAnalytics\Mysql;
 
-use AesirxAnalytics\MysqlHelper;
+use AesirxAnalytics\AesirxAnalyticsMysqlHelper;
 
-Class AesirX_Analytics_Get_Conversion_Product extends MysqlHelper
+Class AesirX_Analytics_Get_Conversion_Product extends AesirxAnalyticsMysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
@@ -36,7 +35,7 @@ Class AesirX_Analytics_Get_Conversion_Product extends MysqlHelper
             left join `#__analytics_flows` on #__analytics_conversion.flow_uuid = #__analytics_flows.uuid
             WHERE " . implode(" AND ", $where_clause);
 
-        $sort = self::add_sort(
+        $sort = self::aesirx_analytics_add_sort(
             $params,
             [
                 "product",
@@ -55,6 +54,6 @@ Class AesirX_Analytics_Get_Conversion_Product extends MysqlHelper
             $sql .= " ORDER BY " . implode(", ", $sort);
         }
 
-        return parent::get_list($sql, $total_sql, $params);
+        return parent::aesirx_analytics_get_list($sql, $total_sql, $params);
     }
 }

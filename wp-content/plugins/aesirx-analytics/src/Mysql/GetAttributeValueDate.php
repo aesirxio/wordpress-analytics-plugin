@@ -1,10 +1,9 @@
 <?php
 
-// namespace AesirxAnalytics\Mysql;
 
-use AesirxAnalytics\MysqlHelper;
+use AesirxAnalytics\AesirxAnalyticsMysqlHelper;
 
-Class AesirX_Analytics_Get_Attribute_Value_Date extends MysqlHelper
+Class AesirX_Analytics_Get_Attribute_Value_Date extends AesirxAnalyticsMysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
@@ -12,7 +11,7 @@ Class AesirX_Analytics_Get_Attribute_Value_Date extends MysqlHelper
 
         $where_clause = [];
 
-        self::add_filters($params, $where_clause);
+        self::aesirx_analytics_add_filters($params, $where_clause);
 
         // add_attribute_filters(params, &mut where_clause, &mut bind);
 
@@ -33,7 +32,7 @@ Class AesirX_Analytics_Get_Attribute_Value_Date extends MysqlHelper
             WHERE " . implode(" AND ", $where_clause) .
             " GROUP BY #__analytics_event_attributes.name, date";
 
-        $sort = self::add_sort($params, ["name", "date"], "date");
+        $sort = self::aesirx_analytics_add_sort($params, ["name", "date"], "date");
 
         if (!empty($sort)) {
             $sql .= " ORDER BY " . implode(", ", $sort);

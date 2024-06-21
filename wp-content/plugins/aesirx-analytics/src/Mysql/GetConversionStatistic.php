@@ -1,10 +1,9 @@
 <?php
 
-// namespace AesirxAnalytics\Mysql;
 
-use AesirxAnalytics\MysqlHelper;
+use AesirxAnalytics\AesirxAnalyticsMysqlHelper;
 
-Class AesirX_Analytics_Get_Conversion_Statistic extends MysqlHelper
+Class AesirX_Analytics_Get_Conversion_Statistic extends AesirxAnalyticsMysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
@@ -32,6 +31,6 @@ Class AesirX_Analytics_Get_Conversion_Statistic extends MysqlHelper
             left join `#__analytics_flows` on #__analytics_conversion.flow_uuid = #__analytics_flows.uuid
             WHERE " . implode(" AND ", $where_clause);
 
-        return parent::get_list($sql, $total_sql, $params);
+        return parent::aesirx_analytics_get_list($sql, $total_sql, $params);
     }
 }

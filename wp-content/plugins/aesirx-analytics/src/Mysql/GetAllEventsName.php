@@ -1,10 +1,9 @@
 <?php
 
-// namespace AesirxAnalytics\Mysql;
 
-use AesirxAnalytics\MysqlHelper;
+use AesirxAnalytics\AesirxAnalyticsMysqlHelper;
 
-Class AesirX_Analytics_Get_All_Events_Name extends MysqlHelper
+Class AesirX_Analytics_Get_All_Events_Name extends AesirxAnalyticsMysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
@@ -15,7 +14,7 @@ Class AesirX_Analytics_Get_All_Events_Name extends MysqlHelper
             "#__analytics_events.event_type = 'action'",
         ];
 
-        self::add_filters($params, $where_clause);
+        self::aesirx_analytics_add_filters($params, $where_clause);
 
         // add_attribute_filters(params, &mut where_clause, &mut bind);
 
@@ -39,12 +38,12 @@ Class AesirX_Analytics_Get_All_Events_Name extends MysqlHelper
             left join `#__analytics_event_attributes` on #__analytics_event_attributes.event_uuid = #__analytics_events.uuid
             WHERE " . implode(" AND ", $where_clause);
 
-        $sort = self::add_sort($params, ["date", "event_name", "total_visitor", "event_type"], "date");
+        $sort = self::aesirx_analytics_add_sort($params, ["date", "event_name", "total_visitor", "event_type"], "date");
 
         if (!empty($sort)) {
             $sql .= " ORDER BY " . implode(", ", $sort);
         }
 
-        return parent::get_list($sql, $total_sql, $params);
+        return parent::aesirx_analytics_get_list($sql, $total_sql, $params);
     }
 }

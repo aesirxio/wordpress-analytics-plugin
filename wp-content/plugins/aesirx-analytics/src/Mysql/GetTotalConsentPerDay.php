@@ -1,10 +1,9 @@
 <?php
 
-// namespace AesirxAnalytics\Mysql;
 
-use AesirxAnalytics\MysqlHelper;
+use AesirxAnalytics\AesirxAnalyticsMysqlHelper;
 
-Class AesirX_Analytics_Get_Total_Consent_Per_Day extends MysqlHelper
+Class AesirX_Analytics_Get_Total_Consent_Per_Day extends AesirxAnalyticsMysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
@@ -28,12 +27,12 @@ Class AesirX_Analytics_Get_Total_Consent_Per_Day extends MysqlHelper
             LEFT JOIN `#__analytics_visitors` AS visitors ON visitors.uuid = visitor_consent.visitor_uuid \
             WHERE " . implode(" AND ", $where_clause);
 
-        $sort = self::add_sort($params, ["date", "total"], "date");
+        $sort = self::aesirx_analytics_add_sort($params, ["date", "total"], "date");
 
         if (!empty($sort)) {
             $sql .= " ORDER BY " . implode(", ", $sort);
         }
 
-        return parent::get_list($sql, $total_sql, $params);
+        return parent::aesirx_analytics_get_list($sql, $total_sql, $params);
     }
 }

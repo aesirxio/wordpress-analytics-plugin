@@ -1,17 +1,16 @@
 <?php
 
-// namespace AesirxAnalytics\Mysql;
 
-use AesirxAnalytics\MysqlHelper;
+use AesirxAnalytics\AesirxAnalyticsMysqlHelper;
 
-Class AesirX_Analytics_Get_List_Events extends MysqlHelper
+Class AesirX_Analytics_aesirx_analytics_get_list_Events extends AesirxAnalyticsMysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
         global $wpdb;
 
         $where_clause = [];
-        parent::add_filters($params, $where_clause);
+        parent::aesirx_analytics_add_filters($params, $where_clause);
 
         // add_attribute_filters(params, &mut where_clause, &mut bind);
 
@@ -49,7 +48,7 @@ Class AesirX_Analytics_Get_List_Events extends MysqlHelper
             left join `#__analytics_event_attributes` on #__analytics_event_attributes.event_uuid = #__analytics_events.uuid
             WHERE " . implode(" AND ", $where_clause);
 
-        $sort = self::add_sort(
+        $sort = self::aesirx_analytics_add_sort(
             $params,
             [
                 "start",
