@@ -10,10 +10,12 @@ Class AesirX_Analytics_Get_All_Events_Name extends MysqlHelper
     {
         global $wpdb;
 
-        // let mut where_clause: Vec<String> = vec![];
-        // let mut bind: Vec<String> = vec![];
+        $where_clause = [
+            "#__analytics_events.event_name = 'visit'",
+            "#__analytics_events.event_type = 'action'",
+        ];
 
-        // add_filters(params, &mut where_clause, &mut bind)?;
+        self::add_filters($params, $where_clause);
 
         // add_attribute_filters(params, &mut where_clause, &mut bind);
 
@@ -26,28 +28,22 @@ Class AesirX_Analytics_Get_All_Events_Name extends MysqlHelper
             from `#__analytics_events`
             left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
             left join `#__analytics_event_attributes` on #__analytics_event_attributes.event_uuid = #__analytics_events.uuid
-            GROUP BY date, #__analytics_events.event_name, #__analytics_events.event_type";
+            WHERE " . implode(" AND ", $where_clause) .
+            " GROUP BY date, #__analytics_events.event_name, #__analytics_events.event_type";
 
-        // let total_sql: Vec<String> = vec![
-        //     "SELECT
-        //     "COUNT(DISTINCT DATE_FORMAT(start, '%Y-%m-%d'), #__analytics_events.event_name, #__analytics_events.event_type) as total
-        //     "from `#__analytics_events`
-        //     "left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
-        //     "left join `#__analytics_event_attributes` on #__analytics_event_attributes.event_uuid = #__analytics_events.uuid
-        //     "WHERE
-        //     where_clause.join(" AND "),
-        // ];
+        $total_sql =
+            "SELECT
+            COUNT(DISTINCT DATE_FORMAT(start, '%Y-%m-%d'), #__analytics_events.event_name, #__analytics_events.event_type) as total
+            from `#__analytics_events`
+            left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
+            left join `#__analytics_event_attributes` on #__analytics_event_attributes.event_uuid = #__analytics_events.uuid
+            WHERE " . implode(" AND ", $where_clause);
 
-        // let sort = add_sort(
-        //     params,
-        //     vec!["date", "event_name", "total_visitor", "event_type"],
-        //     "date",
-        // );
+        $sort = self::add_sort($params, ["date", "event_name", "total_visitor", "event_type"], "date");
 
-        // if !sort.is_empty() {
-        //     sql.push("ORDER BY".to_string());
-        //     sql.push(sort.join(","));
-        // }
+        if (!empty($sort)) {
+            $sql .= " ORDER BY " . implode(", ", $sort);
+        }
 
         return parent::get_list($sql, $total_sql, $params);
     }

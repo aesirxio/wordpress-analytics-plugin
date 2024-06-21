@@ -10,91 +10,76 @@ Class AesirX_Analytics_Get_List_Events extends MysqlHelper
     {
         global $wpdb;
 
-        // let mut where_clause: Vec<String> = vec![];
-        // let mut bind: Vec<String> = vec![];
-        // add_filters(params, &mut where_clause, &mut bind)?;
+        $where_clause = [];
+        parent::add_filters($params, $where_clause);
 
         // add_attribute_filters(params, &mut where_clause, &mut bind);
 
-        // for (filter, is_not) in [(&params.filter, false), (&params.filter_not, true)] {
-        //     if filter.is_none() {
-        //         continue;
-        //     }
+        foreach ([$params['filter'], $params['filter_not']] as $filter_array) {
+            if (empty($filter_array)) {
+                continue;
+            }
+    
+            foreach ($filter_array as $key => $vals) {
+                $list = is_array($vals) ? $vals : [$vals];
 
-        //     for (key, val) in filter.as_ref().unwrap().iter() {
-        //         match val {
-        //             ParameterValue::Primitive(_) | ParameterValue::Array(_) => {
-        //                 match get_parameters_as_array(val) {
-        //                     None => {}
-        //                     Some(list) => match key.as_str() {
-        //                         "visitor_uuid" | "flow_uuid" | "uuid" => {
-        //                             where_clause.push(format!(
-        //                                 "#__analytics_events.{} {} IN ({})",
-        //                                 if is_not { "NOT" } else { "" },
-        //                                 key.as_str(),
-        //                                 format_args!("?{}", ", ?".repeat(list.len() - 1))
-        //                             ));
-        //                             bind.extend(list);
-        //                         }
-        //                         _ => {}
-        //                     },
-        //                 }
-        //             }
-        //             _ => {}
-        //         }
-        //     }
-        // }
+                switch ($key) {
+                    case 'visitor_uuid':
+                    case 'flow_uuid':
+                    case 'uuid':
+                        $where_clause[] = '#__analytics_events.' . $key . ' ' . ($is_not ? 'NOT ' : '') . 'IN ("' . implode(', ', $list) . '")';
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
 
-        // let total_sql: Vec<String> = vec![
-        //     "SELECT COUNT(DISTINCT #__analytics_events.uuid) as total
-        //     "from `#__analytics_events`
-        //     "left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
-        //     "left join `#__analytics_event_attributes` on #__analytics_event_attributes.event_uuid = #__analytics_events.uuid
-        //     "WHERE
-        //     where_clause.join(" AND "),
-        // ];
+        $total_sql =
+            "SELECT COUNT(DISTINCT #__analytics_events.uuid) as total
+            from `#__analytics_events`
+            left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
+            left join `#__analytics_event_attributes` on #__analytics_event_attributes.event_uuid = #__analytics_events.uuid
+            WHERE " . implode(" AND ", $where_clause);
 
         $sql =
             "SELECT #__analytics_events.*, #__analytics_visitors.domain
             from `#__analytics_events`
             left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
-            left join `#__analytics_event_attributes` on #__analytics_event_attributes.event_uuid = #__analytics_events.uuid";
+            left join `#__analytics_event_attributes` on #__analytics_event_attributes.event_uuid = #__analytics_events.uuid
+            WHERE " . implode(" AND ", $where_clause);
 
-        // let sort = add_sort(
-        //     params,
-        //     vec![
-        //         "start",
-        //         "end",
-        //         "url",
-        //         "event_name",
-        //         "event_type",
-        //         "domain",
-        //         "referrer",
-        //     ],
-        //     "start",
-        // );
-
-        // if !sort.is_empty() {
-        //     sql.push("ORDER BY".to_string());
-        //     sql.push(sort.join(","));
-        // }
-
-        // let list = self
-        //     .get_list::<OutgoingMysqlListVisitorEvent>(sql, total_sql, bind.clone(), params)
-        //     .await?;
-        // let mut collection: Vec<OutgoingListVisitorEvent> = vec![];
+        $sort = self::add_sort(
+            $params,
+            [
+                "start",
+                "end",
+                "url",
+                "event_name",
+                "event_type",
+                "domain",
+                "referrer",
+            ],
+            "start"
+        );
 
         $sql = str_replace("#__", "wp_", $sql);
+        $total_sql = str_replace("#__", "wp_", $total_sql);
+
+        $page = $params['page'] ?? 1;
+        $pageSize = $params['page_size'] ?? 20;
+        $skip = ($page - 1) * $pageSize;
+
+        $sql .= " LIMIT " . $skip . ", " . $pageSize;
+
+        $total_elements = (int) $wpdb->get_var($total_sql);
+        $total_pages = ceil($total_elements / $pageSize);
 
         $list = $wpdb->get_results($sql, ARRAY_A);
 
         $collection = [];
 
-        // var_dump($list);
-
         if ($list) {
-            // let bind: Vec<String> = list.collection.iter().map(|e| e.uuid.clone()).collect();
-
             $bind = array_map(function($e) {
                 return $e['uuid'];
             }, $list);
@@ -105,68 +90,12 @@ Class AesirX_Analytics_Get_List_Events extends MysqlHelper
                 WHERE
                 event_uuid IN ('" . implode("', '", $bind) . "')";
 
-            // let sql_list_string = self.prefix(sql.clone().join(" "));
-            // let mut sql_list = sqlx::query_as::<_, MysqlVisitorEventAttribute>(&sql_list_string);
-            // for one_bind in bind.iter() {
-            //     sql_list = sql_list.bind(one_bind);
-            // }
-
-
-            // let mut hash_map: HashMap<String, HashMap<String, String>> = HashMap::new();
-
-            // for second in sql_list.fetch_all(&self.sqlx_conn).await?.iter() {
-            //     match hash_map.get_mut(second.name.clone().as_str()) {
-            //         None => {
-            //             let mut sub_hash: HashMap<String, String> = HashMap::new();
-            //             sub_hash.insert(second.name.clone(), second.value.clone());
-            //             hash_map.insert(second.event_uuid.clone(), sub_hash);
-            //         }
-            //         Some(some) => {
-            //             some.insert(second.name.clone(), second.value.clone());
-            //         }
-            //     };
-            // }
-
-            // for item in list.collection.iter() {
-            //     let mut attributes: Vec<VisitorEventAttribute> = vec![];
-            //     match hash_map.get(item.uuid.as_str()) {
-            //         None => {}
-            //         Some(some) => {
-            //             for (attr_name, attr_val) in some.iter() {
-            //                 attributes.push(VisitorEventAttribute {
-            //                     name: attr_name.clone(),
-            //                     value: attr_val.clone(),
-            //                 });
-            //             }
-            //         }
-            //     };
-
-            //     collection.push(OutgoingListVisitorEvent {
-            //         uuid: Uuid::parse_str(item.uuid.clone())?,
-            //         visitor_uuid: Uuid::parse_str(item.visitor_uuid.clone())?,
-            //         flow_uuid: Uuid::parse_str(item.flow_uuid.clone())?,
-            //         url: item.url.clone(),
-            //         domain: item.domain.clone(),
-            //         referer: item.referer.clone(),
-            //         start: Utc.from_utc_datetime(&item.start),
-            //         end: Utc.from_utc_datetime(&item.end),
-            //         event_name: item.event_name.clone(),
-            //         event_type: item.event_type.clone(),
-            //         attributes: if !attributes.is_empty() {
-            //             Some(attributes)
-            //         } else {
-            //             None
-            //         },
-            //     });
-            // }
-
             $sql = str_replace("#__", "wp_", $sql);
             
             $secondArray = $wpdb->get_results($sql);
 
             $hash_map = [];
 
-            // Process each result
             foreach ($secondArray as $second) {
                 $name = $second->name;
                 $event_uuid = $second->event_uuid;
@@ -213,14 +142,10 @@ Class AesirX_Analytics_Get_List_Events extends MysqlHelper
 
         $list_response = [
             'collection' => $collection,
-            // 'page' => $params->calcPage(),
-            // 'pageSize' => $params->calcPageSize(),
-            // 'totalPages' => 1, // Placeholder, calculate if needed
-            // 'totalElements' => $wpdb->get_var($total_sql),
-            'page' => 1,
-            'pageSize' => 1,
-            'totalPages' => 1, // Placeholder, calculate if needed
-            'totalElements' => 1,
+            'page' => (int) $page,
+            'page_size' => (int) $pageSize,
+            'total_pages' => $total_pages,
+            'total_elements' => $total_elements,
         ];
 
         return $list_response;

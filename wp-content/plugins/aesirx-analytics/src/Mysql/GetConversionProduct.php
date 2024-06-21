@@ -8,8 +8,7 @@ Class AesirX_Analytics_Get_Conversion_Product extends MysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
-        // let mut where_clause: Vec<String> = vec![];
-        // let mut bind: Vec<String> = vec![];
+        $where_clause = [];
 
         // add_conversion_filters(params, &mut where_clause, &mut bind)?;
 
@@ -25,38 +24,36 @@ Class AesirX_Analytics_Get_Conversion_Product extends MysqlHelper
             CAST((SUM(quantity) / COUNT(quantity)) as FLOAT) as avg_quantity
             from `#__analytics_conversion`
             left join `#__analytics_conversion_item` on #__analytics_conversion.uuid = #__analytics_conversion_item.conversion_uuid
+            left join `#__analytics_flows` on #__analytics_conversion.flow_uuid = #__analytics_flows.uuid 
+            WHERE " . implode(" AND ", $where_clause) .
+            " GROUP BY name, sku, extension";
+
+        $total_sql =
+            "SELECT
+            COUNT(DISTINCT name, sku, extension) as total
+            from `#__analytics_conversion`
+            left join `#__analytics_conversion_item` on #__analytics_conversion.uuid = #__analytics_conversion_item.conversion_uuid
             left join `#__analytics_flows` on #__analytics_conversion.flow_uuid = #__analytics_flows.uuid
-            GROUP BY name, sku, extension";
+            WHERE " . implode(" AND ", $where_clause);
 
-        // let total_sql: Vec<String> = vec![
-        //     "SELECT
-        //     "COUNT(DISTINCT name, sku, extension) as total
-        //     "from `#__analytics_conversion`
-        //     "left join `#__analytics_conversion_item` on #__analytics_conversion.uuid = #__analytics_conversion_item.conversion_uuid
-        //     "left join `#__analytics_flows` on #__analytics_conversion.flow_uuid = #__analytics_flows.uuid
-        //     "WHERE
-        //     where_clause.join(" AND "),
-        // ];
+        $sort = self::add_sort(
+            $params,
+            [
+                "product",
+                "sku",
+                "extension",
+                "quantity",
+                "items_sold",
+                "product_revenue",
+                "avg_price",
+                "avg_quantity",
+            ],
+            "quantity"
+        );
 
-        // let sort = add_sort(
-        //     params,
-        //     vec![
-        //         "product",
-        //         "sku",
-        //         "extension",
-        //         "quantity",
-        //         "items_sold",
-        //         "product_revenue",
-        //         "avg_price",
-        //         "avg_quantity",
-        //     ],
-        //     "quantity",
-        // );
-
-        // if !sort.is_empty() {
-        //     sql.push("ORDER BY".to_string());
-        //     sql.push(sort.join(","));
-        // }
+        if (!empty($sort)) {
+            $sql .= " ORDER BY " . implode(", ", $sort);
+        }
 
         return parent::get_list($sql, $total_sql, $params);
     }

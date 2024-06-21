@@ -10,46 +10,45 @@ Class AesirX_Analytics_Get_Attribute_Value extends MysqlHelper
     {
         global $wpdb;
 
-        // let mut where_clause: Vec<String> = vec![];
-        // let mut bind: Vec<String> = vec![];
-        // add_filters(params, &mut where_clause, &mut bind)?;
+        self::add_filters($params, $where_clause);
 
         // add_attribute_filters(params, &mut where_clause, &mut bind);
 
-        // let total_sql: Vec<String> = vec![
-        //     "SELECT COUNT(DISTINCT #__analytics_event_attributes.name) as total
-        //     "from `#__analytics_event_attributes`
-        //     "left join `#__analytics_events` on #__analytics_event_attributes.event_uuid = #__analytics_events.uuid
-        //     "left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
-        //     "WHERE
-        //     where_clause.join(" AND "),
-        // ];
+        $total_sql =
+            "SELECT COUNT(DISTINCT #__analytics_event_attributes.name) as total
+            from `#__analytics_event_attributes`
+            left join `#__analytics_events` on #__analytics_event_attributes.event_uuid = #__analytics_events.uuid
+            left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
+            WHERE " . implode(" AND ", $where_clause);
 
         $sql =
             "SELECT DISTINCT #__analytics_event_attributes.name
             from #__analytics_event_attributes
             left join #__analytics_events on #__analytics_event_attributes.event_uuid = #__analytics_events.uuid
-            left join #__analytics_visitors on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid";
+            left join #__analytics_visitors on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
+            WHERE " . implode(" AND ", $where_clause);
 
-        // let sort = add_sort(params, vec!["name"], "name");
+        $sort = self::add_sort($params, ["name"], "name");
 
-        // if !sort.is_empty() {
-        //     sql.push("ORDER BY".to_string());
-        //     sql.push(sort.join(","));
-        // }
+        if (!empty($sort)) {
+            $sql .= " ORDER BY " . implode(", ", $sort);
+        }
 
-        // let list = self
-        //     .get_list::<OutgoingMysqlAttributes>(sql, total_sql, bind.clone(), params)
-        //     .await?;
-        // let mut collection: Vec<OutgoingAttributesDetail> = vec![];
+        $page = $params['page'] ?? 1;
+        $pageSize = $params['page_size'] ?? 20;
+        $skip = ($page - 1) * $pageSize;
+
+        $sql .= " LIMIT " . $skip . ", " . $pageSize;
+
+        $total_elements = (int) $wpdb->get_var($total_sql);
+        $total_pages = ceil($total_elements / $pageSize);
 
         $sql = str_replace("#__", "wp_", $sql);
+        $total_sql = str_replace("#__", "wp_", $total_sql);
 
         $list = $wpdb->get_results($sql, ARRAY_A);
 
         $collection = [];
-
-        // var_dump($list);
 
         if ($list) {
 
@@ -77,24 +76,12 @@ Class AesirX_Analytics_Get_Attribute_Value extends MysqlHelper
                 WHERE " . implode(" AND ", $where_clause) .
                 " GROUP BY #__analytics_event_attributes.name, #__analytics_event_attributes.value";
 
-            // let sql_list_string = self.prefix(sql.clone().join(" "));
-            // let mut sql_list =
-            //     sqlx::query_as::<_, OutgoingMysqlTmpAttributesDetail>(&sql_list_string);
-            // for one_bind in bind.iter() {
-            //     sql_list = sql_list.bind(one_bind);
-            // }
-
-            // let mut hash_map: HashMap<String, HashMap<String, i32>> = HashMap::new();
-
             $sql = str_replace("#__", "wp_", $sql);
 
             $secondArray = $wpdb->get_results($sql);
 
-            // var_dump($second);
-
             $hash_map = [];
 
-            // Process each result
             foreach ($secondArray as $second) {
                 $name = $second->name;
                 $value = $second->value;
@@ -156,14 +143,10 @@ Class AesirX_Analytics_Get_Attribute_Value extends MysqlHelper
 
         $list_response = [
             'collection' => $collection,
-            // 'page' => $params->calcPage(),
-            // 'pageSize' => $params->calcPageSize(),
-            // 'totalPages' => 1, // Placeholder, calculate if needed
-            // 'totalElements' => $wpdb->get_var($total_sql),
-            'page' => 1,
-            'pageSize' => 1,
-            'totalPages' => 1, // Placeholder, calculate if needed
-            'totalElements' => 1,
+            'page' => (int) $page,
+            'page_size' => (int) $pageSize,
+            'total_pages' => $total_pages,
+            'total_elements' => $total_elements,
         ];
 
         return $list_response;

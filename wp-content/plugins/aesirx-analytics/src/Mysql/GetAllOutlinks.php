@@ -10,34 +10,28 @@ Class AesirX_Analytics_Get_All_Outlinks extends MysqlHelper
     {
         global $wpdb;
 
-        // let mut where_clause: Vec<String> =
-        //     vec!["#__analytics_events.referer LIKE '%//%'".to_string()];
+        $where_clause = ["#__analytics_events.referer LIKE '%//%'"];
 
-        // let mut acquisition = false;
+        $acquisition = false;
+        foreach ($params['filter'] as $key => $vals) {
+            if ($key === "acquisition") {
+                $list = is_array($vals) ? $vals : [$vals];
+                if ($list[0] === "true") {
+                    $acquisition = true;
+                }
+                break;
+            }
+        }
 
-        // for (key, vals) in params.clone().filter.as_ref().unwrap().iter() {
-        //     if key == "acquisition" {
-        //         if let Some(list) = get_parameters_as_array(vals) {
-        //             if list.first().unwrap() == "true" {
-        //                 acquisition = true;
-        //             }
-        //         }
+        if ($acquisition) {
+            $where_clause[] = "#__analytics_events.referer LIKE '%google.%'";
+            $where_clause[] = "#__analytics_events.referer LIKE '%bing.%'";
+            $where_clause[] = "#__analytics_events.referer LIKE '%yandex.%'";
+            $where_clause[] = "#__analytics_events.referer LIKE '%yahoo.%'";
+            $where_clause[] = "#__analytics_events.referer LIKE '%duckduckgo.%'";
+        }
 
-        //         break;
-        //     }
-        // }
-
-        // if acquisition {
-        //     where_clause.push("#__analytics_events.referer LIKE '%google.%'".to_string());
-        //     where_clause.push("#__analytics_events.referer LIKE '%bing.%'".to_string());
-        //     where_clause.push("#__analytics_events.referer LIKE '%yandex.%'".to_string());
-        //     where_clause.push("#__analytics_events.referer LIKE '%yahoo.%'".to_string());
-        //     where_clause.push("#__analytics_events.referer LIKE '%duckduckgo.%'".to_string());
-        // }
-
-        // let mut bind: Vec<String> = vec![];
-
-        // add_filters(params, &mut where_clause, &mut bind)?;
+        self::add_filters($params, $where_clause);
 
         $sql =
             "SELECT
@@ -47,40 +41,43 @@ Class AesirX_Analytics_Get_All_Outlinks extends MysqlHelper
             COUNT(referer) as total_urls
             from `#__analytics_events`
             left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
-            GROUP BY referer";
+            WHERE " . implode(" AND ", $where_clause) .
+            " GROUP BY referer";
 
-        // let total_sql: Vec<String> = vec![
-        //     "SELECT
-        //     "COUNT(DISTINCT SUBSTRING_INDEX(SUBSTRING_INDEX(referer, '://', -1), '/', 1)) as total
-        //     "from `#__analytics_events`
-        //     "left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
-        //     "WHERE
-        //     where_clause.join(" AND "),
-        // ];
+        $total_sql =
+            "SELECT
+            COUNT(DISTINCT SUBSTRING_INDEX(SUBSTRING_INDEX(referer, '://', -1), '/', 1)) as total
+            from `#__analytics_events`
+            left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
+            WHERE " . implode(" AND ", $where_clause);
 
-        // let sort = add_sort(
-        //     params,
-        //     vec![
-        //         "referer",
-        //         "number_of_visitors",
-        //         "total_number_of_visitors",
-        //         "urls",
-        //         "total_urls",
-        //     ],
-        //     "referer",
-        // );
+        $sort = self::add_sort(
+            $params,
+            [
+                "referer",
+                "number_of_visitors",
+                "total_number_of_visitors",
+                "urls",
+                "total_urls",
+            ],
+            "referer"
+        );
 
-        // if !sort.is_empty() {
-        //     sql.push("ORDER BY".to_string());
-        //     sql.push(sort.join(","));
-        // }
-
-        // let list = self
-        //     .get_list::<OutgoingMysqlOutlinks>(sql, total_sql, bind.clone(), params)
-        //     .await?;
-        // let mut collection: Vec<OutgoingOutlinksSummary> = vec![];
+        if (!empty($sort)) {
+            $sql .= " ORDER BY " . implode(", ", $sort);
+        }
 
         $sql = str_replace("#__", "wp_", $sql);
+        $total_sql = str_replace("#__", "wp_", $total_sql);
+
+        $page = $params['page'] ?? 1;
+        $pageSize = $params['page_size'] ?? 20;
+        $skip = ($page - 1) * $pageSize;
+
+        $sql .= " LIMIT " . $skip . ", " . $pageSize;
+
+        $total_elements = (int) $wpdb->get_var($total_sql);
+        $total_pages = ceil($total_elements / $pageSize);
 
         $list = $wpdb->get_results($sql, ARRAY_A);
 
@@ -99,8 +96,6 @@ Class AesirX_Analytics_Get_All_Outlinks extends MysqlHelper
 
             $query = str_replace("#__", "wp_", $query);
 
-            
-
             foreach ($list as $vals) {
 
                 if ($vals['referer'] == null) {
@@ -109,20 +104,7 @@ Class AesirX_Analytics_Get_All_Outlinks extends MysqlHelper
 
                 $query = str_replace("?", $vals['referer'], $query);
 
-                // echo $query;
-
                 $second = $wpdb->get_results($query, ARRAY_A);
-
-                // let second = query
-                //     .fetch_all(&self.sqlx_conn)
-                //     .await?
-                //     .iter()
-                //     .map(|e| OutgoingOutlinksSummaryUrl {
-                //         url: e.get("url"),
-                //         total_number_of_visitors: e.get("total_number_of_visitors"),
-                //         number_of_visitors: e.get("number_of_visitors"),
-                //     })
-                //     .collect::<Vec<OutgoingOutlinksSummaryUrl>>();
 
                 $collection[] = [
                     "referer" => $vals['referer'],
@@ -136,14 +118,10 @@ Class AesirX_Analytics_Get_All_Outlinks extends MysqlHelper
 
         $list_response = [
             'collection' => $collection,
-            // 'page' => $params->calcPage(),
-            // 'pageSize' => $params->calcPageSize(),
-            // 'totalPages' => 1, // Placeholder, calculate if needed
-            // 'totalElements' => $wpdb->get_var($total_sql),
-            'page' => 1,
-            'pageSize' => 1,
-            'totalPages' => 1, // Placeholder, calculate if needed
-            'totalElements' => 1,
+            'page' => (int) $page,
+            'page_size' => (int) $pageSize,
+            'total_pages' => $total_pages,
+            'total_elements' => $total_elements,
         ];
 
         return $list_response;

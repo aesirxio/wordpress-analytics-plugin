@@ -8,8 +8,7 @@ Class AesirX_Analytics_Get_Conversion_Statistic extends MysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
-        // let mut where_clause: Vec<String> = vec![];
-        // let mut bind: Vec<String> = vec![];
+        $where_clause = [];
 
         // add_conversion_filters(params, &mut where_clause, &mut bind)?;
 
@@ -22,17 +21,16 @@ Class AesirX_Analytics_Get_Conversion_Statistic extends MysqlHelper
             CAST(COUNT(#__analytics_conversion.uuid) as FLOAT) as transactions
             from `#__analytics_conversion`
             left join `#__analytics_conversion_item` on #__analytics_conversion.uuid = #__analytics_conversion_item.conversion_uuid
-            left join `#__analytics_flows` on #__analytics_conversion.flow_uuid = #__analytics_flows.uuid";
+            left join `#__analytics_flows` on #__analytics_conversion.flow_uuid = #__analytics_flows.uuid 
+            WHERE " . implode(" AND ", $where_clause);
 
-        // let total_sql: Vec<String> = vec![
-        //     "SELECT
-        //     "COUNT(DISTINCT name) as total
-        //     "from `#__analytics_conversion`
-        //     "left join `#__analytics_conversion_item` on #__analytics_conversion.uuid = #__analytics_conversion_item.conversion_uuid
-        //     "left join `#__analytics_flows` on #__analytics_conversion.flow_uuid = #__analytics_flows.uuid
-        //     "WHERE
-        //     where_clause.join(" AND "),
-        // ];
+        $total_sql =
+            "SELECT
+            COUNT(DISTINCT name) as total
+            from `#__analytics_conversion`
+            left join `#__analytics_conversion_item` on #__analytics_conversion.uuid = #__analytics_conversion_item.conversion_uuid
+            left join `#__analytics_flows` on #__analytics_conversion.flow_uuid = #__analytics_flows.uuid
+            WHERE " . implode(" AND ", $where_clause);
 
         return parent::get_list($sql, $total_sql, $params);
     }

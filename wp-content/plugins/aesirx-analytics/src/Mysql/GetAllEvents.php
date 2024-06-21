@@ -8,12 +8,12 @@ Class AesirX_Analytics_Get_All_Events extends MysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
-        // let mut where_clause: Vec<String> = vec![
-        //     "#__analytics_events.event_name = ?
-        //     "#__analytics_events.event_type = ?
-        // ];
-        // let mut bind: Vec<String> = vec!["visit "action".to_string()];
-        // add_filters(params, &mut where_clause, &mut bind)?;
+        $where_clause = [
+            "#__analytics_events.event_name = 'visit'",
+            "#__analytics_events.event_type = 'action'",
+        ];
+
+        self::add_filters($params, $where_clause);
 
         $sql =
             "SELECT
@@ -21,24 +21,22 @@ Class AesirX_Analytics_Get_All_Events extends MysqlHelper
             COUNT(#__analytics_events.visitor_uuid) as visits,
             COUNT(DISTINCT #__analytics_events.visitor_uuid) as unique_visits
             from `#__analytics_events`
+            left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid 
+            WHERE " . implode(" AND ", $where_clause) .
+            " GROUP BY date";
+
+        $total_sql =
+            "SELECT
+            COUNT(DISTINCT DATE_FORMAT(start, '%Y-%m-%d')) as total
+            from `#__analytics_events`
             left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
-            GROUP BY date";
+            WHERE " . implode(" AND ", $where_clause);
 
-        // let total_sql: Vec<String> = vec![
-        //     "SELECT
-        //     "COUNT(DISTINCT DATE_FORMAT(start, '%Y-%m-%d')) as total
-        //     "from `#__analytics_events`
-        //     "left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
-        //     "WHERE
-        //     where_clause.join(" AND "),
-        // ];
+        $sort = self::add_sort($params, ["date", "unique_visits", "visits"], "date");
 
-        // let sort = add_sort(params, vec!["date", "unique_visits", "visits"], "date");
-
-        // if !sort.is_empty() {
-        //     sql.push("ORDER BY".to_string());
-        //     sql.push(sort.join(","));
-        // }
+        if (!empty($sort)) {
+            $sql .= " ORDER BY " . implode(", ", $sort);
+        }
 
         return parent::get_list($sql, $total_sql, $params);
     }

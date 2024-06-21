@@ -10,20 +10,18 @@ Class AesirX_Analytics_Get_Attribute_Value_Date extends MysqlHelper
     {
         global $wpdb;
 
-        // let mut where_clause: Vec<String> = vec![];
-        // let mut bind: Vec<String> = vec![];
-        // add_filters(params, &mut where_clause, &mut bind)?;
+        $where_clause = [];
+
+        self::add_filters($params, $where_clause);
 
         // add_attribute_filters(params, &mut where_clause, &mut bind);
 
-        // let total_sql: Vec<String> = vec![
-        //     "SELECT COUNT(DISTINCT #__analytics_event_attributes.name, DATE_FORMAT(#__analytics_events.start, '%Y-%m-%d')) as total
-        //     "from `#__analytics_event_attributes`
-        //     "left join `#__analytics_events` on #__analytics_event_attributes.event_uuid = #__analytics_events.uuid
-        //     "left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
-        //     "WHERE
-        //     where_clause.join(" AND "),
-        // ];
+        $total_sql =
+            "SELECT COUNT(DISTINCT #__analytics_event_attributes.name, DATE_FORMAT(#__analytics_events.start, '%Y-%m-%d')) as total
+            from `#__analytics_event_attributes`
+            left join `#__analytics_events` on #__analytics_event_attributes.event_uuid = #__analytics_events.uuid
+            left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
+            WHERE " . implode(" AND ", $where_clause);
 
         $sql =
             "SELECT
@@ -31,28 +29,31 @@ Class AesirX_Analytics_Get_Attribute_Value_Date extends MysqlHelper
             DATE_FORMAT(#__analytics_events.start, '%Y-%m-%d') as date
             FROM #__analytics_event_attributes
             LEFT JOIN #__analytics_events ON #__analytics_event_attributes.event_uuid = #__analytics_events.uuid
-            LEFT JOIN #__analytics_visitors ON #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
-            GROUP BY #__analytics_event_attributes.name, date";
+            LEFT JOIN #__analytics_visitors ON #__analytics_visitors.uuid = #__analytics_events.visitor_uuid 
+            WHERE " . implode(" AND ", $where_clause) .
+            " GROUP BY #__analytics_event_attributes.name, date";
 
-        // let sort = add_sort(params, vec!["name", "date"], "date");
+        $sort = self::add_sort($params, ["name", "date"], "date");
 
-        // if !sort.is_empty() {
-        //     sql.push("ORDER BY".to_string());
-        //     sql.push(sort.join(","));
-        // }
+        if (!empty($sort)) {
+            $sql .= " ORDER BY " . implode(", ", $sort);
+        }
 
-        // let list = self
-        //     .get_list::<OutgoingMysqlAttributesWithDate>(sql, total_sql, bind.clone(), params)
-        //     .await?;
-        // let mut collection: Vec<OutgoingAttributesWithDate> = vec![];
+        $page = $params['page'] ?? 1;
+        $pageSize = $params['page_size'] ?? 20;
+        $skip = ($page - 1) * $pageSize;
+
+        $sql .= " LIMIT " . $skip . ", " . $pageSize;
+
+        $total_elements = (int) $wpdb->get_var($total_sql);
+        $total_pages = ceil($total_elements / $pageSize);
 
         $sql = str_replace("#__", "wp_", $sql);
+        $total_sql = str_replace("#__", "wp_", $total_sql);
 
         $list = $wpdb->get_results($sql, ARRAY_A);
 
         $collection = [];
-
-        // var_dump($list);
 
         if ($list) {
             $names = array_map(function($e) {
@@ -112,14 +113,10 @@ Class AesirX_Analytics_Get_Attribute_Value_Date extends MysqlHelper
 
         $list_response = [
             'collection' => $collection,
-            // 'page' => $params->calcPage(),
-            // 'pageSize' => $params->calcPageSize(),
-            // 'totalPages' => 1, // Placeholder, calculate if needed
-            // 'totalElements' => $wpdb->get_var($total_sql),
-            'page' => 1,
-            'pageSize' => 1,
-            'totalPages' => 1, // Placeholder, calculate if needed
-            'totalElements' => 1,
+            'page' => (int) $page,
+            'page_size' => (int) $pageSize,
+            'total_pages' => $total_pages,
+            'total_elements' => $total_elements,
         ];
 
         return $list_response;

@@ -8,8 +8,7 @@ Class AesirX_Analytics_Get_Conversion_Product_Chart extends MysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
-        // let mut where_clause: Vec<String> = vec![];
-        // let mut bind: Vec<String> = vec![];
+        $where_clause = [];
 
         // add_conversion_filters(params, &mut where_clause, &mut bind)?;
 
@@ -20,24 +19,22 @@ Class AesirX_Analytics_Get_Conversion_Product_Chart extends MysqlHelper
             from `#__analytics_conversion`
             left join `#__analytics_conversion_item` on #__analytics_conversion.uuid = #__analytics_conversion_item.conversion_uuid
             left join `#__analytics_flows` on #__analytics_conversion.flow_uuid = #__analytics_flows.uuid
-            GROUP BY date";
+            WHERE " . implode(" AND ", $where_clause) .
+            " GROUP BY date";
 
-        // let total_sql: Vec<String> = vec![
-        //     "SELECT
-        //     "COUNT(DISTINCT DATE_FORMAT(start, '%Y-%m-%d')) as total
-        //     "from `#__analytics_conversion`
-        //     "left join `#__analytics_conversion_item` on #__analytics_conversion.uuid = #__analytics_conversion_item.conversion_uuid
-        //     "left join `#__analytics_flows` on #__analytics_conversion.flow_uuid = #__analytics_flows.uuid
-        //     "WHERE
-        //     where_clause.join(" AND "),
-        // ];
+        $total_sql =
+            "SELECT
+            COUNT(DISTINCT DATE_FORMAT(start, '%Y-%m-%d')) as total
+            from `#__analytics_conversion`
+            left join `#__analytics_conversion_item` on #__analytics_conversion.uuid = #__analytics_conversion_item.conversion_uuid
+            left join `#__analytics_flows` on #__analytics_conversion.flow_uuid = #__analytics_flows.uuid
+            WHERE " . implode(" AND ", $where_clause);
 
-        // let sort = add_sort(params, vec!["date", "quantity"], "date");
+        $sort = self::add_sort($params, ["date", "quantity"], "date");
 
-        // if !sort.is_empty() {
-        //     sql.push("ORDER BY".to_string());
-        //     sql.push(sort.join(","));
-        // }
+        if (!empty($sort)) {
+            $sql .= " ORDER BY " . implode(", ", $sort);
+        }
         
         return parent::get_list($sql, $total_sql, $params);
     }

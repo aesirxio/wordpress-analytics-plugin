@@ -4,88 +4,61 @@ namespace AesirxAnalytics;
 
 Class MysqlHelper
 {
-    public function get_list($sql, $total_sql, $params) {
-        global $wpdb; // WordPress database object
+    public function get_list($sql, $total_sql, $params, $allowed = []) {
+        global $wpdb;
+
+        $page = $params['page'] ?? 1;
+        $pageSize = $params['page_size'] ?? 20;
+        $skip = ($page - 1) * $pageSize;
     
-        // Calculate the LIMIT clause
-        $sql .= " LIMIT 0, 5";
-    
-        // // Join SQL strings with spaces and apply prefixing (if needed)
-        // $sql_list_string = implode(" ", $sql);
-        // $total_sql_string = implode(" ", $total_sql);
-    
-        // try {
-        //     // Execute list query
-        //     $list = $wpdb->get_results($sql_list_string);
-    
-        //     // Execute total query
-        //     $total_result = $wpdb->get_row($total_sql_string);
-    
-        //     // Extract total elements
-        //     $total_elements = isset($total_result->total) ? intval($total_result->total) : 0;
-        //     $total_pages = 1;
-        //     $limit = $params->calcPageSize();
-    
-        //     // Calculate total pages
-        //     if ($limit > 0) {
-        //         $total_pages = ceil($total_elements / $limit);
-        //     }
-    
-        //     // Prepare response array
-        //     $response = [
-        //         'collection' => $list,
-        //         'page' => $params->calcPage(),
-        //         'pageSize' => $params->calcPageSize(),
-        //         'totalPages' => $total_pages,
-        //         'totalElements' => $total_elements
-        //     ];
-    
-        //     return $response;
-    
-        // } catch (Exception $e) {
-        //     // Handle exceptions (customize as per your needs)
-        //     error_log("Error: " . $e->getMessage());
-        //     return []; // Or handle differently based on your plugin's requirements
-        // }
+        $sql .= " LIMIT " . $skip . ", " . $pageSize;
 
         $sql = str_replace("#__", "wp_", $sql);
+        $total_sql = str_replace("#__", "wp_", $total_sql);
 
         // echo $sql;
+        // echo $total_sql;
 
-        $collection = $wpdb->get_results($sql, ARRAY_A);
+        $total_elements = (int) $wpdb->get_var($total_sql);
+        $total_pages = ceil($total_elements / $pageSize);
 
-        // Execute queries
         try {
+            $collection = $wpdb->get_results($sql, ARRAY_A);
+
+            // foreach ($collection as $items) {
+            //     foreach ($items as $key => $value) {
+            //         if (in_array($key, $allowed)) {
+            //             $collection[$key] = (int) $value;
+            //         }
+            //         else {
+            //             $collection[$key] = $value;
+            //         }
+            //     }
+            // }
+
             $list_response = [
                 'collection' => $collection,
-                // 'page' => $params->calcPage(),
-                // 'pageSize' => $params->calcPageSize(),
-                // 'totalPages' => 1, // Placeholder, calculate if needed
-                // 'totalElements' => $wpdb->get_var($total_sql),
-                'page' => 1,
-                'pageSize' => 1,
-                'totalPages' => 1, // Placeholder, calculate if needed
-                'totalElements' => 1,
+                'page' => (int) $page,
+                'page_size' => (int) $pageSize,
+                'total_pages' => $total_pages,
+                'total_elements' => $total_elements,
             ];
 
-            if (count($list_response['collection']) == 1) {
+            if ($params[1] == "metrics") {
                 $list_response = $list_response['collection'][0];
             }
 
             return $list_response;
 
         } catch (Exception $e) {
-            // Handle exceptions
             error_log("Error: " . $e->getMessage());
             return new WP_Error('database_error', 'Database error occurred.', ['status' => 500]);
         }
     }
 
-    // Define a function to mimic the Rust method
     public function get_statistics_per_field_wp($groups = [], $selects = [], $params = []) {
-        global $wpdb; // WordPress database object
+        global $wpdb;
 
-        // Initialize SQL parts
         $select = [
             "coalesce(COUNT(DISTINCT (#__analytics_events.visitor_uuid)), 0) as number_of_visitors",
             "coalesce(COUNT(#__analytics_events.visitor_uuid), 0) as total_number_of_visitors",
@@ -96,164 +69,168 @@ Class MysqlHelper
             "coalesce((count(DISTINCT CASE WHEN #__analytics_flows.multiple_events = 0 THEN #__analytics_flows.uuid END) * 100) / count(DISTINCT (#__analytics_flows.uuid)), 0) DIV 1 as bounce_rate",
         ];
 
-        $total_select = ["COUNT(uuid) AS total"];
+        $total_select = [];
 
-        // Handle grouping
         if (!empty($groups)) {
             foreach ($groups as $one_group) {
                 $select[] = $one_group;
             }
 
-            // $total_select[] = "COUNT(DISTINCT " . implode(', COALESCE(', $groups->result) . ") AS total";
+            $total_select[] = "COUNT(DISTINCT " . implode(', COALESCE(', $groups) . ") AS total";
         }
-        // else {
-        //     $total_select = ["COUNT(uuid) AS total"];
-        // }
+        else {
+            $total_select[] = "COUNT(#__analytics_events.uuid) AS total";
+        }
 
-        // Handle additional select fields
         foreach ($selects as $additional_result) {
             $select[] = $additional_result["select"] . " AS " . $additional_result["result"];
         }
+        
+        $where_clause = [
+            "#__analytics_events.event_name = 'visit'",
+            "#__analytics_events.event_type = 'action'",
+        ];
 
-        // // Handle where clause and bindings
-        // $where_clause = [
-        //     "event_name = %s",
-        //     "event_type = %s",
-        // ];
-        // $bind = ["visit", "action"];
+        self::add_filters($params, $where_clause);
 
-        // // Function to add filters (assuming it's defined elsewhere)
-        // add_filters($params, $where_clause, $bind);
+        $acquisition = false;
+        foreach ($params['filter'] as $key => $vals) {
+            if ($key === "acquisition") {
+                $list = is_array($vals) ? $vals : [$vals];
+                if ($list[0] === "true") {
+                    $acquisition = true;
+                }
+                break;
+            }
+        }
 
-        // // Handle acquisition filter
-        // $acquisition = false;
-        // foreach ($params->filter as $key => $vals) {
-        //     if ($key === "acquisition") {
-        //         $list = get_parameters_as_array($vals);
-        //         if ($list[0] === "true") {
-        //             $acquisition = true;
-        //         }
-        //         break;
-        //     }
-        // }
+        if ($acquisition) {
+            $where_clause[] = "#__analytics_flows.multiple_events = 0";
+        }
 
-        // if ($acquisition) {
-        //     $where_clause[] = "flows.multiple_events = 0";
-        // }
-
-        // Build SQL queries
         $total_sql = "SELECT " . implode(", ", $total_select) . " FROM #__analytics_events
                     LEFT JOIN #__analytics_visitors ON #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
-                    LEFT JOIN #__analytics_flows ON #__analytics_flows.uuid = #__analytics_events.flow_uuid";
-                    // WHERE " . implode(" AND ", $where_clause);
+                    LEFT JOIN #__analytics_flows ON #__analytics_flows.uuid = #__analytics_events.flow_uuid
+                    WHERE " . implode(" AND ", $where_clause);
 
         $sql = "SELECT " . implode(", ", $select) . " FROM #__analytics_events
                 LEFT JOIN #__analytics_visitors ON #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
-                LEFT JOIN #__analytics_flows ON #__analytics_flows.uuid = #__analytics_events.flow_uuid";
-                // WHERE " . implode(" AND ", $where_clause);
+                LEFT JOIN #__analytics_flows ON #__analytics_flows.uuid = #__analytics_events.flow_uuid
+                WHERE " . implode(" AND ", $where_clause);
 
-        // Handle grouping
         if (!empty($groups)) {
             $sql .= " GROUP BY " . implode(", ", $groups);
         }
 
-        // Handle sorting
-        // $allowed = [
-        //     "number_of_visitors",
-        //     "number_of_page_views",
-        //     "number_of_unique_page_views",
-        //     "average_session_duration",
-        //     "average_number_of_pages_per_session",
-        //     "bounce_rate",
-        // ];
-        // $default = reset($allowed); // Get the first element
+        $allowed = [
+            "number_of_visitors",
+            "number_of_page_views",
+            "number_of_unique_page_views",
+            "average_session_duration",
+            "average_number_of_pages_per_session",
+            "bounce_rate",
+        ];
+        $default = reset($allowed);
 
-        // foreach ($groups as $one_group) {
-        //     $allowed[] = $one_group->result;
-        //     $default = $one_group->result;
-        // }
+        foreach ($groups as $one_group) {
+            $allowed[] = $one_group;
+            $default = $one_group;
+        }
 
-        // foreach ($group_field->get_select() as $additional_result) {
-        //     $allowed[] = $additional_result->result;
-        // }
+        foreach ($groups as $additional_result) {
+            $allowed[] = $additional_result;
+        }
 
-        // $sort = add_sort($params, $allowed, $default);
-        // if (!empty($sort)) {
-        //     $sql .= " ORDER BY " . implode(", ", $sort);
-        // }
+        $sort = self::add_sort($params, $allowed, $default);
 
-        // $this.get_list($sql, $total_sql, $params);
-        return self::get_list($sql, $total_sql, $params);
+        if (!empty($sort)) {
+            $sql .= " ORDER BY " . implode(", ", $sort);
+        }
+
+        return self::get_list($sql, $total_sql, $params, $allowed);
     }
 
-    function add_filters($params, &$where_clause, &$bind) {
-        // Iterate through filters and filter_not arrays
+    function add_sort($params, $allowed, $default) {
+        $ret = [];
+        $dirs = [];
+
+        if (isset($params['sort_direction'])) {
+            foreach ($params['sort_direction'] as $pos => $value) {
+                $dirs[$pos] = $value;
+            }
+        }
+
+        if (!isset($params['sort'])) {
+            $ret[] = sprintf("%s ASC", $default);
+        } else {
+            foreach ($params['sort'] as $pos => $value) {
+                if (!in_array($value, $allowed)) {
+                    continue;
+                }
+
+                $dir = "ASC";
+                if (isset($dirs[$pos]) && $dirs[$pos] === "desc") {
+                    $dir = "DESC";
+                }
+
+                $ret[] = sprintf("%s %s", $value, $dir);
+            }
+
+            if (empty($ret)) {
+                $ret[] = sprintf("%s ASC", $default);
+            }
+        }
+
+        return $ret;
+    }
+
+    function add_filters($params, &$where_clause) {
         foreach ([$params['filter'], $params['filter_not']] as $filter_array) {
-            // Skip iteration if current filter array is empty or not set
             if (empty($filter_array)) {
                 continue;
             }
     
-            // Iterate through each filter key-value pair
             foreach ($filter_array as $key => $vals) {
-                // Attempt to retrieve filter values as array
-                $list = get_parameters_as_array($vals);
-    
-                // Handle different filter keys
+                $list = is_array($vals) ? $vals : [$vals];
+
                 switch ($key) {
                     case 'start':
-                        // Validate and handle start date filter
                         try {
                             $date = new DateTime($list[0]);
-                            $where_clause[] = '#__analytics_events.' . $key . ' >= ?';
-                            $bind[] = $date->format('Y-m-d');
+                            $where_clause[] = '#__analytics_events.' . $key . ' >= ' . $date->format('Y-m-d');
                         } catch (Exception $e) {
                             return new WP_Error('validation_error', '"start" filter is not correct', ['status' => 400]);
                         }
                         break;
                     case 'end':
-                        // Validate and handle end date filter
                         try {
                             $date = new DateTime($list[0]);
-                            $date->modify('+1 day'); // Add one day to include end date
-                            $where_clause[] = '#__analytics_events.' . $key . ' < ?';
-                            $bind[] = $date->format('Y-m-d');
+                            $date->modify('+1 day');
+                            $where_clause[] = '#__analytics_events.' . $key . ' < ' . $date->format('Y-m-d');
                         } catch (Exception $e) {
                             return new WP_Error('validation_error', '"end" filter is not correct', ['status' => 400]);
                         }
                         break;
+                    case 'event_name':
+                    case 'event_type':
+                        $where_clause[] = '#__analytics_events.' . $key . ' ' . ($is_not ? 'NOT ' : '') . 'IN ("' . implode(', ', $list) . '")';
+                        break;
+                    case 'city':
+                    case 'isp':
+                    case 'country_code':
+                    case 'country_name':
                     case 'url':
                     case 'domain':
                     case 'browser_name':
                     case 'browser_version':
                     case 'device':
                     case 'lang':
-                    case 'event_name':
-                    case 'event_type':
-                        // Handle other filter keys for IN clause
-                        $where_clause[] = '#__analytics_events.' . $key . ' ' . ($is_not ? 'NOT ' : '') . 'IN (' . rtrim(str_repeat('?, ', count($list)), ', ') . ')';
-                        $bind = array_merge($bind, $list);
-                        break;
-                    case 'city':
-                    case 'isp':
-                    case 'country_code':
-                    case 'country_name':
-                        // Handle city, isp, country_code, country_name filters
-                        foreach ($list as $list_val) {
-                            if ($list_val === 'null') {
-                                $bind[] = 'NULL';
-                            } else {
-                                $bind[] = $list_val;
-                            }
-                        }
+                        $where_clause[] = '#__analytics_visitors.' . $key . ' ' . ($is_not ? 'NOT ' : '') . 'IN ("' . implode(', ', $list) . '")';
                         break;
                     default:
-                        // Handle any other custom filter keys if needed
                         break;
                 }
             }
         }
-    
-        return null; // Success
     }
 }

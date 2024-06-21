@@ -10,10 +10,7 @@ Class AesirX_Analytics_Get_All_Consents extends MysqlHelper
     {
         global $wpdb;
 
-        // only need load 1 value of consent
-        // let mut where_clause: Vec<String> =
-        //     vec!["COALESCE(consent.consent, visitor_consent.consent) = 1".to_string()];
-        // let mut bind: Vec<String> = vec![];
+        $where_clause = ["COALESCE(consent.consent, visitor_consent.consent) = 1"];
 
         // add_consent_filters(params, &mut where_clause, &mut bind)?;
 
@@ -36,71 +33,49 @@ Class AesirX_Analytics_Get_All_Consents extends MysqlHelper
             FROM `#__analytics_visitor_consent` AS visitor_consent 
             LEFT JOIN `#__analytics_visitors` AS visitors ON visitors.uuid = visitor_consent.visitor_uuid 
             LEFT JOIN `#__analytics_consent` AS consent ON consent.uuid = visitor_consent.consent_uuid 
-            LEFT JOIN #__analytics_wallet AS wallet ON wallet.uuid = consent.wallet_uuid";
+            LEFT JOIN #__analytics_wallet AS wallet ON wallet.uuid = consent.wallet_uuid 
+            WHERE " . implode(" AND ", $where_clause);
 
-        // let total_sql: Vec<String> = vec![
-        //     "SELECT COUNT(visitor_consent.uuid) AS total 
-        //     FROM `#__analytics_visitor_consent` AS visitor_consent 
-        //     LEFT JOIN `#__analytics_visitors` AS visitors ON visitors.uuid = visitor_consent.visitor_uuid 
-        //     LEFT JOIN `#__analytics_consent` AS consent ON consent.uuid = visitor_consent.consent_uuid 
-        //     LEFT JOIN #__analytics_wallet AS wallet ON wallet.uuid = consent.wallet_uuid 
-        //     WHERE ".to_string(),
-        //     where_clause.join(" AND "),
-        // ];
+        $total_sql =
+            "SELECT COUNT(visitor_consent.uuid) AS total 
+            FROM `#__analytics_visitor_consent` AS visitor_consent 
+            LEFT JOIN `#__analytics_visitors` AS visitors ON visitors.uuid = visitor_consent.visitor_uuid 
+            LEFT JOIN `#__analytics_consent` AS consent ON consent.uuid = visitor_consent.consent_uuid 
+            LEFT JOIN #__analytics_wallet AS wallet ON wallet.uuid = consent.wallet_uuid 
+            WHERE " . implode(" AND ", $where_clause);
 
-        // let mut new_list: Vec<OutgoingConsents> = vec![];
+        $sort = self::add_sort(
+            $params,
+            [
+                "datetime",
+                "expiration",
+                "consent",
+                "tier",
+                "web3id",
+                "wallet",
+            ],
+            "datetime",
+        );
 
-        // let sort = add_sort(
-        //     params,
-        //     vec![
-        //         "datetime",
-        //         "expiration",
-        //         "consent",
-        //         "tier",
-        //         "web3id",
-        //         "wallet",
-        //     ],
-        //     "datetime",
-        // );
-
-        // if !sort.is_empty() {
-        //     sql.push("ORDER BY".to_string());
-        //     sql.push(sort.join(","));
-        // }
-
-        // let list = self
-        //     .get_list::<SqlOutgoingConsents>(sql, total_sql, bind, params)
-        //     .await?;
+        if (!empty($sort)) {
+            $sql .= " ORDER BY " . implode(", ", $sort);
+        }
 
         $sql = str_replace("#__", "wp_", $sql);
+        $total_sql = str_replace("#__", "wp_", $total_sql);
+
+        $page = $params['page'] ?? 1;
+        $pageSize = $params['page_size'] ?? 20;
+        $skip = ($page - 1) * $pageSize;
+
+        $sql .= " LIMIT " . $skip . ", " . $pageSize;
+
+        $total_elements = (int) $wpdb->get_var($total_sql);
+        $total_pages = ceil($total_elements / $pageSize);
 
         $list = $wpdb->get_results($sql, ARRAY_A);
 
         $collection = [];
-
-        // var_dump($list);
-
-        // for one in list.collection.iter() {
-        //     new_list.push(OutgoingConsents {
-        //         uuid: match one.uuid.clone() {
-        //             Some(some) => Some(Uuid::parse_str(some)?),
-        //             None => None,
-        //         },
-        //         tier: one.tier,
-        //         web3id: one.web3id.clone(),
-        //         consent: one.consent,
-        //         datetime: Utc.from_utc_datetime(&one.datetime),
-        //         expiration: one.expiration.map(|some| Utc.from_utc_datetime(&some)),
-        //         wallet: match one.wallet_uuid.clone() {
-        //             None => None,
-        //             Some(some) => Some(OutgoingConsentsWallet {
-        //                 uuid: Uuid::parse_str(some)?,
-        //                 address: one.address.clone().unwrap(),
-        //                 network: one.network.clone().unwrap(),
-        //             }),
-        //         },
-        //     });
-        // }
 
         foreach ($list as $one) {
             $uuid = isset($one->uuid) ? Uuid::fromString($one->uuid) : null;
@@ -123,14 +98,10 @@ Class AesirX_Analytics_Get_All_Consents extends MysqlHelper
 
         $list_response = [
             'collection' => $collection,
-            // 'page' => $params->calcPage(),
-            // 'pageSize' => $params->calcPageSize(),
-            // 'totalPages' => 1, // Placeholder, calculate if needed
-            // 'totalElements' => $wpdb->get_var($total_sql),
-            'page' => 1,
-            'pageSize' => 1,
-            'totalPages' => 1, // Placeholder, calculate if needed
-            'totalElements' => 1,
+            'page' => (int) $page,
+            'page_size' => (int) $pageSize,
+            'total_pages' => $total_pages,
+            'total_elements' => $total_elements,
         ];
 
         return $list_response;
