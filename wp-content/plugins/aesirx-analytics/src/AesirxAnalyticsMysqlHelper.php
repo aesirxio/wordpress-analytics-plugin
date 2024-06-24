@@ -379,7 +379,7 @@ Class AesirxAnalyticsMysqlHelper
 
         if (!empty($visitor['visitor_flows'])) {
             foreach ($visitor['visitor_flows'] as $flow) {
-                aesirx_analytics_create_visitor_flow($visitor['uuid'], $flow);
+                self::aesirx_analytics_create_visitor_flow($visitor['uuid'], $flow);
             }
         }
 
