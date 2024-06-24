@@ -10,6 +10,7 @@ Class AesirX_Analytics_Get_Total_Consent_Tier extends AesirxAnalyticsMysqlHelper
         $where_clause = [];
 
         // add_consent_filters(params, &mut where_clause, &mut bind)?;
+        parent::aesirx_analytics_add_consent_filters($params, $where_clause);
 
         $sql =
             "SELECT 

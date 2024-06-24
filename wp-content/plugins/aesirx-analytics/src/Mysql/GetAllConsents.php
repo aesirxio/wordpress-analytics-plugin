@@ -12,6 +12,7 @@ Class AesirX_Analytics_Get_All_Consents extends AesirxAnalyticsMysqlHelper
         $where_clause = ["COALESCE(consent.consent, visitor_consent.consent) = 1"];
 
         // add_consent_filters(params, &mut where_clause, &mut bind)?;
+        parent::aesirx_analytics_add_consent_filters($params, $where_clause);
 
         $sql =
             "SELECT 

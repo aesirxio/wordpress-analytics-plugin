@@ -484,8 +484,60 @@ Class AesirxAnalyticsMysqlHelper
 
                 switch ($key) {
                     case 'start':
-                        
+                        try {
+                            $dates = new DateTime($list[0]);
+                            foreach($dates as $date) {
+                                $where_clause[] = 'visitor_consent.datetime >= ' . $date->format('Y-m-d');
+                            }
+                        } catch (Exception $e) {
+                            return new WP_Error('validation_error', '"start" filter is not correct', ['status' => 400]);
+                        }
+                        break;
+                    case 'end':
+                        try {
+                            $dates = new DateTime($list[0]);
+                            $dates->modify('+1 day');
+                            foreach($dates as $date) {
+                                $where_clause[] = 'visitor_consent.datetime < ' . $date->format('Y-m-d');
+                            }
+                        } catch (Exception $e) {
+                            return new WP_Error('validation_error', '"end" filter is not correct', ['status' => 400]);
+                        }
+                        break;
+                    case 'domain':
+                        $where_clause[] = 'visitors ' . ($is_not ? 'NOT ' : '') . 'IN ("' . implode(', ', $list) . '")';
+                        break;
+                    default:
+                        break;
                 }
+            }
+        }
+    }
+
+    function aesirx_analytics_add_conversion_filters($params, &$where_clause) {
+        foreach ($params as $key => $vals) {
+            $list = is_array($vals) ? $vals : [$vals];
+
+            switch ($key) {
+                case 'start':
+                    try {
+                        $date = new DateTime($list[0]);
+                        $where_clause[] = '#__analytics_flows.' . $key . ' >= ' . $date->format('Y-m-d');
+                    } catch (Exception $e) {
+                        return new WP_Error('validation_error', '"start" filter is not correct', ['status' => 400]);
+                    }
+                    break;
+                case 'end':
+                    try {
+                        $date = new DateTime($list[0]);
+                        $date->modify('+1 day');
+                        $where_clause[] = '#__analytics_flows.' . $key . ' < ' . $date->format('Y-m-d');
+                    } catch (Exception $e) {
+                        return new WP_Error('validation_error', '"end" filter is not correct', ['status' => 400]);
+                    }
+                    break;
+                default:
+                    break;
             }
         }
     }
