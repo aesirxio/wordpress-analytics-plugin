@@ -9,6 +9,8 @@ Class AesirX_Analytics_Get_Attribute_Value extends AesirxAnalyticsMysqlHelper
     {
         global $wpdb;
 
+        $where_clause = [];
+
         self::aesirx_analytics_add_filters($params, $where_clause);
 
         // add_attribute_filters(params, &mut where_clause, &mut bind);
