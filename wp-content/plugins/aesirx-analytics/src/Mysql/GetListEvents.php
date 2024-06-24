@@ -3,7 +3,7 @@
 
 use AesirxAnalytics\AesirxAnalyticsMysqlHelper;
 
-Class AesirX_Analytics_aesirx_analytics_get_list_Events extends AesirxAnalyticsMysqlHelper
+Class AesirX_Analytics_Get_List_Events extends AesirxAnalyticsMysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
