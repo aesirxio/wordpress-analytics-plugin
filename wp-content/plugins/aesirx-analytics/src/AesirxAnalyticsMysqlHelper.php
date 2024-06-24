@@ -2,6 +2,8 @@
 
 namespace AesirxAnalytics;
 
+use WP_Error;
+
 Class AesirxAnalyticsMysqlHelper
 {
     public function aesirx_analytics_get_list($sql, $total_sql, $params) {
@@ -215,6 +217,23 @@ Class AesirxAnalyticsMysqlHelper
                         break;
                     default:
                         break;
+                }
+            }
+        }
+    }
+
+    function aesirx_analytics_add_consent_filters($params, &$where_clause) {
+        foreach ([$params['filter'], $params['filter_not']] as $filter_array) {
+            if (empty($filter_array)) {
+                continue;
+            }
+
+            foreach ($filter_array as $key => $vals) {
+                $list = is_array($vals) ? $vals : [$vals];
+
+                switch ($key) {
+                    case 'start':
+                        
                 }
             }
         }
