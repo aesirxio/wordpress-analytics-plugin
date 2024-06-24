@@ -222,6 +222,257 @@ Class AesirxAnalyticsMysqlHelper
         }
     }
 
+    function aesirx_analytics_validate_domain($url) {
+        $parsed_url = parse_url($url);
+
+        if ($parsed_url === false || !isset($parsed_url['host'])) {
+            return new WP_Error('validation_error', 'Domain not found', ['status' => 400]);
+        }
+
+        $domain = $parsed_url['host'];
+
+        if (strpos($domain, 'www.') === 0) {
+            $domain = substr($domain, 4);
+        }
+
+        $transient_name = 'domain_list';
+        $data = get_transient($transient_name);
+
+        if ($data === false) {
+            $data = [
+                'domain_list' => [],
+                'limit_domain' => 10,
+            ];
+        }
+
+        $passed = false;
+        $domain_list = $data['domain_list'];
+        $limit_domain = $data['limit_domain'];
+
+        if (in_array($domain, $domain_list) || count($domain_list) < $limit_domain) {
+            if (!in_array($domain, $domain_list)) {
+                $domain_list[] = $domain;
+                $data['domain_list'] = $domain_list;
+                set_transient($transient_name, $data, 12 * HOUR_IN_SECONDS); // Save the updated state
+            }
+            $passed = true;
+        }
+
+        if ($passed) {
+            return $domain;
+        } else {
+            return new WP_Error('rejected', 'Your domain name has exceeded the allowed number', ['status' => 403]);
+        }
+    }
+
+    function aesirx_analytics_find_visitor_by_fingerprint_and_domain($fingerprint, $domain) {
+
+        global $wpdb;
+
+        // Prefix your table names
+        $visitors_table = $wpdb->prefix . 'analytics_visitors';
+        $flows_table = $wpdb->prefix . 'analytics_flows';
+
+        // Query to fetch the visitor
+        $sql = $wpdb->prepare("SELECT * FROM $visitors_table WHERE fingerprint = %s AND domain = %s", $fingerprint, $domain);
+        $visitor = $wpdb->get_row($sql);
+
+        if ($visitor) {
+            $res = [
+                'fingerprint' => $visitor->fingerprint,
+                'uuid' => $visitor->uuid,
+                'ip' => $visitor->ip,
+                'user_agent' => $visitor->user_agent,
+                'device' => $visitor->device,
+                'browser_name' => $visitor->browser_name,
+                'browser_version' => $visitor->browser_version,
+                'domain' => $visitor->domain,
+                'lang' => $visitor->lang,
+                'visitor_flows' => null,
+                'geo' => null,
+                'visitor_consents' => [],
+            ];
+
+            if ($visitor->geo_created_at) {
+                $res['geo'] = [
+                    'country' => [
+                        'name' => $visitor->country_name,
+                        'code' => $visitor->country_code,
+                    ],
+                    'city' => $visitor->city,
+                    'region' => $visitor->region,
+                    'isp' => $visitor->isp,
+                    'created_at' => $visitor->geo_created_at,
+                ];
+            }
+
+            // Query to fetch the visitor flows
+            $sql = $wpdb->prepare("SELECT * FROM $flows_table WHERE visitor_uuid = %s ORDER BY id", $visitor->uuid);
+            $flows = $wpdb->get_results($sql);
+
+            if ($flows) {
+                $ret_flows = [];
+                foreach ($flows as $flow) {
+                    $ret_flows[] = [
+                        'uuid' => $flow->uuid,
+                        'start' => $flow->start,
+                        'end' => $flow->end,
+                        'multiple_events' => $flow->multiple_events,
+                    ];
+                }
+                $res['visitor_flows'] = $ret_flows;
+            }
+
+            return $res;
+        }
+
+        return null;
+    }
+
+    function aesirx_analytics_create_visitor($visitor) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'analytics_visitors';
+
+        if (empty($visitor['geo'])) {
+            $wpdb->insert(
+                $table_name,
+                [
+                    'fingerprint'      => $visitor['fingerprint'],
+                    'uuid'             => $visitor['uuid'],
+                    'ip'               => $visitor['ip'],
+                    'user_agent'       => $visitor['user_agent'],
+                    'device'           => $visitor['device'],
+                    'browser_name'     => $visitor['browser_name'],
+                    'browser_version'  => $visitor['browser_version'],
+                    'domain'           => $visitor['domain'],
+                    'lang'             => $visitor['lang']
+                ],
+                [
+                    '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s'
+                ]
+            );
+        } else {
+            $geo = $visitor['geo'];
+            $wpdb->insert(
+                $table_name,
+                [
+                    'fingerprint'      => $visitor['fingerprint'],
+                    'uuid'             => $visitor['uuid'],
+                    'ip'               => $visitor['ip'],
+                    'user_agent'       => $visitor['user_agent'],
+                    'device'           => $visitor['device'],
+                    'browser_name'     => $visitor['browser_name'],
+                    'browser_version'  => $visitor['browser_version'],
+                    'domain'           => $visitor['domain'],
+                    'lang'             => $visitor['lang'],
+                    'country_code'     => $geo['country']['code'],
+                    'country_name'     => $geo['country']['name'],
+                    'city'             => $geo['city'],
+                    'isp'              => $geo['isp'],
+                    'geo_created_at'   => $geo['created_at']
+                ],
+                [
+                    '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s'
+                ]
+            );
+        }
+
+        if (!empty($visitor['visitor_flows'])) {
+            foreach ($visitor['visitor_flows'] as $flow) {
+                self::aesirx_analytics_create_visitor_flow($visitor['uuid'], $flow);
+            }
+        }
+
+        return true;
+    }
+
+    function aesirx_analytics_create_visitor_event($visitor_event) {
+        global $wpdb;
+        $table_name_events = $wpdb->prefix . 'analytics_events';
+        $table_name_event_attributes = $wpdb->prefix . 'analytics_event_attributes';
+
+        // Insert event
+        $wpdb->insert(
+            $table_name_events,
+            [
+                'uuid'         => $visitor_event['uuid'],
+                'visitor_uuid' => $visitor_event['visitor_uuid'],
+                'flow_uuid'    => $visitor_event['flow_uuid'],
+                'url'          => $visitor_event['url'],
+                'referer'      => $visitor_event['referer'],
+                'start'        => $visitor_event['start'],
+                'end'          => $visitor_event['end'],
+                'event_name'   => $visitor_event['event_name'],
+                'event_type'   => $visitor_event['event_type']
+            ],
+            [
+                '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s'
+            ]
+        );
+
+        // Insert event attributes
+        if (!empty($visitor_event['attributes'])) {
+            $values = [];
+            $placeholders = [];
+            $types = [];
+
+            foreach ($visitor_event['attributes'] as $attribute) {
+                $values[] = $new_doc->uuid;
+                $values[] = $attribute->name;
+                $values[] = $attribute->value;
+
+                $placeholders[] = "(%s, %s, %s)";
+                $types = array_merge($types, ['%s', '%s', '%s']);
+            }
+
+            $sql = "INSERT INTO $table_name_event_attributes (event_uuid, name, value) VALUES " . implode(", ", $placeholders);
+
+            $wpdb->query($wpdb->prepare($sql, $values));
+        }
+
+        return true;
+    }
+
+    function aesirx_analytics_create_visitor_flow($visitor_uuid, $visitor_flow) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'analytics_flows';
+
+        $wpdb->insert(
+            $table_name,
+            [
+                'visitor_uuid'    => $visitor_uuid,
+                'uuid'            => $visitor_flow['uuid'],
+                'start'           => $visitor_flow['start'],
+                'end'             => $visitor_flow['end'],
+                'multiple_events' => $visitor_flow['multiple_events'] ? 1 : 0
+            ],
+            [
+                '%s', '%s', '%s', '%s', '%d'
+            ]
+        );
+
+        return true;
+    }
+
+    function aesirx_analytics_mark_visitor_flow_as_multiple($visitor_flow_uuid) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'visitor';
+
+        // Ensure UUID is properly formatted for the database
+        $uuid_str = (string)$uuid;
+
+        // Prepare the SQL query to update the `multiple_events` field
+        $sql = $wpdb->prepare(
+            "UPDATE $table_name
+            SET visitor_flows = JSON_SET(visitor_flows, CONCAT('$[', JSON_UNQUOTE(JSON_SEARCH(visitor_flows, 'one', %s)), '].multiple_events'), true)
+            WHERE JSON_CONTAINS(visitor_flows, JSON_OBJECT('uuid', %s))",
+            $uuid_str, $uuid_str
+        );
+
+        // Execute the query
+        $wpdb->query($sql);
+    }
+
     function aesirx_analytics_add_consent_filters($params, &$where_clause) {
         foreach ([$params['filter'], $params['filter_not']] as $filter_array) {
             if (empty($filter_array)) {
