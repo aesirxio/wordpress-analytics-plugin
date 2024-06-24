@@ -472,4 +472,204 @@ Class AesirxAnalyticsMysqlHelper
         // Execute the query
         $wpdb->query($sql);
     }
+
+    function aesirx_analytics_find_wallet($network, $address) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'analytics_wallet';
+
+        $sql = $wpdb->prepare("SELECT * FROM $table_name WHERE network = %s AND address = %s", $network, $address);
+        $wallet = $wpdb->get_row($sql);
+    }
+
+    function aesirx_analytics_add_wallet($uuid, $network, $address, $nonce) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'analytics_wallet';
+
+        $wpdb->insert(
+            $table_name,
+            [
+                'uuid'     => $uuid,
+                'network'  => $network,
+                'address'  => $address,
+                'nonce'    => $nonce
+            ],
+            [
+                '%s', '%s', '%s', '%s'
+            ]
+        );
+    }
+
+    function aesirx_analytics_update_nonce($network, $address, $nonce) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'analytics_wallet';
+
+        $sql = $wpdb->prepare("UPDATE $table_name SET nonce = %s WHERE network = %s AND address = %s", $nonce, $network, $address);
+        $wpdb->query($sql);
+    }
+
+    function aesirx_analytics_add_visitor_consent($consent, $visitor_uuid) {
+        global $wpdb;
+
+        $table = $wpdb->prefix . 'analytics_visitor_consent';
+
+        $bind = [];
+        $columns = ['uuid', 'visitor_uuid'];
+        $values = ['%s', '%s'];
+
+        $uuid = wp_generate_uuid4();
+        $bind[] = $uuid;
+        $bind[] = $visitor_uuid;
+
+        if (!empty($consent['consent_uuid'])) {
+            $columns[] = 'consent_uuid';
+            $values[] = '%s';
+            $bind[] = $consent['consent_uuid'];
+        }
+
+        if (!empty($consent['consent'])) {
+            $columns[] = 'consent';
+            $values[] = '%d';
+            $bind[] = $consent['consent'];
+        }
+
+        if (!empty($consent['datetime'])) {
+            $columns[] = 'datetime';
+            $values[] = '%s';
+            $bind[] = $consent['datetime'];
+        }
+
+        if (!empty($consent['expiration'])) {
+            $columns[] = 'expiration';
+            $values[] = '%s';
+            $bind[] = $consent['expiration'];
+        }
+
+        $query = sprintf(
+            "INSERT INTO %s (%s) VALUES (%s)",
+            $table,
+            implode(', ', $columns),
+            implode(', ', $values)
+        );
+
+        $prepared_query = $wpdb->prepare($query, $bind);
+
+        $result = $wpdb->query($prepared_query);
+
+        if ($result === false) {
+            return new WP_Error('db_insert_error', 'Could not insert consent', ['status' => 500]);
+        }
+
+        return true;
+    }
+
+    function aesirx_analytics_list_consent_common() {
+        $list = new OutgoingConsentList();
+        $list_visitors = [];
+        $list_flows = [];
+
+        // Assuming $flows is an array of flow data
+        foreach ($flows as $flow) {
+            $visitor_uuid = $flow['visitor_uuid'];
+            $visitor_vec = isset($list_flows[$visitor_uuid]) ? $list_flows[$visitor_uuid] : [];
+            $visitor_vec[] = new VisitorFlow(
+                parse_uuid($flow['uuid']),
+                parse_datetime($flow['start']),
+                parse_datetime($flow['end']),
+                $flow['multiple_events']
+            );
+            $list_flows[$visitor_uuid] = $visitor_vec;
+        }
+
+        // Assuming $visitors is an array of visitor data
+        foreach ($visitors as $visitor) {
+            $consent_uuid = $visitor['consent_uuid'];
+            $visitor_vec = isset($list_visitors[$consent_uuid]) ? $list_visitors[$consent_uuid] : [];
+            $geo_created_at = isset($visitor['geo_created_at']) ? parse_datetime($visitor['geo_created_at']) : null;
+            $visitor_vec[] = [
+                'fingerprint' => isset($visitor['fingerprint']) ? $visitor['fingerprint'] : null,
+                'uuid' => parse_uuid($visitor['uuid']),
+                'ip' => $visitor['ip'],
+                'user_agent' => $visitor['user_agent'],
+                'device' => $visitor['device'],
+                'browser_name' => $visitor['browser_name'],
+                'browser_version' => $visitor['browser_version'],
+                'domain' => $visitor['domain'],
+                'lang' => $visitor['lang'],
+                'visitor_flows' => isset($list_flows[$visitor['uuid']]) ? $list_flows[$visitor['uuid']] : null,
+                'geo' => $geo_created_at ? new VisitorGeo(
+                    $visitor['code'] ?? null,
+                    $visitor['name'] ?? null,
+                    $visitor['city'] ?? null,
+                    $visitor['region'] ?? null,
+                    $visitor['isp'] ?? null,
+                    $geo_created_at
+                ) : null
+            ];
+
+            $list_visitors[$consent_uuid] = $visitor_vec;
+        }
+
+        // Assuming $consents is an array of consent data
+        foreach ($consents as $consent) {
+            $uuid_string = $consent['uuid'];
+            $outgoing_consent = new OutgoingConsent();
+            $outgoing_consent->uuid = parse_uuid($uuid_string);
+            $outgoing_consent->wallet_uuid = isset($consent['wallet_uuid']) ? parse_uuid($consent['wallet_uuid']) : null;
+            $outgoing_consent->address = $consent['address'] ?? null;
+            $outgoing_consent->network = $consent['network'] ?? null;
+            $outgoing_consent->web3id = $consent['web3id'] ?? null;
+            $outgoing_consent->consent = $consent['consent'];
+            $outgoing_consent->datetime = parse_datetime($consent['datetime']);
+            $outgoing_consent->expiration = isset($consent['expiration']) ? parse_datetime($consent['expiration']) : null;
+            $outgoing_consent->visitor = isset($list_visitors[$uuid_string]) ? $list_visitors[$uuid_string] : [];
+
+            $list->consents[] = $outgoing_consent;
+        }
+
+        $list->consents_by_domain = self::aesirx_analytics_group_consents_by_domains($list->consents);
+
+        return $list;
+    }
+
+    function aesirx_analytics_group_consents_by_domains($consents) {
+        $consent_domain_list = [];
+
+        foreach ($consents as $consent) {
+            if (empty($consent['visitor'])) {
+                continue;
+            }
+
+            $visitor_domain = isset($consent['visitor'][0]['domain']) ? $consent['visitor'][0]['domain'] : null;
+            if ($visitor_domain === null) {
+                continue;
+            }
+
+            if (!isset($consent_domain_list[$visitor_domain])) {
+                $consent_domain_list[$visitor_domain] = [];
+            }
+
+            $consent_domain_list[$visitor_domain][] = [
+                'uuid' => $consent['uuid'],
+                'wallet_uuid' => $consent['wallet_uuid'],
+                'address' => $consent['address'],
+                'network' => $consent['network'],
+                'web3id' => $consent['web3id'],
+                'consent' => $consent['consent'],
+                'datetime' => $consent['datetime'],
+                'expiration' => $consent['expiration']
+            ];
+        }
+
+        $consents_by_domain = [];
+
+        foreach ($consent_domain_list as $domain => $domain_consents) {
+            $consents_by_domain[] = [
+                'domain' => $domain,
+                'consents' => $domain_consents
+            ];
+        }
+
+        return $consents_by_domain;
+
+    }
 }
