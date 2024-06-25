@@ -1,32 +1,34 @@
 <?php
 
-use AesirxAnalytics\AesirxAnalyticsMysqlHelper;
+use AesirxAnalytics\MysqlHelper;
 
-Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
+Class AesirX_Analytics_Add_Consent_Level3or4 extends MysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
         // Decode signature
-        $decoded = base64_decode($params['signature'], true);
+        $decoded = base64_decode($params['request']['signature'], true);
         if ($decoded === false) {
             throw new Exception("Error decoding signature");
         }
         
         // Assuming you have a function to validate the signature
-        $validated = validate_signature($decoded); // Implement this function accordingly
+        $validated = parent::validate_signature($decoded); // Implement this function accordingly
 
         if (!$validated) {
             throw new Exception("Signature validation failed");
         }
 
         // Find visitor by UUID
-        $visitor = find_visitor_by_uuid($params['visitor_uuid']);
+        $visitor = parent::find_visitor_by_uuid($params['visitor_uuid']);
+
         if (!$visitor) {
             throw new Exception("Visitor not found");
         }
 
         // Find wallet by network and wallet address
-        $wallet = aesirx_analytics_find_wallet($params['network'], $params['wallet']);
+        $wallet = parent::find_wallet($params['network'], $params['wallet']);
+        
         if (!$wallet) {
             throw new Exception("Wallet not found");
         }
@@ -38,7 +40,7 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
         }
 
         // Validate network using extracted details
-        validate_network(
+        parent::validate_network(
             $params['network'],
             $params['wallet'],
             $nonce,
@@ -52,7 +54,7 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
 
         // Fetch existing consents for level3 or level4
         $found_consent = [];
-        $consent_list = list_consent_level3_or_level4(
+        $consent_list = self::list_consent_level3_or_level4(
             $web3id,
             $params['wallet'],
             $visitor->domain,
@@ -76,20 +78,20 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
         }
 
         // Process each consent in the request
-        foreach ($params['consents'] as $consent) {
+        foreach ($params['request']['consent'] as $consent) {
             // Determine UUID for consent
             $uuid = $found_consent[(int)$consent] ?? null;
             if (!$uuid) {
-                $uuid = generate_uuid(); // Implement your own UUID generation logic
-                add_consent($uuid, $wallet->uuid, $web3id, (int)$consent);
+                $uuid = wp_generate_uuid4(); // Implement your own UUID generation logic
+                parent::add_consent($uuid, (int)$consent, date('Y-m-d H:i:s'), $web3id, $wallet->uuid);
             }
 
             // Add visitor consent record
-            aesirx_analytics_add_visitor_consent($uuid, $params['visitor_uuid']);
+            parent::add_visitor_consent($params['visitor_uuid'], $uuid, null, date('Y-m-d H:i:s'));
         }
 
         // Update nonce
-        aesirx_analytics_update_nonce($params['network'], $params['wallet'], null);
+        parent::update_nonce($params['network'], $params['wallet'], null);
 
         return true;
     }
@@ -144,6 +146,6 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
         $flow_query = $wpdb->prepare($flow_sql, $wallet, $web3id, $domain);
         $flows = $wpdb->get_results($flow_query);
 
-        return parent::aesirx_analytics_list_consent_common($consents, $visitors, $flows);
+        return parent::list_consent_common($consents, $visitors, $flows);
     }
 }

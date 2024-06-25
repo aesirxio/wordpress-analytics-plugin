@@ -507,7 +507,57 @@ Class AesirxAnalyticsMysqlHelper
         $wpdb->query($sql);
     }
 
-    function aesirx_analytics_add_visitor_consent($consent, $visitor_uuid) {
+    function add_consent($uuid, $consent, $datetime, $web3id = null, $wallet_uuid = null, $expiration = null) {
+        global $wpdb;
+
+        // Prepare the base query and values
+        $query = "INSERT INTO {$wpdb->prefix}analytics_consent (uuid, consent, datetime";
+        $values = "VALUES (%s, %s, %s";
+        $bind = [
+            sanitize_text_field($uuid),
+            sanitize_text_field($consent),
+            date('Y-m-d H:i:s'),
+        ];
+
+        // Conditionally add wallet_uuid
+        if (!empty($wallet_uuid)) {
+            $query .= ", wallet_uuid";
+            $values .= ", %s";
+            $bind[] = sanitize_text_field($wallet_uuid);
+        }
+
+        // Conditionally add web3id
+        if (!empty($web3id)) {
+            $query .= ", web3id";
+            $values .= ", %s";
+            $bind[] = sanitize_text_field($web3id);
+        }
+
+        // Conditionally add expiration
+        if (!empty($expiration)) {
+            $query .= ", expiration";
+            $values .= ", %s";
+            $bind[] = $expiration;
+        }
+
+        // Complete the query
+        $query .= ") " . $values . ")";
+        $prepared_query = $wpdb->prepare($query, $bind);
+
+        // Execute the query
+        try {
+            $result = $wpdb->query($prepared_query);
+            if ($result === false) {
+                return new WP_Error($wpdb->last_error);
+            }
+            return true;
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            return new WP_Error('db_insert_error', __('There was a problem inserting the data into the database.'), $e->getMessage());
+        }
+    }
+
+    function add_visitor_consent($visitor_uuid, $consent_uuid = null, $consent = null, $datetime = null, $expiration = null) {
         global $wpdb;
 
         $table = $wpdb->prefix . 'analytics_visitor_consent';
@@ -516,32 +566,31 @@ Class AesirxAnalyticsMysqlHelper
         $columns = ['uuid', 'visitor_uuid'];
         $values = ['%s', '%s'];
 
-        $uuid = wp_generate_uuid4();
-        $bind[] = $uuid;
+        $bind[] = wp_generate_uuid4();
         $bind[] = $visitor_uuid;
 
-        if (!empty($consent['consent_uuid'])) {
+        if (!empty($consent_uuid)) {
             $columns[] = 'consent_uuid';
             $values[] = '%s';
-            $bind[] = $consent['consent_uuid'];
+            $bind[] = $consent_uuid;
         }
 
-        if (!empty($consent['consent'])) {
+        if (!empty($consent)) {
             $columns[] = 'consent';
             $values[] = '%d';
-            $bind[] = $consent['consent'];
+            $bind[] = $consent;
         }
 
-        if (!empty($consent['datetime'])) {
+        if (!empty($datetime)) {
             $columns[] = 'datetime';
             $values[] = '%s';
-            $bind[] = $consent['datetime'];
+            $bind[] = $datetime;
         }
 
-        if (!empty($consent['expiration'])) {
+        if (!empty($expiration)) {
             $columns[] = 'expiration';
             $values[] = '%s';
-            $bind[] = $consent['expiration'];
+            $bind[] = $expiration;
         }
 
         $query = sprintf(
@@ -671,5 +720,107 @@ Class AesirxAnalyticsMysqlHelper
 
         return $consents_by_domain;
 
+    }
+
+    function validate_signature($decoded) {
+        return true;
+    }
+
+    function validate_network($network, $wallet_address, $nonce, $decoded, $jwt_payload, $version) {
+        return true;
+    }
+
+    function expired_consent($consent_uuid, $expiration) {
+        global $wpdb;
+
+        // Prepare the query
+        $query = "UPDATE {$wpdb->prefix}analytics_consent SET expiration = %s WHERE uuid = %s";
+        
+        // Format the expiration date if it is set
+        $expiration_formatted = $expiration ? $expiration : null;
+
+        // Prepare and execute the query
+        $prepared_query = $wpdb->prepare($query, $expiration_formatted, sanitize_text_field($consent_uuid));
+
+        try {
+            $result = $wpdb->query($prepared_query);
+            if ($result === false) {
+                return new WP_Error($wpdb->last_error);
+            }
+            return true;
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            return new WP_Error('db_update_error', __('There was a problem updating the data in the database.'), $e->getMessage());
+        }
+    }
+
+    function find_visitor_by_uuid($uuid) {
+        global $wpdb;
+        // Prepare the SQL queries
+        $sql_visitor = $wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}analytics_visitors WHERE uuid = %s",
+            $uuid
+        );
+        $sql_flows = $wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}analytics_flows WHERE visitor_uuid = %s ORDER BY id",
+            $uuid
+        );
+
+        try {
+            // Execute the queries
+            $visitor_result = $wpdb->get_row($sql_visitor);
+            $flows_result = $wpdb->get_results($sql_flows);
+
+            if ($visitor_result) {
+                // Create the visitor object
+                $visitor = (object)[
+                    'fingerprint' => $visitor_result->fingerprint,
+                    'uuid' => $visitor_result->uuid,
+                    'ip' => $visitor_result->ip,
+                    'user_agent' => $visitor_result->user_agent,
+                    'device' => $visitor_result->device,
+                    'browser_name' => $visitor_result->browser_name,
+                    'browser_version' => $visitor_result->browser_version,
+                    'domain' => $visitor_result->domain,
+                    'lang' => $visitor_result->lang,
+                    'visitor_flows' => null,
+                    'geo' => null,
+                    'visitor_consents' => [],
+                ];
+
+                if ($visitor_result->geo_created_at) {
+                    $visitor->geo = (object)[
+                        'country' => (object)[
+                            'name' => $visitor_result->country_name,
+                            'code' => $visitor_result->country_code,
+                        ],
+                        'city' => $visitor_result->city,
+                        'region' => $visitor_result->region,
+                        'isp' => $visitor_result->isp,
+                        'created_at' => $visitor_result->geo_created_at,
+                    ];
+                }
+
+                if (!empty($flows_result)) {
+                    $visitor_flows = array_map(function($flow) {
+                        return (object)[
+                            'uuid' => $flow->uuid,
+                            'start' => $flow->start,
+                            'end' => $flow->end,
+                            'multiple_events' => $flow->multiple_events,
+                        ];
+                    }, $flows_result);
+
+                    $visitor->visitor_flows = $visitor_flows;
+                }
+
+                return $visitor;
+            } else {
+                return null;
+            }
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            return new WP_Error('db_query_error', __('There was a problem with the database query.'), $e->getMessage());
+        }
     }
 }

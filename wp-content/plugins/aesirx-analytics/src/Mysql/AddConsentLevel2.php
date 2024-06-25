@@ -1,8 +1,8 @@
 <?php
 
-use AesirxAnalytics\AesirxAnalyticsMysqlHelper;
+use AesirxAnalytics\MysqlHelper;
 
-Class AesirX_Analytics_Add_Consent_Level2 extends AesirxAnalyticsMysqlHelper
+Class AesirX_Analytics_Add_Consent_Level2 extends MysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
@@ -11,14 +11,16 @@ Class AesirX_Analytics_Add_Consent_Level2 extends AesirxAnalyticsMysqlHelper
 
         $web3id = '@bao';
     
-        $visitor = find_visitor_by_uuid($params['visitor_uuid']);
+        $visitor = parent::find_visitor_by_uuid($params['visitor_uuid']);
+
         if (!$visitor) {
             return new WP_Error('validation_error', 'Visitor not found');
         }
 
         $found_consent = [];
 
-        $consent_list = list_consent_level2($web3id, $visitor->domain, null);
+        $consent_list = self::list_consent_level2($web3id, $visitor->domain, null);
+
         if ($consent_list) {
             foreach ($consent_list as $one_consent) {
                 // Make sure this consent is part of visitor uuid we work on
@@ -33,16 +35,18 @@ Class AesirX_Analytics_Add_Consent_Level2 extends AesirxAnalyticsMysqlHelper
             }
         }
 
-        foreach ($params['consents'] as $consent) {
+        foreach ($params['request']['consent'] as $consent) {
             $uuid = $found_consent[intval($consent)] ?? null;
+
             if (!$uuid) {
                 $uuid = wp_generate_uuid4();
-                $datetime = new DateTime('now', new DateTimeZone('UTC'));
-                add_consent($uuid, $web3id, intval($consent), $datetime);
+
+                $datetime = date('Y-m-d H:i:s');
+                parent::add_consent($uuid, intval($consent), $datetime, $web3id);
             }
 
-            $datetime = new DateTime('now', new DateTimeZone('UTC'));
-            aesirx_analytics_add_visitor_consent($uuid, $params['visitor_uuid'], $datetime);
+            $datetime = date('Y-m-d H:i:s');
+            parent::add_visitor_consent($params['visitor_uuid'], $uuid, null, $datetime);
         }
 
         return true;
@@ -98,6 +102,6 @@ Class AesirX_Analytics_Add_Consent_Level2 extends AesirxAnalyticsMysqlHelper
         );
         $flows = $wpdb->get_results($sql);
 
-        return parent::aesirx_analytics_list_consent_common($consents, $visitors, $flows);
+        return parent::list_consent_common($consents, $visitors, $flows);
     }
 }
