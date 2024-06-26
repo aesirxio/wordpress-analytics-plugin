@@ -174,6 +174,7 @@ Class AesirxAnalyticsMysqlHelper
 
     function aesirx_analytics_add_filters($params, &$where_clause) {
         foreach ([$params['filter'], $params['filter_not']] as $filter_array) {
+            $is_not = $filter_array === $params['filter_not'];
             if (empty($filter_array)) {
                 continue;
             }
@@ -184,17 +185,16 @@ Class AesirxAnalyticsMysqlHelper
                 switch ($key) {
                     case 'start':
                         try {
-                            $date = new DateTime($list[0]);
-                            $where_clause[] = '#__analytics_events.' . $key . ' >= ' . $date->format('Y-m-d');
+                            $date = date("Y-m-d", strtotime($list[0]));
+                            $where_clause[] = "#__analytics_events." . $key . " >= '" . $date . "'";
                         } catch (Exception $e) {
                             return new WP_Error('validation_error', '"start" filter is not correct', ['status' => 400]);
                         }
                         break;
                     case 'end':
                         try {
-                            $date = new DateTime($list[0]);
-                            $date->modify('+1 day');
-                            $where_clause[] = '#__analytics_events.' . $key . ' < ' . $date->format('Y-m-d');
+                            $date = date("Y-m-d", strtotime($list[0] . ' +1 day'));
+                            $where_clause[] = "#__analytics_events." . $key . " < '" . $date . "'";
                         } catch (Exception $e) {
                             return new WP_Error('validation_error', '"end" filter is not correct', ['status' => 400]);
                         }
@@ -224,6 +224,7 @@ Class AesirxAnalyticsMysqlHelper
 
     function aesirx_analytics_add_attribute_filters($params, &$where_clause) {
         foreach ([$params['filter'], $params['filter_not']] as $filter_array) {
+            $is_not = $filter_array === $params['filter_not'];
             if (empty($filter_array)) {
                 continue;
             }
@@ -232,13 +233,13 @@ Class AesirxAnalyticsMysqlHelper
                 switch ($val) {
                     case ParameterValue::List($hash_map):
                         if ($key == "attribute") {
-                            foreach ($hash_map as $key => $vals) {
+                            foreach ($hash_map as $keys => $vals) {
                                 $parameters_array = is_array($vals) ? $vals : [$vals];
                                 if ($parameters_array == null) {
                                     continue;
                                 }
     
-                               $where_clause[] = '#__analytics_event_attributes.name = ' . $key . ' ' . ($is_not ? 'NOT ' : '') . 'IN ("' . implode(', ', $parameters_array) . '")';
+                               $where_clause[] = '#__analytics_event_attributes.name = ' . $keys . ' ' . ($is_not ? 'NOT ' : '') . 'IN ("' . implode(', ', $parameters_array) . '")';
                             }
                         }
                         break;
@@ -524,6 +525,7 @@ Class AesirxAnalyticsMysqlHelper
 
     function aesirx_analytics_add_consent_filters($params, &$where_clause) {
         foreach ([$params['filter'], $params['filter_not']] as $filter_array) {
+            $is_not = $filter_array === $params['filter_not'];
             if (empty($filter_array)) {
                 continue;
             }
@@ -534,21 +536,16 @@ Class AesirxAnalyticsMysqlHelper
                 switch ($key) {
                     case 'start':
                         try {
-                            $dates = new DateTime($list[0]);
-                            foreach($dates as $date) {
-                                $where_clause[] = 'visitor_consent.datetime >= ' . $date->format('Y-m-d');
-                            }
+                            $date = date("Y-m-d", strtotime($list[0]));
+                            $where_clause[] = "#__analytics_visitor_consent.datetime >= '" . $date . "'";
                         } catch (Exception $e) {
                             return new WP_Error('validation_error', '"start" filter is not correct', ['status' => 400]);
                         }
                         break;
                     case 'end':
                         try {
-                            $dates = new DateTime($list[0]);
-                            $dates->modify('+1 day');
-                            foreach($dates as $date) {
-                                $where_clause[] = 'visitor_consent.datetime < ' . $date->format('Y-m-d');
-                            }
+                            $date = date("Y-m-d", strtotime($list[0] . ' +1 day'));
+                            $where_clause[] = "#__analytics_visitor_consent.datetime < '" . $date . "'";
                         } catch (Exception $e) {
                             return new WP_Error('validation_error', '"end" filter is not correct', ['status' => 400]);
                         }
@@ -570,17 +567,16 @@ Class AesirxAnalyticsMysqlHelper
             switch ($key) {
                 case 'start':
                     try {
-                        $date = new DateTime($list[0]);
-                        $where_clause[] = '#__analytics_flows.' . $key . ' >= ' . $date->format('Y-m-d');
+                        $date = date("Y-m-d", strtotime($list[0]));
+                        $where_clause[] = "#__analytics_flows." . $key . " >= '" . $date . "'";
                     } catch (Exception $e) {
                         return new WP_Error('validation_error', '"start" filter is not correct', ['status' => 400]);
                     }
                     break;
                 case 'end':
                     try {
-                        $date = new DateTime($list[0]);
-                        $date->modify('+1 day');
-                        $where_clause[] = '#__analytics_flows.' . $key . ' < ' . $date->format('Y-m-d');
+                        $date = date("Y-m-d", strtotime($list[0]) . ' +1 day');
+                        $where_clause[] = "#__analytics_flows." . $key . " < '" . $date . "'";
                     } catch (Exception $e) {
                         return new WP_Error('validation_error', '"end" filter is not correct', ['status' => 400]);
                     }
