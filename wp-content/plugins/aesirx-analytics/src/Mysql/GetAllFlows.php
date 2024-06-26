@@ -14,7 +14,7 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
         $where_clause_event = [];
 
         $detail_page = false;
-        parent::add_filters($params, $where_clause);
+        parent::aesirx_analytics_add_filters($params, $where_clause);
 
         // for (filter, is_not) in [(&params.filter, false), (&params.filter_not, true)] {
         //     if filter.is_none() {
@@ -93,7 +93,7 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
             WHERE " . implode(" AND ", $where_clause) .
             " GROUP BY #__analytics_flows.uuid";
 
-        $sort = parent::add_sort(
+        $sort = parent::aesirx_analytics_add_sort(
             $params,
             [
                 "start",

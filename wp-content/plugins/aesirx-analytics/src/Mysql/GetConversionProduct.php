@@ -10,6 +10,7 @@ Class AesirX_Analytics_Get_Conversion_Product extends AesirxAnalyticsMysqlHelper
         $where_clause = [];
 
         // add_conversion_filters(params, &mut where_clause, &mut bind)?;
+        parent::aesirx_analytics_add_conversion_filters($params, $where_clause);
 
         $sql =
             "SELECT
