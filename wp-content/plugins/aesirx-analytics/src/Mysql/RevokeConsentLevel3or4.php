@@ -1,8 +1,8 @@
 <?php
 
-use AesirxAnalytics\MysqlHelper;
+use AesirxAnalytics\AesirxAnalyticsMysqlHelper;
 
-Class AesirX_Analytics_Revoke_Consent_Level3or4 extends MysqlHelper
+Class AesirX_Analytics_Revoke_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
@@ -31,7 +31,7 @@ Class AesirX_Analytics_Revoke_Consent_Level3or4 extends MysqlHelper
         }
 
         // Validate network (this is a placeholder function, you need to implement the actual validation logic)
-        $is_valid = parent::validate_network($network_factory, $network, $nonce, $wallet, $decoded, $params['jwt_payload'], $version);
+        $is_valid = parent::aesirx_analytics_validate_network($network_factory, $network, $nonce, $wallet, $decoded, $params['jwt_payload'], $version);
         if (!$is_valid) {
             return new WP_Error('validation_failed', __('Network validation failed.'));
         }
@@ -40,7 +40,7 @@ Class AesirX_Analytics_Revoke_Consent_Level3or4 extends MysqlHelper
         $expiration = date('Y-m-d H:i:s'); // Get the current time in UTC
         $consent_uuid = sanitize_text_field($params['consent_uuid']);
 
-        $result = parent::expired_consent($consent_uuid, $expiration);
+        $result = parent::aesirx_analytics_expired_consent($consent_uuid, $expiration);
 
         if ($result === false) {
             return new WP_Error('update_failed', __('Failed to update consent expiration.'));
