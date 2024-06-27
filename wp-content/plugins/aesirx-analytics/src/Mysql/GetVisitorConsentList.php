@@ -1,7 +1,5 @@
 <?php
 
-// namespace AesirxAnalytics\Mysql;
-
 use AesirxAnalytics\AesirxAnalyticsMysqlHelper;
 
 Class AesirX_Analytics_Get_Visitor_Consent_List extends AesirxAnalyticsMysqlHelper
@@ -12,24 +10,17 @@ Class AesirX_Analytics_Get_Visitor_Consent_List extends AesirxAnalyticsMysqlHelp
 
         $sql = "SELECT * FROM #__analytics_visitors WHERE uuid = '" . $params['uuid'] . "'";
 
-        $sql = str_replace("#__", "wp_", $sql);
+        $sql = str_replace("#__", $wpdb->prefix, $sql);
 
         $visitor = $wpdb->get_row($sql);
 
         $sql = "SELECT * FROM #__analytics_flows WHERE visitor_uuid = " . $params['uuid'] . " ORDER BY id";
 
-        $sql = str_replace("#__", "wp_", $sql);
+        $sql = str_replace("#__", $wpdb->prefix, $sql);
 
         $flows = $wpdb->get_results($sql);
         
-
-        // let exp = if expired.is_none() || !expired.unwrap() {
-        //     "AND (`vc`.`expiration` >= ? OR `vc`.`expiration` IS NULL)
-        //     AND IF (c.uuid IS NULL, true, c.expiration IS NULL)"
-        //         .to_string()
-        // } else {
-        //     "".to_string()
-        // };
+        // handle expiration
 
         $sql = "SELECT `vc`.*, `c`.`web3id`, c.consent AS consent_from_consent, `w`.`network`, `w`.`address`,
             c.expiration as consent_expiration, c.datetime as consent_datetime
@@ -39,18 +30,9 @@ Class AesirX_Analytics_Get_Visitor_Consent_List extends AesirxAnalyticsMysqlHelp
             WHERE `vc`.`visitor_uuid` = " . $params['uuid'] .
             " ORDER BY `vc`.`datetime`";
 
-        $sql = str_replace("#__", "wp_", $sql);
+        $sql = str_replace("#__", $wpdb->prefix, $sql);
 
         $consents = $wpdb->get_results($sql);
-
-        // $third = sqlx::query_as::<_, AnalyticsVisitorConsent>(sql)
-        //     .bind(visitor_uuid.clone().to_string());
-
-        // if expired.is_none() || !expired.unwrap() {
-        //     third = third.bind(now.naive_utc());
-        // }
-
-        // let third = third.fetch_all(&self.sqlx_conn);
 
         if ($visitor) {
             $res = [
@@ -67,7 +49,6 @@ Class AesirX_Analytics_Get_Visitor_Consent_List extends AesirxAnalyticsMysqlHelp
                 'visitor_consents' => [],
             ];
 
-            // Handle geo data if available
             if ($visitor->geo_created_at) {
                 $res['geo'] = [
                     'country' => [
@@ -80,7 +61,6 @@ Class AesirX_Analytics_Get_Visitor_Consent_List extends AesirxAnalyticsMysqlHelp
                 ];
             }
 
-            // Handle visitor flows
             foreach ($flows as $flow) {
                 $res['visitor_flows'][] = [
                     'uuid' => $flow->uuid,
@@ -90,7 +70,6 @@ Class AesirX_Analytics_Get_Visitor_Consent_List extends AesirxAnalyticsMysqlHelp
                 ];
             }
 
-            // Handle visitor consents
             foreach ($consents as $consent) {
                 $res['visitor_consents'][] = [
                     'consent_uuid' => $consent->consent_uuid,

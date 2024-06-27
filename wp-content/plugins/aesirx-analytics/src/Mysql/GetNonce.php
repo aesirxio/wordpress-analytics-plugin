@@ -8,11 +8,7 @@ Class AesirX_Analytics_Get_Nonce extends AesirxAnalyticsMysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
-        // network_factory
-        // .get(params.network.clone())
-        // .await?
-        // .validate_address(params.address.as_str())
-        // .await?;
+        // validation
 
         $num = (string) rand(10000, 99999);
 

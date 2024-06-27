@@ -44,8 +44,8 @@ Class AesirX_Analytics_Get_Attribute_Value extends AesirxAnalyticsMysqlHelper
         $total_elements = (int) $wpdb->get_var($total_sql);
         $total_pages = ceil($total_elements / $pageSize);
 
-        $sql = str_replace("#__", "wp_", $sql);
-        $total_sql = str_replace("#__", "wp_", $total_sql);
+        $sql = str_replace("#__", $wpdb->prefix, $sql);
+        $total_sql = str_replace("#__", $wpdb->prefix, $total_sql);
 
         $list = $wpdb->get_results($sql, ARRAY_A);
 
@@ -77,7 +77,7 @@ Class AesirX_Analytics_Get_Attribute_Value extends AesirxAnalyticsMysqlHelper
                 WHERE " . implode(" AND ", $where_clause) .
                 " GROUP BY #__analytics_event_attributes.name, #__analytics_event_attributes.value";
 
-            $sql = str_replace("#__", "wp_", $sql);
+            $sql = str_replace("#__", $wpdb->prefix, $sql);
 
             $secondArray = $wpdb->get_results($sql);
 

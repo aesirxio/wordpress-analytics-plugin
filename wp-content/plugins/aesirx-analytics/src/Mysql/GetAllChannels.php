@@ -7,7 +7,9 @@ Class AesirX_Analytics_Get_All_Channels extends AesirxAnalyticsMysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
+        global $wpdb;
         $where_clause = [];
+        $bind = [];
 
         $select = [
             "CASE 
@@ -45,7 +47,8 @@ Class AesirX_Analytics_Get_All_Channels extends AesirxAnalyticsMysqlHelper
         }
 
         if ($acquisition) {
-            $where_clause[] = "#__analytics_flows.multiple_events = 0";
+            $where_clause[] = "#__analytics_flows.multiple_events = %d";
+            $bind[] = 0;
         }
 
         $sql = "SELECT " . 
@@ -53,20 +56,10 @@ Class AesirX_Analytics_Get_All_Channels extends AesirxAnalyticsMysqlHelper
             " from #__analytics_events
             left join #__analytics_visitors on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
             left join #__analytics_flows on #__analytics_flows.uuid = #__analytics_events.flow_uuid
-            GROUP BY channel";
+            WHERE " . implode(" AND ", $where_clause) .
+            " GROUP BY channel";
 
-        $total_select = "count(CASE 
-            WHEN #__analytics_events.referer IS NOT NULL AND #__analytics_events.referer <> '' THEN
-                    CASE 
-                        WHEN #__analytics_events.referer REGEXP 'google\\.' THEN 'search'
-                        WHEN #__analytics_events.referer REGEXP 'bing\\.' THEN 'search'
-                        WHEN #__analytics_events.referer REGEXP 'yandex\\.' THEN 'search'
-                        WHEN #__analytics_events.referer REGEXP 'yahoo\\.' THEN 'search'
-                        WHEN #__analytics_events.referer REGEXP 'duckduckgo\\.' THEN 'search'
-                        ELSE 'referer'
-                    END
-                ELSE 'direct'
-        END) AS total";
+        $total_select = "3 AS total";
 
         $total_sql =
             "SELECT " .
@@ -90,6 +83,9 @@ Class AesirX_Analytics_Get_All_Channels extends AesirxAnalyticsMysqlHelper
         if (!empty($sort)) {
             $sql .= " ORDER BY " . implode(", ", $sort);
         }
+
+        $sql = $wpdb->prepare($sql, $bind);
+        $total_sql = $wpdb->prepare($total_sql, $bind);
 
         return parent::aesirx_analytics_get_list($sql, $total_sql, $params, $allowed);
     }
