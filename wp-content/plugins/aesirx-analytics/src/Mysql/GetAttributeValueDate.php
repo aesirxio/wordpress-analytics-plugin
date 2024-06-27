@@ -16,7 +16,7 @@ Class AesirX_Analytics_Get_Attribute_Value_Date extends AesirxAnalyticsMysqlHelp
         // add_attribute_filters(params, &mut where_clause, &mut bind);
 
         $total_sql =
-            "SELECT COUNT(DISTINCT #__analytics_event_attributes.name, DATE_FORMAT(#__analytics_events.start, '%Y-%m-%d')) as total
+            "SELECT COUNT(DISTINCT #__analytics_event_attributes.name, DATE_FORMAT(#__analytics_events.start, '%Y-%m-%%d')) as total
             from `#__analytics_event_attributes`
             left join `#__analytics_events` on #__analytics_event_attributes.event_uuid = #__analytics_events.uuid
             left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
@@ -25,7 +25,7 @@ Class AesirX_Analytics_Get_Attribute_Value_Date extends AesirxAnalyticsMysqlHelp
         $sql =
             "SELECT
             #__analytics_event_attributes.name,
-            DATE_FORMAT(#__analytics_events.start, '%Y-%m-%d') as date
+            DATE_FORMAT(#__analytics_events.start, '%Y-%m-%%d') as date
             FROM #__analytics_event_attributes
             LEFT JOIN #__analytics_events ON #__analytics_event_attributes.event_uuid = #__analytics_events.uuid
             LEFT JOIN #__analytics_visitors ON #__analytics_visitors.uuid = #__analytics_events.visitor_uuid 
@@ -64,7 +64,7 @@ Class AesirX_Analytics_Get_Attribute_Value_Date extends AesirxAnalyticsMysqlHelp
             ];
 
             $sql =
-                "SELECT DATE_FORMAT(#__analytics_events.start, '%Y-%m-%d') as date, #__analytics_event_attributes.name, #__analytics_event_attributes.value, COUNT(#__analytics_event_attributes.id) as count
+                "SELECT DATE_FORMAT(#__analytics_events.start, '%Y-%m-%%d') as date, #__analytics_event_attributes.name, #__analytics_event_attributes.value, COUNT(#__analytics_event_attributes.id) as count
                 from `#__analytics_event_attributes`
                 left join `#__analytics_events` on #__analytics_event_attributes.event_uuid = #__analytics_events.uuid
                 left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid

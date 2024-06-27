@@ -25,7 +25,7 @@ Class AesirX_Analytics_Get_All_Events_Name extends AesirxAnalyticsMysqlHelper
 
         $sql =
             "SELECT
-            DATE_FORMAT(start, '%Y-%m-%d') as date,
+            DATE_FORMAT(start, '%Y-%m-%%d') as date,
             #__analytics_events.event_name,
             #__analytics_events.event_type,
             COUNT(DISTINCT #__analytics_events.visitor_uuid) as total_visitor
@@ -37,7 +37,7 @@ Class AesirX_Analytics_Get_All_Events_Name extends AesirxAnalyticsMysqlHelper
 
         $total_sql =
             "SELECT
-            COUNT(DISTINCT DATE_FORMAT(start, '%Y-%m-%d'), #__analytics_events.event_name, #__analytics_events.event_type) as total
+            COUNT(DISTINCT DATE_FORMAT(start, '%Y-%m-%%d'), #__analytics_events.event_name, #__analytics_events.event_type) as total
             from `#__analytics_events`
             left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
             left join `#__analytics_event_attributes` on #__analytics_event_attributes.event_uuid = #__analytics_events.uuid
