@@ -35,7 +35,7 @@ function aesirx_analytics_config_is_ok(string $isStorage = null): bool {
     $options = get_option('aesirx_analytics_plugin_options');
     $res = (!empty($options['storage'])
         && (
-            ($options['storage'] == 'internal' && !empty($options['license']) && CliFactory::getCli()->analyticsCliExists())
+            ($options['storage'] == 'internal' && !empty($options['license']))
             || ($options['storage'] == 'external' && !empty($options['domain']))
         ));
 
@@ -104,7 +104,7 @@ if (aesirx_analytics_config_is_ok()) {
         }
 
         (new \AesirxAnalytics\Integration\Woocommerce($tracker, $flowUuid))
-            ->registerHooks();
+        ->registerHooks();
     } );
 }
 
@@ -117,9 +117,9 @@ add_action('plugins_loaded', function () {
 });
 
 add_action('analytics_cron_geo', function () {
-    if (aesirx_analytics_config_is_ok('internal')) {
-        CliFactory::getCli()->processAnalytics(['job', 'geo']);
-    }
+if (aesirx_analytics_config_is_ok('internal')) {
+CliFactory::getCli()->processAnalytics(['job', 'geo']);
+}
 });
 
 if (!wp_next_scheduled('analytics_cron_geo')) {
@@ -132,9 +132,8 @@ add_filter('plugin_action_links_' . plugin_basename(__FILE__), function ($links)
   return $links;
 });
 
-if (CliFactory::getCli()->analyticsCliExists()) {
-    add_action( 'parse_request', 'aesirx_analytics_url_handler' );
-}
+add_action( 'parse_request', 'aesirx_analytics_url_handler' );
+
 
 function aesirx_analytics_url_handler()
 {
@@ -257,14 +256,14 @@ function aesirx_analytics_update_plugins(WP_Upgrader $upgrader_object, array $op
 
     $options = get_option('aesirx_analytics_plugin_options');
 
-    if ($download
-        && ($options['storage'] ?? null) == 'internal') {
-        try {
-            CliFactory::getCli()->downloadAnalyticsCli();
-        } catch (Throwable $e) {
-            set_transient( 'aesirx_analytics_update_notice', serialize($e) );
-        }
-    }
+    // if ($download
+    //     && ($options['storage'] ?? null) == 'internal') {
+    //     try {
+    //         CliFactory::getCli()->downloadAnalyticsCli();
+    //     } catch (Throwable $e) {
+    //         set_transient( 'aesirx_analytics_update_notice', serialize($e) );
+    //     }
+    // }
 }
 
 function aesirx_analytics_display_update_notice(  ) {
@@ -305,8 +304,6 @@ add_action('admin_init', function () {
         }
 
         try {
-            CliFactory::getCli()->downloadAnalyticsCli();
-
             add_settings_error(
                 'aesirx_analytics_plugin_options',
                 'download',

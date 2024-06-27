@@ -2,8 +2,6 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-use AesirxAnalytics\CliFactory;
-
 add_action('admin_init', function () {
   register_setting('aesirx_analytics_plugin_options', 'aesirx_analytics_plugin_options', function (
     $value
@@ -131,42 +129,6 @@ add_action('admin_init', function () {
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
   );
-
-  if (!CliFactory::getCli()->analyticsCliExists()) {
-    add_settings_field(
-        'aesirx_analytics_download',
-        esc_html__( 'Download', 'aesirx-analytics' ),
-        function () {
-          try {
-              CliFactory::getCli()->getSupportedArch();
-
-            echo aesirx_analytics_escape_html('<button name="submit" id="aesirx_analytics_download" class="button button-primary" type="submit" value="download_analytics_cli">' . esc_html__(
-                    'Click to download CLI library! This plugin can\'t work without the library!', 'aesirx-analytics'
-                ) . '</button>');
-          }
-          catch ( Throwable $e ) {
-            echo wp_kses_post('<strong style="color: red">' . sprintf(esc_html__( 'You can\'t use internal server. Error: %s', 'aesirx-analytics' ) , $e->getMessage()) . '</strong>');
-          }
-        },
-        'aesirx_analytics_plugin',
-        'aesirx_analytics_settings'
-    );
-  } else {
-      add_settings_field(
-          'aesirx_analytics_download',
-          __( 'CLI library check', 'aesirx-analytics' ),
-          function () {
-              try {
-                  CliFactory::getCli()->processAnalytics(['--version']);
-				  echo wp_kses_post('<strong style="color: green" id="aesirx_analytics_download">' . esc_html__( 'Passed', 'aesirx-analytics' ) . '</strong>');
-              } catch (Throwable $e) {
-                  echo wp_kses_post('<strong style="color: red" id="aesirx_analytics_download">' . sprintf(esc_html__( 'You can\'t use internal server. Error: $s', 'aesirx-analytics' ), $e->getMessage()) . '</strong>');
-			  }
-          },
-          'aesirx_analytics_plugin',
-          'aesirx_analytics_settings'
-      );
-  }
 
   add_settings_field(
     'aesirx_analytics_consent',
