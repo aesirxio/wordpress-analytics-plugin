@@ -66,8 +66,8 @@ Class AesirX_Analytics_Get_All_Outlinks extends AesirxAnalyticsMysqlHelper
             $sql .= " ORDER BY " . implode(", ", $sort);
         }
 
-        $sql = str_replace("#__", "wp_", $sql);
-        $total_sql = str_replace("#__", "wp_", $total_sql);
+        $sql = str_replace("#__", $wpdb->prefix, $sql);
+        $total_sql = str_replace("#__", $wpdb->prefix, $total_sql);
 
         $page = $params['page'] ?? 1;
         $pageSize = $params['page_size'] ?? 20;
@@ -93,7 +93,7 @@ Class AesirX_Analytics_Get_All_Outlinks extends AesirxAnalyticsMysqlHelper
                 WHERE #__analytics_events.referer LIKE '%?%'
                 GROUP BY url ";
 
-            $query = str_replace("#__", "wp_", $query);
+            $query = str_replace("#__", $wpdb->prefix, $query);
 
             foreach ($list as $vals) {
 

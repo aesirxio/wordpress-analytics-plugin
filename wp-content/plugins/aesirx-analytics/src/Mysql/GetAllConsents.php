@@ -9,7 +9,8 @@ Class AesirX_Analytics_Get_All_Consents extends AesirxAnalyticsMysqlHelper
     {
         global $wpdb;
 
-        $where_clause = ["COALESCE(consent.consent, visitor_consent.consent) = 1"];
+        $where_clause = ["COALESCE(consent.consent, visitor_consent.consent) = %d"];
+        $bind = [1];
 
         // add_consent_filters(params, &mut where_clause, &mut bind)?;
         parent::aesirx_analytics_add_consent_filters($params, $where_clause);
@@ -61,8 +62,8 @@ Class AesirX_Analytics_Get_All_Consents extends AesirxAnalyticsMysqlHelper
             $sql .= " ORDER BY " . implode(", ", $sort);
         }
 
-        $sql = str_replace("#__", "wp_", $sql);
-        $total_sql = str_replace("#__", "wp_", $total_sql);
+        $sql = str_replace("#__", $wpdb->prefix, $sql);
+        $total_sql = str_replace("#__", $wpdb->prefix, $total_sql);
 
         $page = $params['page'] ?? 1;
         $pageSize = $params['page_size'] ?? 20;
@@ -78,9 +79,9 @@ Class AesirX_Analytics_Get_All_Consents extends AesirxAnalyticsMysqlHelper
         $collection = [];
 
         foreach ($list as $one) {
-            $uuid = isset($one->uuid) ? Uuid::fromString($one->uuid) : null;
+            $uuid = isset($one->uuid) ? $one->uuid : null;
             $wallet = isset($one->wallet_uuid) ? (object)[
-                'uuid' => Uuid::fromString($one->wallet_uuid),
+                'uuid' => $one->wallet_uuid,
                 'address' => $one->address,
                 'network' => $one->network,
             ] : null;
@@ -90,8 +91,8 @@ Class AesirX_Analytics_Get_All_Consents extends AesirxAnalyticsMysqlHelper
                 'tier' => $one->tier,
                 'web3id' => $one->web3id,
                 'consent' => $one->consent,
-                'datetime' => new DateTime($one->datetime),
-                'expiration' => isset($one->expiration) ? new DateTime($one->expiration) : null,
+                'datetime' => $one->datetime,
+                'expiration' => isset($one->expiration) ? $one->expiration : null,
                 'wallet' => $wallet,
             ];
         }

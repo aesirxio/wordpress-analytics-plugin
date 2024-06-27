@@ -10,8 +10,13 @@ Class AesirX_Analytics_Get_All_Events_Name extends AesirxAnalyticsMysqlHelper
         global $wpdb;
 
         $where_clause = [
-            "#__analytics_events.event_name = 'visit'",
-            "#__analytics_events.event_type = 'action'",
+            "#__analytics_events.event_name = %s",
+            "#__analytics_events.event_type = %s",
+        ];
+
+        $bind = [
+            'visit',
+            'action'
         ];
 
         self::aesirx_analytics_add_filters($params, $where_clause);
@@ -43,6 +48,9 @@ Class AesirX_Analytics_Get_All_Events_Name extends AesirxAnalyticsMysqlHelper
         if (!empty($sort)) {
             $sql .= " ORDER BY " . implode(", ", $sort);
         }
+
+        $sql = $wpdb->prepare($sql, $bind);
+        $total_sql = $wpdb->prepare($total_sql, $bind);
 
         return parent::aesirx_analytics_get_list($sql, $total_sql, $params);
     }

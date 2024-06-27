@@ -1,31 +1,23 @@
 <?php
 
-
 use AesirxAnalytics\AesirxAnalyticsMysqlHelper;
 
-Class AesirX_Analytics_Get_All_Events extends AesirxAnalyticsMysqlHelper
+Class AesirX_Analytics_Get_All_Flows_Date extends AesirxAnalyticsMysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
-        $where_clause = [
-            "#__analytics_events.event_name = %s",
-            "#__analytics_events.event_type = %s",
-        ];
-
-        $bind = [
-            'visit',
-            'action'
-        ];
-
-        self::aesirx_analytics_add_filters($params, $where_clause);
+        $where_clause = [];
+        
+        parent::aesirx_analytics_add_filters($params, $where_clause);
 
         $sql =
             "SELECT
             DATE_FORMAT(start, '%Y-%m-%d') as date,
-            COUNT(#__analytics_events.visitor_uuid) as visits,
-            COUNT(DISTINCT #__analytics_events.visitor_uuid) as unique_visits
+            CAST(SUM(CASE WHEN #__analytics_events.event_type = 'conversion' THEN 1 ELSE 0 END) as INT) AS conversion, 
+            CAST(SUM(CASE WHEN #__analytics_events.event_name = 'visit' THEN 1 ELSE 0 END) as INT) AS pageview, 
+            CAST(SUM(CASE WHEN #__analytics_events.event_name != 'visit' THEN 1 ELSE 0 END) as INT) AS event 
             from `#__analytics_events`
-            left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid 
+            left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
             WHERE " . implode(" AND ", $where_clause) .
             " GROUP BY date";
 
@@ -36,14 +28,11 @@ Class AesirX_Analytics_Get_All_Events extends AesirxAnalyticsMysqlHelper
             left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
             WHERE " . implode(" AND ", $where_clause);
 
-        $sort = self::aesirx_analytics_add_sort($params, ["date", "unique_visits", "visits"], "date");
+        $sort = parent::aesirx_analytics_add_sort($params, ["date", "event", "conversion"], "date");
 
         if (!empty($sort)) {
             $sql .= " ORDER BY " . implode(", ", $sort);
         }
-
-        $sql = $wpdb->prepare($sql, $bind);
-        $total_sql = $wpdb->prepare($total_sql, $bind);
 
         return parent::aesirx_analytics_get_list($sql, $total_sql, $params);
     }

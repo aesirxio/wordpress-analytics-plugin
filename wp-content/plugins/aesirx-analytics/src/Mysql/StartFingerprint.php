@@ -1,7 +1,5 @@
 <?php
 
-// namespace AesirxAnalytics\Mysql;
-
 use AesirxAnalytics\AesirxAnalyticsMysqlHelper;
 
 Class AesirX_Analytics_Start_Fingerprint extends AesirxAnalyticsMysqlHelper

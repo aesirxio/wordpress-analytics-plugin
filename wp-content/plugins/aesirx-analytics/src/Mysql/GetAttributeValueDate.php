@@ -47,8 +47,8 @@ Class AesirX_Analytics_Get_Attribute_Value_Date extends AesirxAnalyticsMysqlHelp
         $total_elements = (int) $wpdb->get_var($total_sql);
         $total_pages = ceil($total_elements / $pageSize);
 
-        $sql = str_replace("#__", "wp_", $sql);
-        $total_sql = str_replace("#__", "wp_", $total_sql);
+        $sql = str_replace("#__", $wpdb->prefix, $sql);
+        $total_sql = str_replace("#__", $wpdb->prefix, $total_sql);
 
         $list = $wpdb->get_results($sql, ARRAY_A);
 
@@ -70,13 +70,12 @@ Class AesirX_Analytics_Get_Attribute_Value_Date extends AesirxAnalyticsMysqlHelp
                 left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
                 GROUP BY #__analytics_event_attributes.name, #__analytics_event_attributes.value";
 
-            $sql = str_replace("#__", "wp_", $sql);
+            $sql = str_replace("#__", $wpdb->prefix, $sql);
 
             $secondArray = $wpdb->get_results($sql);
 
             foreach ($secondArray as $second) {
-                // $key = new key($second->date, $second->name);
-                $key_string = $second->date . '-' . $second->name; // Assuming a method to convert the object to a unique string key
+                $key_string = $second->date . '-' . $second->name;
             
                 if (!isset($hash_map[$key_string])) {
                     $sub_hash = [];
@@ -99,7 +98,6 @@ Class AesirX_Analytics_Get_Attribute_Value_Date extends AesirxAnalyticsMysqlHelp
                     ];
                 }
             
-                // Assuming a method to convert the string key back to the object
                 $key = explode('-', $key_string);
             
                 $collection[] = (object)[

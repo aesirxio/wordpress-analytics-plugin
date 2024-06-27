@@ -62,8 +62,8 @@ Class AesirX_Analytics_Get_List_Events extends AesirxAnalyticsMysqlHelper
             "start"
         );
 
-        $sql = str_replace("#__", "wp_", $sql);
-        $total_sql = str_replace("#__", "wp_", $total_sql);
+        $sql = str_replace("#__", $wpdb->prefix, $sql);
+        $total_sql = str_replace("#__", $wpdb->prefix, $total_sql);
 
         $page = $params['page'] ?? 1;
         $pageSize = $params['page_size'] ?? 20;
@@ -89,7 +89,7 @@ Class AesirX_Analytics_Get_List_Events extends AesirxAnalyticsMysqlHelper
                 WHERE
                 event_uuid IN ('" . implode("', '", $bind) . "')";
 
-            $sql = str_replace("#__", "wp_", $sql);
+            $sql = str_replace("#__", $wpdb->prefix, $sql);
             
             $secondArray = $wpdb->get_results($sql);
 
@@ -130,8 +130,8 @@ Class AesirX_Analytics_Get_List_Events extends AesirxAnalyticsMysqlHelper
                     'url' => $item->url,
                     'domain' => $item->domain,
                     'referer' => $item->referer,
-                    'start' => new DateTime($item->start),
-                    'end' => new DateTime($item->end),
+                    'start' => $item->start,
+                    'end' => $item->end,
                     'event_name' => $item->event_name,
                     'event_type' => $item->event_type,
                     'attributes' => !empty($attributes) ? $attributes : null,
