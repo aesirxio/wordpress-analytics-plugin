@@ -7,6 +7,7 @@ Class AesirX_Analytics_Get_All_Events extends AesirxAnalyticsMysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
+        global $wpdb;
         $where_clause = [
             "#__analytics_events.event_name = %s",
             "#__analytics_events.event_type = %s",

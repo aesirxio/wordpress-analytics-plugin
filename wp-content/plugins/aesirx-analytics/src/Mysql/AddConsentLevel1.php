@@ -23,7 +23,7 @@ Class AesirX_Analytics_Add_Consent_Level1 extends AesirxAnalyticsMysqlHelper
                 }
     
                 // Check if it's expired
-                if (!is_null($consent->expiration) && new DateTime($consent->expiration) > $now) {
+                if (!is_null($consent->expiration) && $consent->expiration > $now) {
                     return new WP_Error('not_expired', 'Previous consent was not expired', ['status' => 400]);
                 }
             }
