@@ -240,42 +240,23 @@ Class AesirxAnalyticsMysqlHelper
             }
     
             foreach ($filter_array as $key => $val) {
-                switch ($val) {
-                    case ParameterValue::List($hash_map):
-                        if ($key == "attribute") {
-                            foreach ($hash_map as $keys => $vals) {
-                                $parameters_array = is_array($vals) ? $vals : [$vals];
-                                if ($parameters_array == null) {
-                                    continue;
-                                }
-    
-                               $where_clause[] = '#__analytics_event_attributes.name = ' . $keys . ' ' . ($is_not ? 'NOT ' : '') . 'IN ("' . implode(', ', $parameters_array) . '")';
-                            }
+                $list = is_array($val) ? $val : [$val];
+                switch ($key) {
+                    case "attribute_name":
+                        if ($is_not) {
+                            $where_clause[] = '#__analytics_event_attributes.event_uuid IS NULL OR #__analytics_event_attributes.name NOT IN ("' . implode(', ', $list) . '")';
+                        } else {
+                            $where_clause[] = '#__analytics_event_attributes.name IN ("' . implode(', ', $list) . '")';
                         }
                         break;
-                        case ParameterValue::Primitive($value):
-                        case ParameterValue::Array($array):
-                            $list = is_array($val) ? $val : [$val];
-                            if ($list == null) {
-                                continue;
-                            }
-
-                            switch ($key) {
-                                case "attribute_name":
-                                    if ($is_not) {
-                                        $where_clause[] = '#__analytics_event_attributes.event_uuid IS NULL OR #__analytics_event_attributes.name NOT IN ("' . implode(', ', $list) . '")';
-                                    } else {
-                                        $where_clause[] = '#__analytics_event_attributes.name IN ("' . implode(', ', $list) . '")';
-                                    }
-                                    break;
-                                case "attribute_value":
-                                    if ($is_not) {
-                                        $where_clause[] = '#__analytics_event_attributes.event_uuid IS NULL OR #__analytics_event_attributes.value NOT IN ("' . implode(', ', $list) . '")';
-                                    } else {
-                                        $where_clause[] = '#__analytics_event_attributes.value IN ("' . implode(', ', $list) . '")';
-                                    }
-                                    break;
-                            }
+                    case "attribute_value":
+                        if ($is_not) {
+                            $where_clause[] = '#__analytics_event_attributes.event_uuid IS NULL OR #__analytics_event_attributes.value NOT IN ("' . implode(', ', $list) . '")';
+                        } else {
+                            $where_clause[] = '#__analytics_event_attributes.value IN ("' . implode(', ', $list) . '")';
+                        }
+                        break;
+                    default:
                         break;
                 }
             }
