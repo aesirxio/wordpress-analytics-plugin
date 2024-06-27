@@ -30,14 +30,11 @@ Class AesirX_Analytics_Add_Consent_Level1 extends AesirxAnalyticsMysqlHelper
         }
 
         return parent::aesirx_analytics_add_visitor_consent(
-            [
-                'consent_uuid' => null,
-                'consent' => (int) $params['consent'],
-                'datetime' => $now,
-                'expiration' => date('Y-m-d H:i:s', strtotime('+30 minutes', strtotime($now))),
-                'visitor_uuid' => $params['uuid']
-            ],
-            $params['uuid']
+            $params['uuid'],
+            null,
+            $params['consent'],
+            $now,
+            date('Y-m-d H:i:s', strtotime('+30 minutes', strtotime($now))),
         );
     }
 }

@@ -1,8 +1,8 @@
 <?php
 
-use AesirxAnalytics\MysqlHelper;
+use AesirxAnalytics\AesirxAnalyticsMysqlHelper;
 
-Class AesirX_Analytics_Add_Consent_Level3or4 extends MysqlHelper
+Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
@@ -13,14 +13,14 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends MysqlHelper
         }
         
         // Assuming you have a function to validate the signature
-        $validated = parent::validate_signature($decoded); // Implement this function accordingly
+        $validated = parent::aesirx_analytics_validate_signature($decoded); // Implement this function accordingly
 
         if (!$validated) {
             throw new Exception("Signature validation failed");
         }
 
         // Find visitor by UUID
-        $visitor = parent::find_visitor_by_uuid($params['visitor_uuid']);
+        $visitor = parent::aesirx_analytics_find_visitor_by_uuid($params['visitor_uuid']);
 
         if (!$visitor) {
             throw new Exception("Visitor not found");
@@ -40,7 +40,7 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends MysqlHelper
         }
 
         // Validate network using extracted details
-        parent::validate_network(
+        parent::aesirx_analytics_validate_network(
             $params['network'],
             $params['wallet'],
             $nonce,
@@ -83,11 +83,11 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends MysqlHelper
             $uuid = $found_consent[(int)$consent] ?? null;
             if (!$uuid) {
                 $uuid = wp_generate_uuid4(); // Implement your own UUID generation logic
-                parent::add_consent($uuid, (int)$consent, date('Y-m-d H:i:s'), $web3id, $wallet->uuid);
+                parent::aesirx_analytics_add_consent($uuid, (int)$consent, date('Y-m-d H:i:s'), $web3id, $wallet->uuid);
             }
 
             // Add visitor consent record
-            parent::add_visitor_consent($params['visitor_uuid'], $uuid, null, date('Y-m-d H:i:s'));
+            parent::aesirx_analytics_add_visitor_consent($params['visitor_uuid'], $uuid, null, date('Y-m-d H:i:s'));
         }
 
         // Update nonce
@@ -146,6 +146,6 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends MysqlHelper
         $flow_query = $wpdb->prepare($flow_sql, $wallet, $web3id, $domain);
         $flows = $wpdb->get_results($flow_query);
 
-        return parent::list_consent_common($consents, $visitors, $flows);
+        return parent::aesirx_analytics_list_consent_common($consents, $visitors, $flows);
     }
 }
