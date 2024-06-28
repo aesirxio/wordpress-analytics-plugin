@@ -6,7 +6,7 @@ use WP_Error;
 
 Class AesirxAnalyticsMysqlHelper
 {
-    public function aesirx_analytics_get_list($sql, $total_sql, $params) {
+    public function aesirx_analytics_get_list($sql, $total_sql, $params, $allowed, $bind) {
         global $wpdb;
 
         $page = $params['page'] ?? 1;
@@ -17,6 +17,9 @@ Class AesirxAnalyticsMysqlHelper
 
         $sql = str_replace("#__", $wpdb->prefix, $sql);
         $total_sql = str_replace("#__", $wpdb->prefix, $total_sql);
+
+        $sql = $wpdb->prepare($sql, $bind);
+        $total_sql = $wpdb->prepare($total_sql, $bind);
 
         $total_elements = (int) $wpdb->get_var($total_sql);
         $total_pages = ceil($total_elements / $pageSize);
@@ -40,7 +43,7 @@ Class AesirxAnalyticsMysqlHelper
 
         } catch (Exception $e) {
             error_log("Error: " . $e->getMessage());
-            return new WP_Error('database_error', 'Database error occurred.', ['status' => 500]);
+            return new WP_Error('database_error', esc_html__('Database error occurred.', 'aesirx-analytics'), ['status' => 500]);
         }
     }
 
@@ -84,7 +87,7 @@ Class AesirxAnalyticsMysqlHelper
             'action'
         ];
 
-        self::aesirx_analytics_add_filters($params, $where_clause);
+        self::aesirx_analytics_add_filters($params, $where_clause, $bind);
 
         $acquisition = false;
         foreach ($params['filter'] as $key => $vals) {
@@ -107,14 +110,10 @@ Class AesirxAnalyticsMysqlHelper
                     LEFT JOIN #__analytics_flows ON #__analytics_flows.uuid = #__analytics_events.flow_uuid
                     WHERE " . implode(" AND ", $where_clause);
 
-        $total_sql = $wpdb->prepare($total_sql, $bind);
-
         $sql = "SELECT " . implode(", ", $select) . " FROM #__analytics_events
                 LEFT JOIN #__analytics_visitors ON #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
                 LEFT JOIN #__analytics_flows ON #__analytics_flows.uuid = #__analytics_events.flow_uuid
                 WHERE " . implode(" AND ", $where_clause);
-
-        $sql = $wpdb->prepare($sql, $bind);
 
         if (!empty($groups)) {
             $sql .= " GROUP BY " . implode(", ", $groups);
@@ -145,7 +144,7 @@ Class AesirxAnalyticsMysqlHelper
             $sql .= " ORDER BY " . implode(", ", $sort);
         }
 
-        return self::aesirx_analytics_get_list($sql, $total_sql, $params, $allowed);
+        return self::aesirx_analytics_get_list($sql, $total_sql, $params, $allowed, $bind);
     }
 
     function aesirx_analytics_add_sort($params, $allowed, $default) {
@@ -182,7 +181,7 @@ Class AesirxAnalyticsMysqlHelper
         return $ret;
     }
 
-    function aesirx_analytics_add_filters($params, &$where_clause) {
+    function aesirx_analytics_add_filters($params, &$where_clause, &$bind) {
         foreach ([$params['filter'], $params['filter_not']] as $filter_array) {
             $is_not = $filter_array === $params['filter_not'];
             if (empty($filter_array)) {
@@ -196,22 +195,25 @@ Class AesirxAnalyticsMysqlHelper
                     case 'start':
                         try {
                             $date = date("Y-m-d", strtotime($list[0]));
-                            $where_clause[] = "#__analytics_events." . $key . " >= '" . $date . "'";
+                            $where_clause[] = "#__analytics_events." . $key . " >= %s";
+                            $bind[] = $date;
                         } catch (Exception $e) {
-                            return new WP_Error('validation_error', '"start" filter is not correct', ['status' => 400]);
+                            return new WP_Error('validation_error', esc_html__('"start" filter is not correct', 'aesirx-analytics'), ['status' => 400]);
                         }
                         break;
                     case 'end':
                         try {
                             $date = date("Y-m-d", strtotime($list[0] . ' +1 day'));
-                            $where_clause[] = "#__analytics_events." . $key . " < '" . $date . "'";
+                            $where_clause[] = "#__analytics_events." . $key . " < %s";
+                            $bind[] = $date;
                         } catch (Exception $e) {
-                            return new WP_Error('validation_error', '"end" filter is not correct', ['status' => 400]);
+                            return new WP_Error('validation_error', esc_html__('"end" filter is not correct', 'aesirx-analytics'), ['status' => 400]);
                         }
                         break;
                     case 'event_name':
                     case 'event_type':
-                        $where_clause[] = '#__analytics_events.' . $key . ' ' . ($is_not ? 'NOT ' : '') . 'IN ("' . implode(', ', $list) . '")';
+                        $where_clause[] = '#__analytics_events.' . $key . ' ' . ($is_not ? 'NOT ' : '') . 'IN (%s)';
+                        $bind[] = implode(', ', $list);
                         break;
                     case 'city':
                     case 'isp':
@@ -223,7 +225,8 @@ Class AesirxAnalyticsMysqlHelper
                     case 'browser_version':
                     case 'device':
                     case 'lang':
-                        $where_clause[] = '#__analytics_visitors.' . $key . ' ' . ($is_not ? 'NOT ' : '') . 'IN ("' . implode(', ', $list) . '")';
+                        $where_clause[] = '#__analytics_visitors.' . $key . ' ' . ($is_not ? 'NOT ' : '') . 'IN (%s)';
+                        $bind[] = implode(', ', $list);
                         break;
                     default:
                         break;
@@ -232,7 +235,7 @@ Class AesirxAnalyticsMysqlHelper
         }
     }
 
-    function aesirx_analytics_add_attribute_filters($params, &$where_clause) {
+    function aesirx_analytics_add_attribute_filters($params, &$where_clause, &$bind) {
         foreach ([$params['filter'], $params['filter_not']] as $filter_array) {
             $is_not = $filter_array === $params['filter_not'];
             if (empty($filter_array)) {
@@ -244,16 +247,22 @@ Class AesirxAnalyticsMysqlHelper
                 switch ($key) {
                     case "attribute_name":
                         if ($is_not) {
-                            $where_clause[] = '#__analytics_event_attributes.event_uuid IS NULL OR #__analytics_event_attributes.name NOT IN ("' . implode(', ', $list) . '")';
+                            $where_clause[] = '#__analytics_event_attributes.event_uuid IS NULL 
+                                OR #__analytics_event_attributes.name NOT IN (%s)';
+                            $bind[] = implode(', ', $list);
                         } else {
-                            $where_clause[] = '#__analytics_event_attributes.name IN ("' . implode(', ', $list) . '")';
+                            $where_clause[] = '#__analytics_event_attributes.name IN (%s)';
+                            $bind[] = implode(', ', $list);
                         }
                         break;
                     case "attribute_value":
                         if ($is_not) {
-                            $where_clause[] = '#__analytics_event_attributes.event_uuid IS NULL OR #__analytics_event_attributes.value NOT IN ("' . implode(', ', $list) . '")';
+                            $where_clause[] = '#__analytics_event_attributes.event_uuid IS NULL 
+                                OR #__analytics_event_attributes.value NOT IN (%s)';
+                            $bind[] = implode(', ', $list);
                         } else {
-                            $where_clause[] = '#__analytics_event_attributes.value IN ("' . implode(', ', $list) . '")';
+                            $where_clause[] = '#__analytics_event_attributes.value IN (%s)';
+                            $bind[] = implode(', ', $list);
                         }
                         break;
                     default:
@@ -267,7 +276,7 @@ Class AesirxAnalyticsMysqlHelper
         $parsed_url = parse_url($url);
 
         if ($parsed_url === false || !isset($parsed_url['host'])) {
-            return new WP_Error('validation_error', 'Domain not found', ['status' => 400]);
+            return new WP_Error('validation_error', esc_html__('Domain not found', 'aesirx-analytics'), ['status' => 400]);
         }
 
         $domain = $parsed_url['host'];
@@ -302,7 +311,7 @@ Class AesirxAnalyticsMysqlHelper
         if ($passed) {
             return $domain;
         } else {
-            return new WP_Error('rejected', 'Your domain name has exceeded the allowed number', ['status' => 403]);
+            return new WP_Error('rejected', esc_html__('Your domain name has exceeded the allowed number', 'aesirx-analytics'), ['status' => 403]);
         }
     }
 
@@ -368,7 +377,7 @@ Class AesirxAnalyticsMysqlHelper
 
             return null;
         } catch (Exception $e) {
-            return new WP_Error('db_query_error', __('There was a problem with the database query.'), $e->getMessage());
+            return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), $e->getMessage());
         }
     }
 
@@ -381,15 +390,15 @@ Class AesirxAnalyticsMysqlHelper
                 $wpdb->insert(
                     $table_name,
                     [
-                        'fingerprint'      => $visitor['fingerprint'],
-                        'uuid'             => $visitor['uuid'],
-                        'ip'               => $visitor['ip'],
-                        'user_agent'       => $visitor['user_agent'],
-                        'device'           => $visitor['device'],
-                        'browser_name'     => $visitor['browser_name'],
-                        'browser_version'  => $visitor['browser_version'],
-                        'domain'           => $visitor['domain'],
-                        'lang'             => $visitor['lang']
+                        'fingerprint'      => sanitize_text_field($visitor['fingerprint']),
+                        'uuid'             => sanitize_text_field($visitor['uuid']),
+                        'ip'               => sanitize_text_field($visitor['ip']),
+                        'user_agent'       => sanitize_text_field($visitor['user_agent']),
+                        'device'           => sanitize_text_field($visitor['device']),
+                        'browser_name'     => sanitize_text_field($visitor['browser_name']),
+                        'browser_version'  => sanitize_text_field($visitor['browser_version']),
+                        'domain'           => sanitize_text_field($visitor['domain']),
+                        'lang'             => sanitize_text_field($visitor['lang'])
                     ],
                     [
                         '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s'
@@ -400,20 +409,20 @@ Class AesirxAnalyticsMysqlHelper
                 $wpdb->insert(
                     $table_name,
                     [
-                        'fingerprint'      => $visitor['fingerprint'],
-                        'uuid'             => $visitor['uuid'],
-                        'ip'               => $visitor['ip'],
-                        'user_agent'       => $visitor['user_agent'],
-                        'device'           => $visitor['device'],
-                        'browser_name'     => $visitor['browser_name'],
-                        'browser_version'  => $visitor['browser_version'],
-                        'domain'           => $visitor['domain'],
-                        'lang'             => $visitor['lang'],
-                        'country_code'     => $geo['country']['code'],
-                        'country_name'     => $geo['country']['name'],
-                        'city'             => $geo['city'],
-                        'isp'              => $geo['isp'],
-                        'geo_created_at'   => $geo['created_at']
+                        'fingerprint'      => sanitize_text_field($visitor['fingerprint']),
+                        'uuid'             => sanitize_text_field($visitor['uuid']),
+                        'ip'               => sanitize_text_field($visitor['ip']),
+                        'user_agent'       => sanitize_text_field($visitor['user_agent']),
+                        'device'           => sanitize_text_field($visitor['device']),
+                        'browser_name'     => sanitize_text_field($visitor['browser_name']),
+                        'browser_version'  => sanitize_text_field($visitor['browser_version']),
+                        'domain'           => sanitize_text_field($visitor['domain']),
+                        'lang'             => sanitize_text_field($visitor['lang']),
+                        'country_code'     => sanitize_text_field($geo['country']['code']),
+                        'country_name'     => sanitize_text_field($geo['country']['name']),
+                        'city'             => sanitize_text_field($geo['city']),
+                        'isp'              => sanitize_text_field($geo['isp']),
+                        'geo_created_at'   => sanitize_text_field($geo['created_at'])
                     ],
                     [
                         '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s'
@@ -429,7 +438,7 @@ Class AesirxAnalyticsMysqlHelper
     
             return true;
         } catch (Exception $e) {
-            return new WP_Error('db_query_error', __('There was a problem with the database query.'), $e->getMessage());
+            return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), $e->getMessage());
         }
     }
 
@@ -443,15 +452,15 @@ Class AesirxAnalyticsMysqlHelper
             $wpdb->insert(
                 $table_name_events,
                 [
-                    'uuid'         => $visitor_event['uuid'],
-                    'visitor_uuid' => $visitor_event['visitor_uuid'],
-                    'flow_uuid'    => $visitor_event['flow_uuid'],
-                    'url'          => $visitor_event['url'],
-                    'referer'      => $visitor_event['referer'],
-                    'start'        => $visitor_event['start'],
-                    'end'          => $visitor_event['end'],
-                    'event_name'   => $visitor_event['event_name'],
-                    'event_type'   => $visitor_event['event_type']
+                    'uuid'         => sanitize_text_field($visitor_event['uuid']),
+                    'visitor_uuid' => sanitize_text_field($visitor_event['visitor_uuid']),
+                    'flow_uuid'    => sanitize_text_field($visitor_event['flow_uuid']),
+                    'url'          => sanitize_text_field($visitor_event['url']),
+                    'referer'      => sanitize_text_field($visitor_event['referer']),
+                    'start'        => sanitize_text_field($visitor_event['start']),
+                    'end'          => sanitize_text_field($visitor_event['end']),
+                    'event_name'   => sanitize_text_field($visitor_event['event_name']),
+                    'event_type'   => sanitize_text_field($visitor_event['event_type'])
                 ],
                 [
                     '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s'
@@ -480,7 +489,7 @@ Class AesirxAnalyticsMysqlHelper
 
             return true;
         } catch (Exception $e) {
-            return new WP_Error('db_query_error', __('There was a problem with the database query.'), $e->getMessage());
+            return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), $e->getMessage());
         }
     }
 
@@ -492,11 +501,11 @@ Class AesirxAnalyticsMysqlHelper
             $wpdb->insert(
                 $table_name,
                 [
-                    'visitor_uuid'    => $visitor_uuid,
-                    'uuid'            => $visitor_flow['uuid'],
-                    'start'           => $visitor_flow['start'],
-                    'end'             => $visitor_flow['end'],
-                    'multiple_events' => $visitor_flow['multiple_events'] ? 1 : 0
+                    'visitor_uuid'    => sanitize_text_field($visitor_uuid),
+                    'uuid'            => sanitize_text_field($visitor_flow['uuid']),
+                    'start'           => sanitize_text_field($visitor_flow['start']),
+                    'end'             => sanitize_text_field($visitor_flow['end']),
+                    'multiple_events' => sanitize_text_field($visitor_flow['multiple_events']) ? 1 : 0
                 ],
                 [
                     '%s', '%s', '%s', '%s', '%d'
@@ -505,7 +514,7 @@ Class AesirxAnalyticsMysqlHelper
     
             return true;
         } catch (Exception $e) {
-            return new WP_Error('db_query_error', __('There was a problem with the database query.'), $e->getMessage());
+            return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), $e->getMessage());
         }
     }
 
@@ -526,11 +535,11 @@ Class AesirxAnalyticsMysqlHelper
         $wpdb->query($sql);
 
         if ($wpdb->last_error) {
-            return new WP_Error('db_query_error', __('There was a problem with the database query.'), $wpdb->last_error);
+            return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), $wpdb->last_error);
         }
     }
 
-    function aesirx_analytics_add_consent_filters($params, &$where_clause) {
+    function aesirx_analytics_add_consent_filters($params, &$where_clause, &$bind) {
         foreach ([$params['filter'], $params['filter_not']] as $filter_array) {
             $is_not = $filter_array === $params['filter_not'];
             if (empty($filter_array)) {
@@ -544,21 +553,24 @@ Class AesirxAnalyticsMysqlHelper
                     case 'start':
                         try {
                             $date = date("Y-m-d", strtotime($list[0]));
-                            $where_clause[] = "#__analytics_visitor_consent.datetime >= '" . $date . "'";
+                            $where_clause[] = "#__analytics_visitor_consent.datetime >= %s";
+                            $bind[] = $date;
                         } catch (Exception $e) {
-                            return new WP_Error('validation_error', '"start" filter is not correct', ['status' => 400]);
+                            return new WP_Error('validation_error', esc_html__('"start" filter is not correct', 'aesirx-analytics'), ['status' => 400]);
                         }
                         break;
                     case 'end':
                         try {
                             $date = date("Y-m-d", strtotime($list[0] . ' +1 day'));
-                            $where_clause[] = "#__analytics_visitor_consent.datetime < '" . $date . "'";
+                            $where_clause[] = "#__analytics_visitor_consent.datetime < %s";
+                            $bind[] = $date;
                         } catch (Exception $e) {
-                            return new WP_Error('validation_error', '"end" filter is not correct', ['status' => 400]);
+                            return new WP_Error('validation_error', esc_html__('"end" filter is not correct', 'aesirx-analytics'), ['status' => 400]);
                         }
                         break;
                     case 'domain':
-                        $where_clause[] = 'visitors ' . ($is_not ? 'NOT ' : '') . 'IN ("' . implode(', ', $list) . '")';
+                        $where_clause[] = 'visitors ' . ($is_not ? 'NOT ' : '') . 'IN (%s)';
+                        $bind[] = implode(', ', $list);
                         break;
                     default:
                         break;
@@ -567,7 +579,7 @@ Class AesirxAnalyticsMysqlHelper
         }
     }
 
-    function aesirx_analytics_add_conversion_filters($params, &$where_clause) {
+    function aesirx_analytics_add_conversion_filters($params, &$where_clause, &$bind) {
         foreach ($params as $key => $vals) {
             $list = is_array($vals) ? $vals : [$vals];
 
@@ -575,17 +587,19 @@ Class AesirxAnalyticsMysqlHelper
                 case 'start':
                     try {
                         $date = date("Y-m-d", strtotime($list[0]));
-                        $where_clause[] = "#__analytics_flows." . $key . " >= '" . $date . "'";
+                        $where_clause[] = "#__analytics_flows." . $key . " >= %s";
+                        $bind[] = $date;
                     } catch (Exception $e) {
-                        return new WP_Error('validation_error', '"start" filter is not correct', ['status' => 400]);
+                        return new WP_Error('validation_error', esc_html__('"start" filter is not correct', 'aesirx-analytics'), ['status' => 400]);
                     }
                     break;
                 case 'end':
                     try {
-                        $date = date("Y-m-d", strtotime($list[0]) . ' +1 day');
-                        $where_clause[] = "#__analytics_flows." . $key . " < '" . $date . "'";
+                        $date = date("Y-m-d", strtotime($list[0] . ' +1 day'));
+                        $where_clause[] = "#__analytics_flows." . $key . " < %s";
+                        $bind[] = $date;
                     } catch (Exception $e) {
-                        return new WP_Error('validation_error', '"end" filter is not correct', ['status' => 400]);
+                        return new WP_Error('validation_error', esc_html__('"end" filter is not correct', 'aesirx-analytics'), ['status' => 400]);
                     }
                     break;
                 default:
@@ -602,7 +616,7 @@ Class AesirxAnalyticsMysqlHelper
         $wallet = $wpdb->get_row($sql);
 
         if ($wpdb->last_error) {
-            return new WP_Error('db_query_error', __('There was a problem with the database query.'), $wpdb->last_error);
+            return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), $wpdb->last_error);
         }
 
         return $wallet;
@@ -615,10 +629,10 @@ Class AesirxAnalyticsMysqlHelper
         $wpdb->insert(
             $table_name,
             [
-                'uuid'     => $uuid,
-                'network'  => $network,
-                'address'  => $address,
-                'nonce'    => $nonce
+                'uuid'     => sanitize_text_field($uuid),
+                'network'  => sanitize_text_field($network),
+                'address'  => sanitize_text_field($address),
+                'nonce'    => sanitize_text_field($nonce)
             ],
             [
                 '%s', '%s', '%s', '%s'
@@ -626,7 +640,7 @@ Class AesirxAnalyticsMysqlHelper
         );
 
         if ($wpdb->last_error) {
-            return new WP_Error('db_query_error', __('There was a problem with the database query.'), $wpdb->last_error);
+            return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), $wpdb->last_error);
         }
     }
 
@@ -638,7 +652,7 @@ Class AesirxAnalyticsMysqlHelper
         $wpdb->query($sql);
 
         if ($wpdb->last_error) {
-            return new WP_Error('db_query_error', __('There was a problem with the database query.'), $wpdb->last_error);
+            return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), $wpdb->last_error);
         }
     }
 
@@ -652,7 +666,7 @@ Class AesirxAnalyticsMysqlHelper
         $bind = [
             sanitize_text_field($uuid),
             sanitize_text_field($consent),
-            date('Y-m-d H:i:s'),
+            $datetime,
         ];
 
         // Conditionally add wallet_uuid
@@ -684,7 +698,7 @@ Class AesirxAnalyticsMysqlHelper
         $result = $wpdb->query($prepared_query);
 
         if ($wpdb->last_error) {
-            return new WP_Error('db_query_error', __('There was a problem with the database query.'), $wpdb->last_error);
+            return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), $wpdb->last_error);
         }
     }
 
@@ -736,7 +750,7 @@ Class AesirxAnalyticsMysqlHelper
         $result = $wpdb->query($prepared_query);
 
         if ($wpdb->last_error) {
-            return new WP_Error('db_insert_error', 'Could not insert consent', ['status' => 500]);
+            return new WP_Error('db_insert_error', esc_html__('Could not insert consent', 'aesirx-analytics'), ['status' => 500]);
         }
 
         return true;
@@ -811,7 +825,7 @@ Class AesirxAnalyticsMysqlHelper
             return true;
         } catch (Exception $e) {
             error_log($e->getMessage());
-            return new WP_Error('db_update_error', __('There was a problem updating the data in the database.'), $e->getMessage());
+            return new WP_Error('db_update_error', esc_html__('There was a problem updating the data in the database.', 'aesirx-analytics'), $e->getMessage());
         }
     }
 
@@ -881,7 +895,7 @@ Class AesirxAnalyticsMysqlHelper
             }
         } catch (Exception $e) {
             error_log($e->getMessage());
-            return new WP_Error('db_query_error', __('There was a problem with the database query.'), $e->getMessage());
+            return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), $e->getMessage());
         }
     }
 
@@ -892,6 +906,7 @@ Class AesirxAnalyticsMysqlHelper
 
         // Assuming $flows is an array of flow data
         foreach ($flows as $flow) {
+            $flow = (array) $flow;
             $visitor_uuid = $flow['visitor_uuid'];
             $visitor_vec = isset($list_flows[$visitor_uuid]) ? $list_flows[$visitor_uuid] : [];
             $visitor_vec[] = array(
@@ -905,6 +920,7 @@ Class AesirxAnalyticsMysqlHelper
 
         // Assuming $visitors is an array of visitor data
         foreach ($visitors as $visitor) {
+            $visitor = (array) $visitor;
             $consent_uuid = $visitor['consent_uuid'];
             $visitor_vec = isset($list_visitors[$consent_uuid]) ? $list_visitors[$consent_uuid] : [];
             $geo_created_at = isset($visitor['geo_created_at']) ? $visitor['geo_created_at'] : null;
@@ -934,6 +950,7 @@ Class AesirxAnalyticsMysqlHelper
 
         // Assuming $consents is an array of consent data
         foreach ($consents as $consent) {
+            $consent = (array) $consent;
             $uuid_string = $consent['uuid'];
             $outgoing_consent = new \stdClass();
             $outgoing_consent->uuid = $uuid_string;

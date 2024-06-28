@@ -7,12 +7,12 @@ Class AesirX_Analytics_Add_Consent_Level2 extends AesirxAnalyticsMysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
-        $web3id = $params['web3id'] ?? null;
+        $web3id = $params['web3id'] ?? '@web3id';
     
         $visitor = parent::aesirx_analytics_find_visitor_by_uuid($params['visitor_uuid']);
 
         if (!$visitor) {
-            return new WP_Error('validation_error', 'Visitor not found');
+            return new WP_Error('validation_error', esc_html__('Visitor not found', 'aesirx-analytics'));
         }
 
         $found_consent = [];
@@ -25,7 +25,7 @@ Class AesirX_Analytics_Add_Consent_Level2 extends AesirxAnalyticsMysqlHelper
                 if (in_array($params['visitor_uuid'], array_column($one_consent->visitor, 'uuid'))) {
                     foreach ($params['consents'] as $consent) {
                         if (intval($consent) == $one_consent->consent) {
-                            return new WP_Error('rejected', 'Previous consent still active');
+                            return new WP_Error('rejected', esc_html__('Previous consent still active', 'aesirx-analytics'));
                         }
                     }
                 }
@@ -106,7 +106,7 @@ Class AesirX_Analytics_Add_Consent_Level2 extends AesirxAnalyticsMysqlHelper
 
             return parent::aesirx_analytics_list_consent_common($consents, $visitors, $flows);
         } catch (Exception $e) {
-            return new WP_Error('db_update_error', __('There was a problem querying the data in the database.'), $e->getMessage());
+            return new WP_Error('db_update_error', esc_html__('There was a problem querying the data in the database.', 'aesirx-analytics'), $e->getMessage());
         }
     }
 }
