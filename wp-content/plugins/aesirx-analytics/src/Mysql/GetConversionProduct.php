@@ -8,9 +8,9 @@ Class AesirX_Analytics_Get_Conversion_Product extends AesirxAnalyticsMysqlHelper
     function aesirx_analytics_mysql_execute($params = [])
     {
         $where_clause = [];
+        $bind = [];
 
-        // add_conversion_filters(params, &mut where_clause, &mut bind)?;
-        parent::aesirx_analytics_add_conversion_filters($params, $where_clause);
+        parent::aesirx_analytics_add_conversion_filters($params, $where_clause, $bind);
 
         $sql =
             "SELECT
@@ -55,6 +55,6 @@ Class AesirX_Analytics_Get_Conversion_Product extends AesirxAnalyticsMysqlHelper
             $sql .= " ORDER BY " . implode(", ", $sort);
         }
 
-        return parent::aesirx_analytics_get_list($sql, $total_sql, $params);
+        return parent::aesirx_analytics_get_list($sql, $total_sql, $params, [], $bind);
     }
 }

@@ -11,29 +11,29 @@ Class AesirX_Analytics_Revoke_Consent_Level3or4 extends AesirxAnalyticsMysqlHelp
         // Decode the signature
         $decoded = base64_decode($params['signature']);
         if ($decoded === false) {
-            return new WP_Error('invalid_signature', __('Invalid signature.'));
+            return new WP_Error('invalid_signature', esc_html__('Invalid signature.', 'aesirx-analytics'));
         }
 
         // Find the wallet
         $network = sanitize_text_field($params['network']);
         $wallet = sanitize_text_field($params['wallet']);
 
-        $wallet_row = parent::find_wallet($network, $wallet);
+        $wallet_row = parent::aesirx_analytics_find_wallet($network, $wallet);
 
         if (!$wallet_row) {
-            return new WP_Error('wallet_not_found', __('Wallet not found.'));
+            return new WP_Error('wallet_not_found', esc_html__('Wallet not found.', 'aesirx-analytics'));
         }
 
         // Check for nonce
         $nonce = $wallet_row->nonce;
         if (!$nonce) {
-            return new WP_Error('nonce_not_found', __('Nonce not found.'));
+            return new WP_Error('nonce_not_found', esc_html__('Nonce not found.', 'aesirx-analytics'));
         }
 
         // Validate network
         $is_valid = parent::aesirx_analytics_validate_network($network_factory, $network, $nonce, $wallet, $decoded, $params['jwt_payload'], $version);
         if (!$is_valid) {
-            return new WP_Error('validation_failed', __('Network validation failed.'));
+            return new WP_Error('validation_failed', esc_html__('Network validation failed.', 'aesirx-analytics'));
         }
 
         // Expire the consent
@@ -43,14 +43,14 @@ Class AesirX_Analytics_Revoke_Consent_Level3or4 extends AesirxAnalyticsMysqlHelp
         $result = parent::aesirx_analytics_expired_consent($consent_uuid, $expiration);
 
         if ($result === false) {
-            return new WP_Error('update_failed', __('Failed to update consent expiration.'));
+            return new WP_Error('update_failed', esc_html__('Failed to update consent expiration.', 'aesirx-analytics'));
         }
 
         // Update the nonce to None (NULL in this context)
-        $result = parent::update_nonce($network, $wallet, null);
+        $result = parent::aesirx_analytics_update_nonce($network, $wallet, null);
 
         if ($result === false) {
-            return new WP_Error('nonce_update_failed', __('Failed to update nonce.'));
+            return new WP_Error('nonce_update_failed', esc_html__('Failed to update nonce.', 'aesirx-analytics'));
         }
 
         return true;

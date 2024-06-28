@@ -10,55 +10,13 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
 
         $where_clause = [];
         $where_clause_event = [];
+        $bind = [];
+        $bind_event = [];
 
         $detail_page = false;
-        parent::aesirx_analytics_add_filters($params, $where_clause);
+        parent::aesirx_analytics_add_filters($params, $where_clause, $bind);
 
-        // for (filter, is_not) in [(&params.filter, false), (&params.filter_not, true)] {
-        //     if filter.is_none() {
-        //         continue;
-        //     }
-
-        //     for (key, val) in filter.clone().unwrap().iter() {
-        //         match val {
-        //             ParameterValue::Primitive(_) | ParameterValue::Array(_) => {
-        //                 match get_parameters_as_array(val) {
-        //                     None => {}
-        //                     Some(list) => {
-        //                         if key.as_str() == "flow_uuid" {
-        //                             where_clause.push(format!(
-        //                                 "#__analytics_flows.uuid {} IN ({})",
-        //                                 if is_not { "NOT" } else { "" },
-        //                                 format_args!("?{}", ", ?".repeat(list.len() - 1))
-        //                             ));
-        //                             bind.extend(list.clone());
-        //                             detail_page = true;
-        //                         }
-
-        //                         if key.as_str() == "event_type" {
-        //                             where_clause_event.push(format!(
-        //                                 "#__analytics_events.event_type {} IN ({})",
-        //                                 if is_not { "NOT" } else { "" },
-        //                                 format_args!("?{}", ", ?".repeat(list.len() - 1))
-        //                             ));
-        //                             bind_event.extend(list.clone());
-        //                         }
-
-        //                         if key.as_str() == "event_name" {
-        //                             where_clause_event.push(format!(
-        //                                 "#__analytics_events.event_name {} IN ({})",
-        //                                 if is_not { "NOT" } else { "" },
-        //                                 format_args!("?{}", ", ?".repeat(list.len() - 1))
-        //                             ));
-        //                             bind_event.extend(list.clone());
-        //                         }
-        //                     }
-        //                 }
-        //             }
-        //             _ => {}
-        //         }
-        //     }
-        // }
+        // filters
 
         $total_sql =
             "SELECT COUNT(DISTINCT #__analytics_flows.uuid) as total
@@ -121,19 +79,8 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
             $sql .= " ORDER BY " . implode(", ", $sort);
         }
 
-        $sql = str_replace("#__", $wpdb->prefix, $sql);
-        $total_sql = str_replace("#__", $wpdb->prefix, $total_sql);
-
-        $page = $params['page'] ?? 1;
-        $pageSize = $params['page_size'] ?? 20;
-        $skip = ($page - 1) * $pageSize;
-
-        $sql .= " LIMIT " . $skip . ", " . $pageSize;
-
-        $total_elements = (int) $wpdb->get_var($total_sql);
-        $total_pages = ceil($total_elements / $pageSize);
-
-        $list = $wpdb->get_results($sql);
+        $list_response = parent::aesirx_analytics_get_list($sql, $total_sql, $params, [], $bind);
+        $list = $list_response['collection'];
 
         $collection = [];
 
@@ -191,30 +138,7 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
                         $og_description = null;
                         $og_image = null;
 
-                        // if ($detail_page && !empty($second->url)) {
-                        //     try {
-                        //         $page = Webpage::from_url($second->url, WebpageOptions::default());
-                        //         $og_data = [];
-
-                        //         if ($page->html->title) {
-                        //             $og_data["og:title"] = $page->html->title;
-                        //         }
-                        //         if ($page->html->description) {
-                        //             $og_data["og:description"] = $page->html->description;
-                        //         }
-                        //         if (isset($page->html->meta["og:image"])) {
-                        //             $og_data["og:image"] = $page->html->meta["og:image"];
-                        //         }
-
-                        //         if ($og_data) {
-                        //             $og_title = $og_data["og:title"] ?? null;
-                        //             $og_description = $og_data["og:description"] ?? null;
-                        //             $og_image = $og_data["og:image"] ?? null;
-                        //         }
-                        //     } catch (Exception $e) {
-                        //         error_log("Failed to fetch the page: " . $e->getMessage());
-                        //     }
-                        // }
+                        // OG
 
                         $visitor_event = [
                             'uuid' => $second->uuid,
@@ -242,6 +166,8 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
             }
 
             foreach ($list as $item) {
+                $item = (object) $item;
+                
                 if (!empty($collection) && end($collection)['uuid'] == $item->uuid) {
                     continue;
                 }
@@ -288,14 +214,12 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
         }
 
 
-        $list_response = [
+        return [
             'collection' => $collection,
-            'page' => (int) $page,
-            'page_size' => (int) $pageSize,
-            'total_pages' => $total_pages,
-            'total_elements' => $total_elements,
+            'page' => $list_response['page'],
+            'page_size' => $list_response['page_size'],
+            'total_pages' => $list_response['total_pages'],
+            'total_elements' => $list_response['total_elements'],
         ];
-
-        return $list_response;
     }
 }

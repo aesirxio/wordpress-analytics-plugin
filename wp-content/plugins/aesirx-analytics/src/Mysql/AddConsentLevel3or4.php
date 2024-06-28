@@ -10,33 +10,33 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
         // Decode signature
         $decoded = base64_decode($params['request']['signature'], true);
         if ($decoded === false) {
-            return new WP_Error('validation_error', 'Invalid signature');
+            return new WP_Error('validation_error', esc_html__('Invalid signature', 'aesirx-analytics'));
         }
         
         $validated = parent::aesirx_analytics_validate_signature($decoded);
 
         if (!$validated) {
-            return new WP_Error('validation_error', 'Signature validation failed');
+            return new WP_Error('validation_error', esc_html__('Signature validation failed', 'aesirx-analytics'));
         }
 
         // Find visitor by UUID
         $visitor = parent::aesirx_analytics_find_visitor_by_uuid($params['visitor_uuid']);
 
         if (!$visitor) {
-            return new WP_Error('validation_error', 'Visitor not found');
+            return new WP_Error('validation_error', esc_html__('Visitor not found', 'aesirx-analytics'));
         }
 
         // Find wallet by network and wallet address
         $wallet = parent::aesirx_analytics_find_wallet($params['network'], $params['wallet']);
         
         if (!$wallet) {
-            return new WP_Error('validation_error', 'Wallet not found');
+            return new WP_Error('validation_error', esc_html__('Wallet not found', 'aesirx-analytics'));
         }
 
         // Extract nonce from wallet
         $nonce = $wallet->nonce;
         if (!$nonce) {
-            return new WP_Error('validation_error', 'Wallet nonce not found');
+            return new WP_Error('validation_error', esc_html__('Wallet nonce not found', 'aesirx-analytics'));
         }
 
         // Validate network using extracted details
@@ -50,7 +50,7 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
         );
 
         // Extract web3id from jwt_payload
-        $web3id = $params['web3id'] ?? null;
+        $web3id = '@web3id';
 
         // Fetch existing consents for level3 or level4
         $found_consent = [];
@@ -154,7 +154,7 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
 
             return parent::aesirx_analytics_list_consent_common($consents, $visitors, $flows);
         } catch (Exception $e) {
-            return new WP_Error('db_update_error', __('There was a problem querying the data in the database.'), $e->getMessage());
+            return new WP_Error('db_update_error', esc_html__('There was a problem querying the data in the database.', 'aesirx-analytics'), $e->getMessage());
         }
     }
 }

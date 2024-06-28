@@ -10,9 +10,10 @@ Class AesirX_Analytics_Get_List_Events extends AesirxAnalyticsMysqlHelper
         global $wpdb;
 
         $where_clause = [];
-        parent::aesirx_analytics_add_filters($params, $where_clause);
+        $bind = [];
 
-        // add_attribute_filters(params, &mut where_clause, &mut bind);
+        parent::aesirx_analytics_add_filters($params, $where_claus, $bind);
+        parent::aesirx_analytics_add_attribute_filters($params, $where_clause, $bind);
 
         foreach ([$params['filter'], $params['filter_not']] as $filter_array) {
             if (empty($filter_array)) {
@@ -62,19 +63,12 @@ Class AesirX_Analytics_Get_List_Events extends AesirxAnalyticsMysqlHelper
             "start"
         );
 
-        $sql = str_replace("#__", $wpdb->prefix, $sql);
-        $total_sql = str_replace("#__", $wpdb->prefix, $total_sql);
+        if (!empty($sort)) {
+            $sql .= " ORDER BY " . implode(", ", $sort);
+        }
 
-        $page = $params['page'] ?? 1;
-        $pageSize = $params['page_size'] ?? 20;
-        $skip = ($page - 1) * $pageSize;
-
-        $sql .= " LIMIT " . $skip . ", " . $pageSize;
-
-        $total_elements = (int) $wpdb->get_var($total_sql);
-        $total_pages = ceil($total_elements / $pageSize);
-
-        $list = $wpdb->get_results($sql, ARRAY_A);
+        $list_response = parent::aesirx_analytics_get_list($sql, $total_sql, $params, [], $bind);
+        $list = $list_response['collection'];
 
         $collection = [];
 
@@ -139,14 +133,12 @@ Class AesirX_Analytics_Get_List_Events extends AesirxAnalyticsMysqlHelper
             }
         }
 
-        $list_response = [
+        return [
             'collection' => $collection,
-            'page' => (int) $page,
-            'page_size' => (int) $pageSize,
-            'total_pages' => $total_pages,
-            'total_elements' => $total_elements,
+            'page' => $list_response['page'],
+            'page_size' => $list_response['page_size'],
+            'total_pages' => $list_response['total_pages'],
+            'total_elements' => $list_response['total_elements'],
         ];
-
-        return $list_response;
     }
 }
