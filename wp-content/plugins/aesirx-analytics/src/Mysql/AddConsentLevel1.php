@@ -2,7 +2,7 @@
 
 use AesirxAnalytics\AesirxAnalyticsMysqlHelper;
 
-include WP_PLUGIN_DIR . '/src/Mysql/GetVisitorConsentList.php';
+include plugin_dir_path(__FILE__) . 'GetVisitorConsentList.php';
 
 Class AesirX_Analytics_Add_Consent_Level1 extends AesirxAnalyticsMysqlHelper
 {
