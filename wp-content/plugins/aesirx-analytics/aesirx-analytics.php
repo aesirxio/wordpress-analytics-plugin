@@ -322,3 +322,19 @@ add_action('admin_init', function () {
         }
     });
 });
+
+register_activation_hook( __FILE__, 'my_plugin_install' );
+
+// Function to create tables
+function my_plugin_install() {
+    // Include upgrade.php to use dbDelta()
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+
+    // Include each file that contains table creation SQL
+    include_once( plugin_dir_path( __FILE__ ) . '/src/Migration/m001_init.php' );
+    // include_once( plugin_dir_path( __FILE__ ) . 'create_table2.php' );
+
+    // Execute each SQL query using dbDelta()
+    global $wpdb;
+    dbDelta( $sql ); // This variable should be defined in each included file
+}
