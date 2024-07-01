@@ -12,8 +12,7 @@ Class AesirX_Analytics_Get_All_Consents extends AesirxAnalyticsMysqlHelper
         $where_clause = ["COALESCE(consent.consent, visitor_consent.consent) = %d"];
         $bind = [1];
 
-        // add_consent_filters(params, &mut where_clause, &mut bind)?;
-        parent::aesirx_analytics_add_consent_filters($params, $where_clause);
+        parent::aesirx_analytics_add_consent_filters($params, $where_clause, $bind);
 
         $sql =
             "SELECT 
@@ -62,23 +61,14 @@ Class AesirX_Analytics_Get_All_Consents extends AesirxAnalyticsMysqlHelper
             $sql .= " ORDER BY " . implode(", ", $sort);
         }
 
-        $sql = str_replace("#__", $wpdb->prefix, $sql);
-        $total_sql = str_replace("#__", $wpdb->prefix, $total_sql);
+        $list_response = parent::aesirx_analytics_get_list($sql, $total_sql, $params, [], $bind);
 
-        $page = $params['page'] ?? 1;
-        $pageSize = $params['page_size'] ?? 20;
-        $skip = ($page - 1) * $pageSize;
-
-        $sql .= " LIMIT " . $skip . ", " . $pageSize;
-
-        $total_elements = (int) $wpdb->get_var($total_sql);
-        $total_pages = ceil($total_elements / $pageSize);
-
-        $list = $wpdb->get_results($sql, ARRAY_A);
+        $list = $list_response['collection'];
 
         $collection = [];
 
         foreach ($list as $one) {
+            $one = (object) $one;
             $uuid = isset($one->uuid) ? $one->uuid : null;
             $wallet = isset($one->wallet_uuid) ? (object)[
                 'uuid' => $one->wallet_uuid,
@@ -97,14 +87,12 @@ Class AesirX_Analytics_Get_All_Consents extends AesirxAnalyticsMysqlHelper
             ];
         }
 
-        $list_response = [
+        return [
             'collection' => $collection,
-            'page' => (int) $page,
-            'page_size' => (int) $pageSize,
-            'total_pages' => $total_pages,
-            'total_elements' => $total_elements,
+            'page' => $list_response['page'],
+            'page_size' => $list_response['page_size'],
+            'total_pages' => $list_response['total_pages'],
+            'total_elements' => $list_response['total_elements'],
         ];
-
-        return $list_response;
     }
 }

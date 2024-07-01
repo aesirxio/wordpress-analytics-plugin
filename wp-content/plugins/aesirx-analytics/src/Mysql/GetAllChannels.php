@@ -33,7 +33,7 @@ Class AesirX_Analytics_Get_All_Channels extends AesirxAnalyticsMysqlHelper
             "coalesce((count(DISTINCT CASE WHEN #__analytics_flows.multiple_events = 0 THEN #__analytics_flows.uuid END) * 100) / count(DISTINCT (#__analytics_flows.uuid)), 0) DIV 1 as bounce_rate",
         ];
 
-        parent::aesirx_analytics_add_filters($params, $where_clause);
+        parent::aesirx_analytics_add_filters($params, $where_clause, $bind);
 
         $acquisition = false;
         foreach ($params['filter'] as $key => $vals) {
@@ -84,9 +84,6 @@ Class AesirX_Analytics_Get_All_Channels extends AesirxAnalyticsMysqlHelper
             $sql .= " ORDER BY " . implode(", ", $sort);
         }
 
-        $sql = $wpdb->prepare($sql, $bind);
-        $total_sql = $wpdb->prepare($total_sql, $bind);
-
-        return parent::aesirx_analytics_get_list($sql, $total_sql, $params, $allowed);
+        return parent::aesirx_analytics_get_list($sql, $total_sql, $params, $allowed, $bind);
     }
 }

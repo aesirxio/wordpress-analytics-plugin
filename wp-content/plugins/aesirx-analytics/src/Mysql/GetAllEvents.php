@@ -18,11 +18,11 @@ Class AesirX_Analytics_Get_All_Events extends AesirxAnalyticsMysqlHelper
             'action'
         ];
 
-        self::aesirx_analytics_add_filters($params, $where_clause);
+        parent::aesirx_analytics_add_filters($params, $where_clause, $bind);
 
         $sql =
             "SELECT
-            DATE_FORMAT(start, '%Y-%m-%%d') as date,
+            DATE_FORMAT(start, '%%Y-%%m-%%d') as date,
             COUNT(#__analytics_events.visitor_uuid) as visits,
             COUNT(DISTINCT #__analytics_events.visitor_uuid) as unique_visits
             from `#__analytics_events`
@@ -32,7 +32,7 @@ Class AesirX_Analytics_Get_All_Events extends AesirxAnalyticsMysqlHelper
 
         $total_sql =
             "SELECT
-            COUNT(DISTINCT DATE_FORMAT(start, '%Y-%m-%%d')) as total
+            COUNT(DISTINCT DATE_FORMAT(start, '%%Y-%%m-%%d')) as total
             from `#__analytics_events`
             left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
             WHERE " . implode(" AND ", $where_clause);
@@ -43,9 +43,6 @@ Class AesirX_Analytics_Get_All_Events extends AesirxAnalyticsMysqlHelper
             $sql .= " ORDER BY " . implode(", ", $sort);
         }
 
-        $sql = $wpdb->prepare($sql, $bind);
-        $total_sql = $wpdb->prepare($total_sql, $bind);
-
-        return parent::aesirx_analytics_get_list($sql, $total_sql, $params);
+        return parent::aesirx_analytics_get_list($sql, $total_sql, $params, [], $bind);
     }
 }

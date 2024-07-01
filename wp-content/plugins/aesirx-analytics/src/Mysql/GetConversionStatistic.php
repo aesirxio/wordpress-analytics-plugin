@@ -8,9 +8,9 @@ Class AesirX_Analytics_Get_Conversion_Statistic extends AesirxAnalyticsMysqlHelp
     function aesirx_analytics_mysql_execute($params = [])
     {
         $where_clause = [];
+        $bind = [];
 
-        // add_conversion_filters(params, &mut where_clause, &mut bind)?;
-        parent::aesirx_analytics_add_conversion_filters($params, $where_clause);
+        parent::aesirx_analytics_add_conversion_filters($params, $where_clause, $bind);
 
         $sql =
             "SELECT
@@ -32,6 +32,6 @@ Class AesirX_Analytics_Get_Conversion_Statistic extends AesirxAnalyticsMysqlHelp
             left join `#__analytics_flows` on #__analytics_conversion.flow_uuid = #__analytics_flows.uuid
             WHERE " . implode(" AND ", $where_clause);
 
-        return parent::aesirx_analytics_get_list($sql, $total_sql, $params);
+        return parent::aesirx_analytics_get_list($sql, $total_sql, $params, [], $bind);
     }
 }
