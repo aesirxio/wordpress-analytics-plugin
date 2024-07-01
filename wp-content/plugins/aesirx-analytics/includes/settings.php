@@ -542,14 +542,14 @@ add_action('admin_enqueue_scripts', function ($hook) {
     wp_add_inline_script(
       'aesrix_bi_window',
       'window.env = {};
-		  window.aesirxClientID = "' .  $clientId . '";
-		  window.aesirxClientSecret = "' . $clientSecret . '";
-		  window.env.REACT_APP_ENDPOINT_URL = "' . $endpoint . '";
-		  window.env.REACT_APP_DATA_STREAM = JSON.stringify(' . json_encode($streams) . ');
-		  window.env.PUBLIC_URL= "' . plugin_dir_url(__DIR__) . '";
-      window.env.STORAGE= "' . $options['storage'] . '";
-      window.env.REACT_APP_WOOCOMMERCE_MENU= "' . $options['track_ecommerce'] . '";
-      ' . $jwt,
+		  window.aesirxClientID = "' . esc_html($clientId) . '";
+		  window.aesirxClientSecret = "' . esc_html($clientSecret) . '";
+		  window.env.REACT_APP_ENDPOINT_URL = "' . esc_url($endpoint) . '";
+		  window.env.REACT_APP_DATA_STREAM = JSON.stringify(' . wp_json_encode($streams) . ');
+		  window.env.PUBLIC_URL= "' . esc_url(plugin_dir_url(__DIR__)) . '";
+      window.env.STORAGE= "' . esc_html($options['storage']) . '";
+      window.env.REACT_APP_WOOCOMMERCE_MENU= "' . esc_html($options['track_ecommerce']) . '";
+      ' . esc_html($jwt),
     );
   }
 });

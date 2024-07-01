@@ -70,7 +70,14 @@ if (aesirx_analytics_config_is_ok()) {
         $clientId = $options['clientid'] ?? '';
         $secret = $options['secret'] ?? '';
 
-        wp_add_inline_script('aesirx-analytics', 'window.aesirx1stparty="' . $domain . '";window.disableAnalyticsConsent="' . $consent . '";window.aesirxClientID="' . $clientId . '";window.aesirxClientSecret="' . $secret . '";window.aesirxTrackEcommerce="' . $trackEcommerce . '";', 'before');
+        wp_add_inline_script(
+            'aesirx-analytics',
+            'window.aesirx1stparty="' . esc_html($domain) . '";
+            window.disableAnalyticsConsent="' . esc_html($consent) . '";
+            window.aesirxClientID="' . esc_html($clientId) . '";
+            window.aesirxClientSecret="' . esc_html($secret) . '";
+            window.aesirxTrackEcommerce="' . esc_html($trackEcommerce) . '";',
+            'before');
     });
 
     // Track e-commerce
@@ -81,10 +88,6 @@ if (aesirx_analytics_config_is_ok()) {
             || ($options['track_ecommerce'] ?? 'true') != 'true')
         {
             return;
-        }
-
-        if (!session_id()) {
-            session_start();
         }
 
         $flowUuid = sanitize_text_field($_SESSION['analytics_flow_uuid']) ?? null;
@@ -191,9 +194,6 @@ function aesirx_analytics_url_handler()
 
       $router->addRoute(
           (new RouteUrl('/remember_flow/{flow}', static function (string $flow): string {
-              if (!session_id()) {
-                  session_start();
-              }
 
               $_SESSION['analytics_flow_uuid'] = $flow;
 
