@@ -80,12 +80,16 @@ add_action('admin_init', function () {
           jQuery("#aesirx_analytics_clientid").parents("tr").hide();
           jQuery("#aesirx_analytics_secret").parents("tr").hide();
           jQuery("#aesirx_analytics_license").parents("tr").show();
+          jQuery("#aesirx_analytics_geo_cron_time").parents("tr").show();
+          jQuery("#aesirx_analytics-enable_cronjob").parents("tr").show();
           donwload.parents("tr").show();
         } else {
           jQuery("#aesirx_analytics_domain").parents("tr").show();
           jQuery("#aesirx_analytics_license").parents("tr").hide();
           jQuery("#aesirx_analytics_clientid").parents("tr").show();
           jQuery("#aesirx_analytics_secret").parents("tr").show();
+          jQuery("#aesirx_analytics_geo_cron_time").parents("tr").hide();
+          jQuery("#aesirx_analytics-enable_cronjob").parents("tr").hide();
           donwload.parents("tr").hide();
         }
       }
@@ -184,6 +188,39 @@ add_action('admin_init', function () {
         esc_attr($options['license'] ?? '') .
         "' /> <p class= 'description'>
         Register to AesirX and get your client id, client secret and license here: <a target='_blank' href='https://web3id.aesirx.io'>https://web3id.aesirx.io</a>.</p>");
+    },
+    'aesirx_analytics_plugin',
+    'aesirx_analytics_settings'
+  );
+
+  add_settings_field(
+    'aesirx_analytics_geo_cron_time',
+    esc_html__('Geo cron time', 'aesirx-analytics'),
+    function () {
+      $options = get_option('aesirx_analytics_plugin_options', []);
+      echo aesirx_analytics_escape_html("<input id='aesirx_analytics_geo_cron_time' name='aesirx_analytics_plugin_options[geo_cron_time]' type='text' value='" .
+        esc_attr($options['geo_cron_time'] ?? '') .
+        "' />");
+    },
+    'aesirx_analytics_plugin',
+    'aesirx_analytics_settings'
+  );
+
+  add_settings_field(
+    'aesirx_analytics_enable_cronjob',
+    esc_html__('Enable cronjob', 'aesirx-analytics'),
+    function () {
+
+        $options = get_option('aesirx_analytics_plugin_options', []);
+        $checked = 'checked="checked"';
+        $storage = $options['enable_cronjob'] ?? 'true';
+        echo aesirx_analytics_escape_html('
+        <label>' . esc_html__('Yes', 'aesirx-analytics') . ' <input type="radio" id="aesirx_analytics-enable_cronjob" name="aesirx_analytics_plugin_options[enable_cronjob]" ' .
+             ($storage == 'true' ? $checked : '') .
+             ' value="true"  /></label>
+        <label>' . esc_html__('No', 'aesirx-analytics') . ' <input type="radio" id="aesirx_analytics-enable_cronjob" name="aesirx_analytics_plugin_options[enable_cronjob]" ' .
+             ($storage == 'false' ? $checked : '') .
+             ' value="false" /></label>');
     },
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
