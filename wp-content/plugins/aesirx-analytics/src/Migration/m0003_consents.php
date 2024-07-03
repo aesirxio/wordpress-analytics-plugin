@@ -4,7 +4,7 @@ global $wpdb;
 $charset_collate = $wpdb->get_charset_collate();
 
 // Create analytics_wallet table
-$wpdb->query("
+$sql[] = "
     CREATE TABLE `{$wpdb->prefix}analytics_wallet` (
         `uuid` char(36) NOT NULL,
         `network` varchar(255) NOT NULL,
@@ -12,10 +12,10 @@ $wpdb->query("
         `nonce` int DEFAULT NULL,
         PRIMARY KEY (`uuid`)
     ) ENGINE=InnoDB $charset_collate;
-");
+";
 
 // Create analytics_consent table
-$wpdb->query("
+$sql[] = "
     CREATE TABLE `{$wpdb->prefix}analytics_consent` (
         `uuid` char(36) NOT NULL,
         `wallet_uuid` char(36) DEFAULT NULL,
@@ -27,10 +27,10 @@ $wpdb->query("
         KEY `analytics_consent_1` (`wallet_uuid`),
         CONSTRAINT `analytics_consent_1` FOREIGN KEY (`wallet_uuid`) REFERENCES `{$wpdb->prefix}analytics_wallet` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE
     ) ENGINE=InnoDB $charset_collate;
-");
+";
 
 // Create analytics_visitor_consent table
-$wpdb->query("
+$sql[] = "
     CREATE TABLE `{$wpdb->prefix}analytics_visitor_consent` (
         `uuid` char(36) NOT NULL,
         `visitor_uuid` char(36) NOT NULL,
@@ -44,4 +44,4 @@ $wpdb->query("
         CONSTRAINT `analytics_visitor_consent_1` FOREIGN KEY (`visitor_uuid`) REFERENCES `{$wpdb->prefix}analytics_visitors` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
         CONSTRAINT `analytics_visitor_consent_2` FOREIGN KEY (`consent_uuid`) REFERENCES `{$wpdb->prefix}analytics_consent` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE
     ) ENGINE=InnoDB $charset_collate;
-");
+";

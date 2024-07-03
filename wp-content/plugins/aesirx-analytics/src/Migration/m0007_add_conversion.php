@@ -4,7 +4,7 @@ global $wpdb;
 $charset_collate = $wpdb->get_charset_collate();
 
 // Create the analytics_conversion table
-$wpdb->query("
+$sql[] = "
     CREATE TABLE `{$wpdb->prefix}analytics_conversion` (
         `id` int(10) UNSIGNED AUTO_INCREMENT UNIQUE KEY NOT NULL,
         `uuid` char(36) NOT NULL,
@@ -20,10 +20,10 @@ $wpdb->query("
         UNIQUE KEY `idx_unique` (`extension`, `conversion_type`, `uuid`, `order_id`),
         UNIQUE KEY `uuid` (`uuid`)
     ) ENGINE=InnoDB $charset_collate;
-");
+";
 
 // Create the analytics_conversion_item table
-$wpdb->query("
+$sql[] = "
     CREATE TABLE `{$wpdb->prefix}analytics_conversion_item` (
         `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
         `conversion_uuid` char(36) NOT NULL,
@@ -33,18 +33,18 @@ $wpdb->query("
         `quantity` INT(10) UNSIGNED NOT NULL,
         PRIMARY KEY (`id`)
     ) ENGINE=InnoDB $charset_collate;
-");
+";
 
 // Add foreign key constraint to analytics_conversion table
-$wpdb->query("
+$sql[] = "
     ALTER TABLE `{$wpdb->prefix}analytics_conversion`
     ADD CONSTRAINT `{$wpdb->prefix}analytics_conversion_ibfk_1` FOREIGN KEY (`flow_uuid`)
     REFERENCES `{$wpdb->prefix}analytics_flows` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
-");
+";
 
 // Add foreign key constraint to analytics_conversion_item table
-$wpdb->query("
+$sql[] = "
     ALTER TABLE `{$wpdb->prefix}analytics_conversion_item`
     ADD CONSTRAINT `{$wpdb->prefix}analytics_conversion_item_ibfk_1` FOREIGN KEY (`conversion_uuid`)
     REFERENCES `{$wpdb->prefix}analytics_conversion` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
-");
+";
