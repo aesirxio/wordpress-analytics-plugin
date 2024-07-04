@@ -1044,5 +1044,30 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                 )
             );
         }
+
+        function aesirx_analytics_decode_web3id ($jwt) {
+            $api_url = 'http://dev01.aesirx.io:8888/check/web3id';
+            $response = wp_remote_get($api_url, array(
+                'body' => json_encode(array('token' => $jwt)),
+                'headers' => array(
+                    'Content-Type' => 'application/json',
+                ),
+            ));
+
+            if (is_wp_error($response)) {
+                $error_message = $response->get_error_message();
+                return "Something went wrong: $error_message";
+            }
+
+            $body = wp_remote_retrieve_body($response);
+            $data = json_decode($body, true);
+
+            if (!isset($data->web3id)) {
+                return new WP_Error('token_invalid', __('Token invalid: web3id not found', 'aesirx-analytics'));
+            }
+            else{
+                return $web3id = $data->web3id;
+            }
+        }
     }
 }

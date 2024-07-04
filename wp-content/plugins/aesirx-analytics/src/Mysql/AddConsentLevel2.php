@@ -7,7 +7,7 @@ Class AesirX_Analytics_Add_Consent_Level2 extends AesirxAnalyticsMysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
-        $web3id = $params['web3id'] ?? '@web3id';
+        $web3id = parent::aesirx_analytics_decode_web3id($params['jwt']) ?? $params['web3id'] ?? '@web3id';
     
         $visitor = parent::aesirx_analytics_find_visitor_by_uuid($params['visitor_uuid']);
 
