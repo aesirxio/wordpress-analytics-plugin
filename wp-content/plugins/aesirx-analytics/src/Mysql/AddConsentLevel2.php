@@ -1,7 +1,6 @@
 <?php
 
 use AesirxAnalytics\AesirxAnalyticsMysqlHelper;
-use WP_Error;
 
 Class AesirX_Analytics_Add_Consent_Level2 extends AesirxAnalyticsMysqlHelper
 {
