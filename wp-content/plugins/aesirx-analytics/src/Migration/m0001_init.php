@@ -1,7 +1,6 @@
 <?php
 
 global $wpdb;
-$charset_collate = $wpdb->get_charset_collate();
 
 $sql = [];
 
@@ -21,7 +20,7 @@ $sql[] = "
         KEY `visitor_uuid` (`visitor_uuid`),
         KEY `flow_uuid` (`flow_uuid`),
         INDEX `idx_start_end` (`start`, `end`)
-    ) ENGINE=InnoDB $charset_collate";
+    ) ENGINE=InnoDB ";
 
 // Create analytics_event_attributes table
 $sql[] = "
@@ -31,7 +30,7 @@ $sql[] = "
         `name` varchar(255) NOT NULL,
         `value` varchar(255) NOT NULL,
         KEY `idx_uuid` (`event_uuid`)
-    ) ENGINE=InnoDB $charset_collate";
+    ) ENGINE=InnoDB ";
 
 // Create analytics_flows table
 $sql[] = "
@@ -45,7 +44,7 @@ $sql[] = "
         PRIMARY KEY (`uuid`),
         KEY `visitor_uuid` (`visitor_uuid`),
         INDEX `idx_start_end` (`start`, `end`)
-    ) ENGINE=InnoDB $charset_collate";
+    ) ENGINE=InnoDB ";
 
 // Create analytics_visitors table
 $sql[] = "
@@ -65,7 +64,7 @@ $sql[] = "
         `geo_created_at` datetime DEFAULT NULL,
         PRIMARY KEY (`uuid`),
         INDEX `idx_domain` (`domain`)
-    ) ENGINE=InnoDB $charset_collate";
+    ) ENGINE=InnoDB ";
 
 // Add foreign key constraints for analytics_events table
 $sql[] = "

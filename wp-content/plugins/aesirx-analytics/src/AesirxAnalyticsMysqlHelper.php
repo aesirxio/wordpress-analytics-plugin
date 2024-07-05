@@ -798,12 +798,65 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             return $consents_by_domain;
         }
     
-        function aesirx_analytics_validate_signature($decoded) {
-            return true;
+        function aesirx_analytics_validate_string($nonce, $wallet, $singnature) {
+
+            $api_url = 'http://dev01.aesirx.io:8888/validate/string';
+            $response = wp_remote_get($api_url, array(
+                'body' => json_encode(array('nonce' => $nonce, 'wallet' => $wallet, 'signature' => $singnature)),
+                'headers' => array(
+                    'Content-Type' => 'application/json',
+                ),
+            ));
+
+            if (is_wp_error($response)) {
+                $error_message = $response->get_error_message();
+                return new WP_Error('validation_error', esc_html__('"Something went wrong: %s', 'aesirx-analytics'));
+            }
+
+            $body = wp_remote_retrieve_body($response);
+            $data = json_decode($body, true);
+
+            return $data;
         }
-    
-        function aesirx_analytics_validate_network($network, $wallet_address, $nonce, $decoded, $jwt_payload, $version) {
-            return true;
+
+        function aesirx_analytics_validate_address($wallet) {
+            $api_url = 'http://dev01.aesirx.io:8888/validate/address';
+            $response = wp_remote_get($api_url, array(
+                'body' => json_encode(array('wallet' => $wallet)),
+                'headers' => array(
+                    'Content-Type' => 'application/json',
+                ),
+            ));
+
+            if (is_wp_error($response)) {
+                $error_message = $response->get_error_message();
+                return new WP_Error('validation_error', esc_html__('"Something went wrong: %s', 'aesirx-analytics'));
+            }
+
+            $body = wp_remote_retrieve_body($response);
+            $data = json_decode($body, true);
+
+            return $data;
+        }
+
+        function aesirx_analytics_validate_contract($token) {
+            $api_url = 'http://dev01.aesirx.io:8888/validate/contract';
+            $response = wp_remote_get($api_url, array(
+                'headers' => array(
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer ' . $token,
+                ),
+            ));
+
+            if (is_wp_error($response)) {
+                $error_message = $response->get_error_message();
+                return new WP_Error('validation_error', esc_html__('"Something went wrong: %s', 'aesirx-analytics'));
+            }
+
+            $body = wp_remote_retrieve_body($response);
+            $data = json_decode($body, true);
+
+            return $data;
         }
     
         function aesirx_analytics_expired_consent($consent_uuid, $expiration) {
@@ -1045,18 +1098,18 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             );
         }
 
-        function aesirx_analytics_decode_web3id ($jwt) {
+        function aesirx_analytics_decode_web3id ($token) {
             $api_url = 'http://dev01.aesirx.io:8888/check/web3id';
             $response = wp_remote_get($api_url, array(
-                'body' => json_encode(array('token' => $jwt)),
                 'headers' => array(
                     'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer ' . $token,
                 ),
             ));
 
             if (is_wp_error($response)) {
                 $error_message = $response->get_error_message();
-                return "Something went wrong: $error_message";
+                return new WP_Error('validation_error', esc_html__('"Something went wrong: %s', 'aesirx-analytics'));
             }
 
             $body = wp_remote_retrieve_body($response);
@@ -1066,7 +1119,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                 return new WP_Error('token_invalid', __('Token invalid: web3id not found', 'aesirx-analytics'));
             }
             else{
-                return $web3id = $data->web3id;
+                return $data->web3id;
             }
         }
     }

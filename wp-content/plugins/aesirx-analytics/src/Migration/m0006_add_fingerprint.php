@@ -2,6 +2,8 @@
 
 global $wpdb;
 
+$sql = [];
+
 // Prepare and execute the query to drop the existing unique index 'fingerprint_idx'
 $sql[] = "ALTER TABLE `{$wpdb->prefix}analytics_visitors` DROP INDEX `fingerprint_idx`";
 

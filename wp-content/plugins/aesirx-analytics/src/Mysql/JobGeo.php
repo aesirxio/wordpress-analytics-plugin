@@ -10,7 +10,7 @@ Class AesirX_Analytics_Start_Fingerprint extends AesirxAnalyticsMysqlHelper
         $now = date('Y-m-d H:i:s');
         $options = get_option('aesirx_analytics_plugin_options');
         $config =[
-            'url_api_enrich' => 'https://api.aesirx.io/index.php?webserviceClient=site&webserviceVersion=1.0.0&option=aesir_analytics&api=hal&task=enrichVisitor',
+            'url_api_enrich' => 'https://dev01.aesirx.io/index.php?webserviceClient=site&webserviceVersion=1.0.0&option=aesir_analytics&api=hal&task=enrichVisitor',
             'license' => $options['license']
         ];
 

@@ -8,7 +8,11 @@ Class AesirX_Analytics_Get_Nonce extends AesirxAnalyticsMysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
-        // validation
+        $validate_address = parent::aesirx_analytics_validate_address($params['address']);
+
+        if (!$validate_address) {
+            return new WP_Error('validation_error', esc_html__('Address is not valid', 'aesirx-analytics'));
+        }
 
         $num = (string) rand(10000, 99999);
 

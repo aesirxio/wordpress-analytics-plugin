@@ -1,5 +1,8 @@
 <?php
+
 global $wpdb;
+
+$sql = [];
 
 // Prepare the query with placeholders
 $sql[] = $wpdb->prepare(

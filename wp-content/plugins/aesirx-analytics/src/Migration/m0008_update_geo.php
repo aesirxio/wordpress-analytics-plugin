@@ -2,6 +2,8 @@
 
 global $wpdb;
 
+$sql = [];
+
 // Add a new column 'region' to the analytics_visitors table
 $sql[] = "ALTER TABLE `{$wpdb->prefix}analytics_visitors` ADD `region` VARCHAR(255) NULL DEFAULT NULL";
 

@@ -12,8 +12,6 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
         if ($decoded === false) {
             return new WP_Error('validation_error', esc_html__('Invalid signature', 'aesirx-analytics'));
         }
-        
-        $validated = parent::aesirx_analytics_validate_signature($decoded);
 
         if (!$validated) {
             return new WP_Error('validation_error', esc_html__('Signature validation failed', 'aesirx-analytics'));
@@ -40,17 +38,20 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
         }
 
         // Validate network using extracted details
-        parent::aesirx_analytics_validate_network(
-            $params['network'],
-            $params['wallet'],
-            $nonce,
-            $decoded,
-            $params['jwt_payload'],
-            $params['version']
-        );
+        $validate_nonce = parent::aesirx_analytics_validate_string($nonce, $params['wallet'], $params['request']['signature']);
+
+        if (!$validate_nonce) {
+            return new WP_Error('validation_error', esc_html__('Nonce is not valid', 'aesirx-analytics'));
+        }
+
+        $validate_contract = parent::aesirx_analytics_validate_contract($params['token']);
+
+        if (!$validate_contract) {
+            return new WP_Error('validation_error', esc_html__('Contract is not valid', 'aesirx-analytics'));
+        }
 
         // Extract web3id from jwt_payload
-        $web3id = '@web3id';
+        $web3id = parent::aesirx_analytics_decode_web3id($params['token']) ?? '';
 
         // Fetch existing consents for level3 or level4
         $found_consent = [];
