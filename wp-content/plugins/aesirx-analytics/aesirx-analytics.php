@@ -27,6 +27,7 @@ use AesirxAnalyticsLib\RouterFactory;
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 use Pecee\SimpleRouter\Route\RouteUrl;
+use AesirxAnalytics\Migrator\MigratorMysql;
 
 require_once plugin_dir_path(__FILE__) . 'vendor/autoload.php';
 require_once 'includes/settings.php';
@@ -231,16 +232,25 @@ register_activation_hook(__FILE__, 'aesirx_analytics_initialize_function');
 function aesirx_analytics_initialize_function() {
     global $wpdb;
 
+    //Add migration table
+    MigratorMysql::aesirx_analytics_create_migrator_table_query();
+    $migration_list = array_column(MigratorMysql::aesirx_analytics_fetch_rows(), 'name');
+
     // Include upgrade.php to use dbDelta()
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
     $files = glob(plugin_dir_path( __FILE__ ) . 'src/Migration/*.php');
-
+    
     foreach ($files as $file) {
         include_once $file;
-        dbDelta( $sql );
-    }
+        $file_name = basename($file, ".php");
 
+        if(!in_array($file_name, $migration_list)) {
+            $query = MigratorMysql::aesirx_analytics_add_migration_query($file_name);
+            dbDelta( $query );
+            dbDelta( $sql );
+        }       
+    }
     add_option('aesirx_analytics_do_activation_redirect', true);
 }
 

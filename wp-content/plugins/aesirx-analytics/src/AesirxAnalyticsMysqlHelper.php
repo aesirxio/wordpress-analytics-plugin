@@ -973,5 +973,101 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
     
             return $list;
         }
+
+        function aesirx_analytics_get_ip_list_without_geo($params = []) {
+            global $wpdb;
+
+            $sql       = "SELECT distinct ip FROM " . $wpdb->prefix . "analytics_visitors WHERE geo_created_at IS NULL";
+            $total_sql = "SELECT count(distinct ip) as total FROM " . $wpdb->prefix . "analytics_visitors WHERE geo_created_at IS NULL";
+            
+            $list = self::aesirx_analytics_get_list($sql, $total_sql, $params);
+    
+            $ips = [];
+            
+            foreach ($list->collection as $one) {
+                $ips[] = $one->ip;
+            }
+    
+            $list_response = [
+                'collection' => $ips,
+                'page' => (int) $list->page,
+                'page_size' => (int) $list->pageSize,
+                'total_pages' => $list->total_pages,
+                'total_elements' => $list->total_elements,
+            ];
+    
+            return $list_response;
+        }
+
+        function aesirx_analytics_update_null_geo_per_ip($ip, $geo) {
+            global $wpdb;
+
+            $table_name = $wpdb->prefix . 'analytics_visitors';
+
+            $wpdb->query(
+                $wpdb->prepare(
+                    "
+                    UPDATE $table_name
+                    SET isp = %s, country_code = %s, country_name = %s, city = %s, region = %s, geo_created_at = %s
+                    WHERE geo_created_at IS NULL AND ip = %s
+                    ",
+                    $geo['isp'],
+                    $geo['country']['code'],
+                    $geo['country']['name'],
+                    $geo['city'],
+                    $geo['region'],
+                    date('Y-m-d H:i:s', strtotime($geo['created_at'])),
+                    $ip
+                )
+            );
+        }
+
+        function aesirx_analytics_update_geo_per_uuid($uuid, $geo) {
+            global $wpdb;
+
+            $table_name = $wpdb->prefix . 'analytics_visitors';
+
+            $wpdb->query(
+                $wpdb->prepare(
+                    "
+                    UPDATE $table_name
+                    SET isp = %s, country_code = %s, country_name = %s, city = %s, region = %s, geo_created_at = %s
+                    WHERE uuid = %s
+                    ",
+                    $geo['isp'],
+                    $geo['country']['code'],
+                    $geo['country']['name'],
+                    $geo['city'],
+                    $geo['region'],
+                    date('Y-m-d H:i:s', strtotime($geo['created_at'])),
+                    $uuid
+                )
+            );
+        }
+
+        function aesirx_analytics_decode_web3id ($jwt) {
+            $api_url = 'http://dev01.aesirx.io:8888/check/web3id';
+            $response = wp_remote_get($api_url, array(
+                'body' => json_encode(array('token' => $jwt)),
+                'headers' => array(
+                    'Content-Type' => 'application/json',
+                ),
+            ));
+
+            if (is_wp_error($response)) {
+                $error_message = $response->get_error_message();
+                return "Something went wrong: $error_message";
+            }
+
+            $body = wp_remote_retrieve_body($response);
+            $data = json_decode($body, true);
+
+            if (!isset($data->web3id)) {
+                return new WP_Error('token_invalid', __('Token invalid: web3id not found', 'aesirx-analytics'));
+            }
+            else{
+                return $web3id = $data->web3id;
+            }
+        }
     }
 }
