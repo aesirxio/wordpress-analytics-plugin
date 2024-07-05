@@ -30,10 +30,17 @@ Class AesirX_Analytics_Revoke_Consent_Level3or4 extends AesirxAnalyticsMysqlHelp
             return new WP_Error('nonce_not_found', esc_html__('Nonce not found.', 'aesirx-analytics'));
         }
 
-        // Validate network
-        $is_valid = parent::aesirx_analytics_validate_network($network_factory, $network, $nonce, $wallet, $decoded, $params['jwt_payload'], $version);
-        if (!$is_valid) {
-            return new WP_Error('validation_failed', esc_html__('Network validation failed.', 'aesirx-analytics'));
+        // Validate network using extracted details
+        $validate_nonce = parent::aesirx_analytics_validate_string($nonce, $params['wallet'], $params['request']['signature']);
+
+        if (!$validate_nonce) {
+            return new WP_Error('validation_error', esc_html__('Nonce is not valid', 'aesirx-analytics'));
+        }
+
+        $validate_contract = parent::aesirx_analytics_validate_contract($params['token']);
+
+        if (!$validate_contract) {
+            return new WP_Error('validation_error', esc_html__('Contract is not valid', 'aesirx-analytics'));
         }
 
         // Expire the consent

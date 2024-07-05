@@ -248,7 +248,9 @@ function aesirx_analytics_initialize_function() {
         if(!in_array($file_name, $migration_list)) {
             $query = MigratorMysql::aesirx_analytics_add_migration_query($file_name);
             dbDelta( $query );
-            dbDelta( $sql );
+            foreach ($sql as $each_query) {
+                $wpdb->query($each_query);
+            }
         }       
     }
     add_option('aesirx_analytics_do_activation_redirect', true);

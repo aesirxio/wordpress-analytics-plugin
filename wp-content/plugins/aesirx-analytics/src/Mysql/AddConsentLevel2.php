@@ -1,13 +1,18 @@
 <?php
 
 use AesirxAnalytics\AesirxAnalyticsMysqlHelper;
-use WP_Error;
 
 Class AesirX_Analytics_Add_Consent_Level2 extends AesirxAnalyticsMysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
-        $web3id = parent::aesirx_analytics_decode_web3id($params['jwt']) ?? $params['web3id'] ?? '@web3id';
+        $web3idObj = parent::aesirx_analytics_decode_web3id($params['token']) ?? '';
+
+        if (!$web3idObj || !isset($web3idObj['web3id'])) {
+            return new WP_Error('validation_error', esc_html__('Invalid token', 'aesirx-analytics'));
+        }
+
+        $web3id = $web3idObj['web3id'];
     
         $visitor = parent::aesirx_analytics_find_visitor_by_uuid($params['visitor_uuid']);
 

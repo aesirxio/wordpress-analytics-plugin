@@ -1,7 +1,8 @@
 <?php
 
 global $wpdb;
-$charset_collate = $wpdb->get_charset_collate();
+
+$sql = [];
 
 // Create analytics_wallet table
 $sql[] = "
@@ -11,8 +12,7 @@ $sql[] = "
         `address` varchar(255) NOT NULL,
         `nonce` int DEFAULT NULL,
         PRIMARY KEY (`uuid`)
-    ) ENGINE=InnoDB $charset_collate;
-";
+    ) ENGINE=InnoDB;";
 
 // Create analytics_consent table
 $sql[] = "
@@ -26,8 +26,7 @@ $sql[] = "
         PRIMARY KEY (`uuid`),
         KEY `analytics_consent_1` (`wallet_uuid`),
         CONSTRAINT `analytics_consent_1` FOREIGN KEY (`wallet_uuid`) REFERENCES `{$wpdb->prefix}analytics_wallet` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE
-    ) ENGINE=InnoDB $charset_collate;
-";
+    ) ENGINE=InnoDB;";
 
 // Create analytics_visitor_consent table
 $sql[] = "
@@ -43,5 +42,4 @@ $sql[] = "
         KEY `analytics_visitor_consent_2` (`consent_uuid`),
         CONSTRAINT `analytics_visitor_consent_1` FOREIGN KEY (`visitor_uuid`) REFERENCES `{$wpdb->prefix}analytics_visitors` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
         CONSTRAINT `analytics_visitor_consent_2` FOREIGN KEY (`consent_uuid`) REFERENCES `{$wpdb->prefix}analytics_consent` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE
-    ) ENGINE=InnoDB $charset_collate;
-";
+    ) ENGINE=InnoDB;";

@@ -1,7 +1,6 @@
 <?php
 
 global $wpdb;
-$charset_collate = $wpdb->get_charset_collate();
 
 $sql = [];
 
@@ -21,7 +20,7 @@ $sql[] = "
         KEY `visitor_uuid` (`visitor_uuid`),
         KEY `flow_uuid` (`flow_uuid`),
         INDEX `idx_start_end` (`start`, `end`)
-    ) ENGINE=InnoDB $charset_collate";
+    ) ENGINE=InnoDB;";
 
 // Create analytics_event_attributes table
 $sql[] = "
@@ -31,7 +30,7 @@ $sql[] = "
         `name` varchar(255) NOT NULL,
         `value` varchar(255) NOT NULL,
         KEY `idx_uuid` (`event_uuid`)
-    ) ENGINE=InnoDB $charset_collate";
+    ) ENGINE=InnoDB;";
 
 // Create analytics_flows table
 $sql[] = "
@@ -45,7 +44,7 @@ $sql[] = "
         PRIMARY KEY (`uuid`),
         KEY `visitor_uuid` (`visitor_uuid`),
         INDEX `idx_start_end` (`start`, `end`)
-    ) ENGINE=InnoDB $charset_collate";
+    ) ENGINE=InnoDB;";
 
 // Create analytics_visitors table
 $sql[] = "
@@ -65,20 +64,20 @@ $sql[] = "
         `geo_created_at` datetime DEFAULT NULL,
         PRIMARY KEY (`uuid`),
         INDEX `idx_domain` (`domain`)
-    ) ENGINE=InnoDB $charset_collate";
+    ) ENGINE=InnoDB;";
 
 // Add foreign key constraints for analytics_events table
 $sql[] = "
     ALTER TABLE `{$wpdb->prefix}analytics_events`
     ADD CONSTRAINT `analytics_event_1` FOREIGN KEY (`visitor_uuid`) REFERENCES `{$wpdb->prefix}analytics_visitors` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
-    ADD CONSTRAINT `analytics_event_2` FOREIGN KEY (`flow_uuid`) REFERENCES `{$wpdb->prefix}analytics_flows` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE";
+    ADD CONSTRAINT `analytics_event_2` FOREIGN KEY (`flow_uuid`) REFERENCES `{$wpdb->prefix}analytics_flows` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;";
 
 // Add foreign key constraint for analytics_event_attributes table
 $sql[] = "
     ALTER TABLE `{$wpdb->prefix}analytics_event_attributes`
-    ADD CONSTRAINT `analytics_ev_attr_1` FOREIGN KEY (`event_uuid`) REFERENCES `{$wpdb->prefix}analytics_events` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE";
+    ADD CONSTRAINT `analytics_ev_attr_1` FOREIGN KEY (`event_uuid`) REFERENCES `{$wpdb->prefix}analytics_events` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;";
 
 // Add foreign key constraint for analytics_flows table
 $sql[] = "
     ALTER TABLE `{$wpdb->prefix}analytics_flows`
-    ADD CONSTRAINT `analytics_flow_1` FOREIGN KEY (`visitor_uuid`) REFERENCES `{$wpdb->prefix}analytics_visitors` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE";
+    ADD CONSTRAINT `analytics_flow_1` FOREIGN KEY (`visitor_uuid`) REFERENCES `{$wpdb->prefix}analytics_visitors` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;";
