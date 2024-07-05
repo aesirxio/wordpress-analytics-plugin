@@ -800,9 +800,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
     
         function aesirx_analytics_validate_string($nonce, $wallet, $singnature) {
 
-            $api_url = 'http://dev01.aesirx.io:8888/validate/string';
+            $api_url = 'http://dev01.aesirx.io:8888/validate/string?nonce=' . $nonce . '&wallet=' . $wallet . '&signature=' . $singnature;
             $response = wp_remote_get($api_url, array(
-                'body' => json_encode(array('nonce' => $nonce, 'wallet' => $wallet, 'signature' => $singnature)),
                 'headers' => array(
                     'Content-Type' => 'application/json',
                 ),
@@ -810,7 +809,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
 
             if (is_wp_error($response)) {
                 $error_message = $response->get_error_message();
-                return new WP_Error('validation_error', esc_html__('"Something went wrong: %s', 'aesirx-analytics'));
+                return new WP_Error('validation_error', esc_html__('Something went wrong', 'aesirx-analytics'));
             }
 
             $body = wp_remote_retrieve_body($response);
@@ -820,9 +819,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         }
 
         function aesirx_analytics_validate_address($wallet) {
-            $api_url = 'http://dev01.aesirx.io:8888/validate/address';
+            $api_url = 'http://dev01.aesirx.io:8888/validate/wallet?wallet=' . $wallet;
             $response = wp_remote_get($api_url, array(
-                'body' => json_encode(array('wallet' => $wallet)),
                 'headers' => array(
                     'Content-Type' => 'application/json',
                 ),
@@ -830,7 +828,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
 
             if (is_wp_error($response)) {
                 $error_message = $response->get_error_message();
-                return new WP_Error('validation_error', esc_html__('"Something went wrong: %s', 'aesirx-analytics'));
+                return new WP_Error('validation_error', esc_html__('Something went wrong', 'aesirx-analytics'));
             }
 
             $body = wp_remote_retrieve_body($response);
@@ -850,7 +848,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
 
             if (is_wp_error($response)) {
                 $error_message = $response->get_error_message();
-                return new WP_Error('validation_error', esc_html__('"Something went wrong: %s', 'aesirx-analytics'));
+                return new WP_Error('validation_error', esc_html__('Something went wrong', 'aesirx-analytics'));
             }
 
             $body = wp_remote_retrieve_body($response);
@@ -1109,18 +1107,13 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
 
             if (is_wp_error($response)) {
                 $error_message = $response->get_error_message();
-                return new WP_Error('validation_error', esc_html__('"Something went wrong: %s', 'aesirx-analytics'));
+                return new WP_Error('validation_error', esc_html__('Something went wrong', 'aesirx-analytics'));
             }
 
             $body = wp_remote_retrieve_body($response);
             $data = json_decode($body, true);
 
-            if (!isset($data->web3id)) {
-                return new WP_Error('token_invalid', __('Token invalid: web3id not found', 'aesirx-analytics'));
-            }
-            else{
-                return $data->web3id;
-            }
+            return $data;
         }
     }
 }

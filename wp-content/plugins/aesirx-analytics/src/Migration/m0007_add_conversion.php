@@ -20,8 +20,7 @@ $sql[] = "
         `conversion_type` varchar(255) NOT NULL,
         UNIQUE KEY `idx_unique` (`extension`, `conversion_type`, `uuid`, `order_id`),
         UNIQUE KEY `uuid` (`uuid`)
-    ) ENGINE=InnoDB ;
-";
+    ) ENGINE=InnoDB;";
 
 // Create the analytics_conversion_item table
 $sql[] = "
@@ -33,19 +32,16 @@ $sql[] = "
         `price` INT(10) UNSIGNED NOT NULL,
         `quantity` INT(10) UNSIGNED NOT NULL,
         PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB ;
-";
+    ) ENGINE=InnoDB;";
 
 // Add foreign key constraint to analytics_conversion table
 $sql[] = "
     ALTER TABLE `{$wpdb->prefix}analytics_conversion`
     ADD CONSTRAINT `{$wpdb->prefix}analytics_conversion_ibfk_1` FOREIGN KEY (`flow_uuid`)
-    REFERENCES `{$wpdb->prefix}analytics_flows` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
-";
+    REFERENCES `{$wpdb->prefix}analytics_flows` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;";
 
 // Add foreign key constraint to analytics_conversion_item table
 $sql[] = "
     ALTER TABLE `{$wpdb->prefix}analytics_conversion_item`
     ADD CONSTRAINT `{$wpdb->prefix}analytics_conversion_item_ibfk_1` FOREIGN KEY (`conversion_uuid`)
-    REFERENCES `{$wpdb->prefix}analytics_conversion` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
-";
+    REFERENCES `{$wpdb->prefix}analytics_conversion` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;";

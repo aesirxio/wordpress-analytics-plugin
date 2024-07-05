@@ -13,10 +13,6 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
             return new WP_Error('validation_error', esc_html__('Invalid signature', 'aesirx-analytics'));
         }
 
-        if (!$validated) {
-            return new WP_Error('validation_error', esc_html__('Signature validation failed', 'aesirx-analytics'));
-        }
-
         // Find visitor by UUID
         $visitor = parent::aesirx_analytics_find_visitor_by_uuid($params['visitor_uuid']);
 
@@ -51,7 +47,13 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
         }
 
         // Extract web3id from jwt_payload
-        $web3id = parent::aesirx_analytics_decode_web3id($params['token']) ?? '';
+        $web3idObj = parent::aesirx_analytics_decode_web3id($params['token']) ?? '';
+
+        if (!$web3idObj || !isset($web3idObj['web3id'])) {
+            return new WP_Error('validation_error', esc_html__('Invalid token', 'aesirx-analytics'));
+        }
+
+        $web3id = $web3idObj['web3id'];
 
         // Fetch existing consents for level3 or level4
         $found_consent = [];
@@ -68,7 +70,7 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
                 if (in_array($params['visitor_uuid'], array_column($one_consent->visitor, 'uuid'))) {
                     foreach ($params['consents'] as $consent) {
                         if ((int)$consent === $one_consent->consent) {
-                            throw new Exception("Previous consent still active");
+                            return new WP_Error('rejected', esc_html__("Previous consent still active", 'aesirx-analytics'));
                         }
                     }
                 }

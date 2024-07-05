@@ -3,7 +3,7 @@
 use AesirxAnalytics\AesirxAnalyticsMysqlHelper;
 use WP_Error;
 
-Class AesirX_Analytics_Start_Fingerprint extends AesirxAnalyticsMysqlHelper
+Class AesirX_Analytics_Job_Geo extends AesirxAnalyticsMysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
