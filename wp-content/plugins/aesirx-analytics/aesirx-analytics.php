@@ -229,6 +229,18 @@ function aesirx_analytics_url_handler()
 
 register_activation_hook(__FILE__, 'aesirx_analytics_initialize_function');
 function aesirx_analytics_initialize_function() {
+    global $wpdb;
+
+    // Include upgrade.php to use dbDelta()
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+
+    $files = glob(plugin_dir_path( __FILE__ ) . 'src/Migration/*.php');
+
+    foreach ($files as $file) {
+        include_once $file;
+        dbDelta( $sql );
+    }
+
     add_option('aesirx_analytics_do_activation_redirect', true);
 }
 
