@@ -39,6 +39,10 @@ Class AesirX_Analytics_Get_Attribute_Value_Date extends AesirxAnalyticsMysqlHelp
         }
 
         $list_response = parent::aesirx_analytics_get_list($sql, $total_sql, $params, [], $bind);
+
+        if (is_wp_error($list_response)) {
+            return $list_response;
+        }
         
         $list = $list_response['collection'];
 

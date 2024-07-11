@@ -826,7 +826,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
     
         function aesirx_analytics_validate_string($nonce, $wallet, $singnature) {
 
-            $api_url = 'https://dev01.aesirx.io:8888/validate/string?nonce=' 
+            $api_url = 'http://dev01.aesirx.io:8888/validate/string?nonce=' 
             . sanitize_text_field($nonce) . '&wallet=' 
             . sanitize_text_field($wallet) . '&signature=' 
             . sanitize_text_field($singnature);
@@ -849,7 +849,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         }
 
         function aesirx_analytics_validate_address($wallet) {
-            $api_url = 'https://dev01.aesirx.io:8888/validate/wallet?wallet=' . sanitize_text_field($wallet);
+            $api_url = 'http://dev01.aesirx.io:8888/validate/wallet?wallet=' . sanitize_text_field($wallet);
             $response = wp_remote_get($api_url, array(
                 'headers' => array(
                     'Content-Type' => 'application/json',
@@ -869,7 +869,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         }
 
         function aesirx_analytics_validate_contract($token) {
-            $api_url = 'https://dev01.aesirx.io:8888/validate/contract';
+            $api_url = 'http://dev01.aesirx.io:8888/validate/contract';
             $response = wp_remote_get($api_url, array(
                 'headers' => array(
                     'Content-Type' => 'application/json',
@@ -1052,7 +1052,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             }
     
             if (!empty($list->consents)) {
-                $list->consents_by_domain = self::group_consents_by_domains($list->consents);
+                $list->consents_by_domain = self::aesirx_analytics_group_consents_by_domains($list->consents);
             }
     
             return $list;
@@ -1065,6 +1065,10 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             $total_sql = "SELECT count(distinct ip) as total FROM " . $wpdb->prefix . "analytics_visitors WHERE geo_created_at IS NULL";
             
             $list = self::aesirx_analytics_get_list($sql, $total_sql, $params);
+
+            if (is_wp_error($list)) {
+                return $list;
+            }
     
             $ips = [];
             
@@ -1130,7 +1134,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         }
 
         function aesirx_analytics_decode_web3id ($token) {
-            $api_url = 'https://dev01.aesirx.io:8888/check/web3id';
+            $api_url = 'http://dev01.aesirx.io:8888/check/web3id';
             $response = wp_remote_get($api_url, array(
                 'headers' => array(
                     'Content-Type' => 'application/json',

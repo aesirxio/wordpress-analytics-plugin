@@ -8,6 +8,10 @@ Class AesirX_Analytics_Add_Consent_Level2 extends AesirxAnalyticsMysqlHelper
     {
         $web3idObj = parent::aesirx_analytics_decode_web3id($params['token']) ?? '';
 
+        if (is_wp_error($web3idObj)) {
+            return $web3idObj;
+        }
+
         if (!$web3idObj || !isset($web3idObj['web3id'])) {
             return new WP_Error('validation_error', esc_html__('Invalid token', 'aesirx-analytics'));
         }
@@ -16,13 +20,17 @@ Class AesirX_Analytics_Add_Consent_Level2 extends AesirxAnalyticsMysqlHelper
     
         $visitor = parent::aesirx_analytics_find_visitor_by_uuid($params['visitor_uuid']);
 
-        if (!$visitor) {
+        if (!$visitor || is_wp_error($visitor)) {
             return new WP_Error('validation_error', esc_html__('Visitor not found', 'aesirx-analytics'));
         }
 
         $found_consent = [];
 
         $consent_list = self::list_consent_level2($web3id, $visitor->domain, null);
+
+        if (is_wp_error($consent_list)) {
+            return $consent_list;
+        }
 
         if ($consent_list) {
             foreach ($consent_list as $one_consent) {
