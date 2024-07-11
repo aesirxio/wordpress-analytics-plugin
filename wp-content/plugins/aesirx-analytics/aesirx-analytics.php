@@ -256,40 +256,6 @@ function aesirx_analytics_initialize_function() {
     add_option('aesirx_analytics_do_activation_redirect', true);
 }
 
-function aesirx_analytics_update_plugins(WP_Upgrader $upgrader_object, array $options ): void {
-    $current_plugin_path_name = plugin_basename( __FILE__ );
-    $download = false;
-
-    if (in_array($options['action'], ['update', 'install'])
-        && $options['type'] == 'plugin' ) {
-        if ($options['bulk'] ?? false) {
-            foreach($options['plugins'] as $each_plugin) {
-                if ($each_plugin == $current_plugin_path_name) {
-                    $download = true;
-                    break;
-                }
-            }
-        } elseif (property_exists($upgrader_object, 'new_plugin_data')
-                && !empty($upgrader_object->new_plugin_data['Name'])
-                && $upgrader_object->new_plugin_data['Name'] == 'aesirx-analytics'
-                && property_exists($upgrader_object->skin, 'overwrite')
-                && $upgrader_object->skin->overwrite == 'update-plugin') {
-            $download = true;
-        }
-    }
-
-    $options = get_option('aesirx_analytics_plugin_options');
-
-    // if ($download
-    //     && ($options['storage'] ?? null) == 'internal') {
-    //     try {
-    //         CliFactory::getCli()->downloadAnalyticsCli();
-    //     } catch (Throwable $e) {
-    //         set_transient( 'aesirx_analytics_update_notice', serialize($e) );
-    //     }
-    // }
-}
-
 function aesirx_analytics_display_update_notice(  ) {
     $notice = get_transient( 'aesirx_analytics_update_notice' );
     if( $notice ) {
@@ -307,7 +273,6 @@ function aesirx_analytics_display_update_notice(  ) {
 }
 
 add_action( 'admin_notices', 'aesirx_analytics_display_update_notice' );
-add_action( 'upgrader_process_complete', 'aesirx_analytics_update_plugins', 10, 2);
 
 add_action('admin_init', function () {
     if (get_option('aesirx_analytics_do_activation_redirect', false)) {
