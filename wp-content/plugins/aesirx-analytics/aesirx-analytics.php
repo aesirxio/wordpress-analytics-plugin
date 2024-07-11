@@ -243,8 +243,7 @@ function aesirx_analytics_initialize_function() {
         $file_name = basename($file, ".php");
 
         if(!in_array($file_name, $migration_list)) {
-            $query = MigratorMysql::aesirx_analytics_add_migration_query($file_name);
-            dbDelta( $query );
+            MigratorMysql::aesirx_analytics_add_migration_query($file_name);
             foreach ($sql as $each_query) {
                 $wpdb->query($each_query);
             }
