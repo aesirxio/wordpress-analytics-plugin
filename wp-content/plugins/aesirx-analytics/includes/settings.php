@@ -56,6 +56,19 @@ add_action('admin_init', function () {
     'aesirx_analytics_plugin'
   );
 
+  function add_warning_missing_license() {
+    $options = get_option('aesirx_analytics_plugin_options');
+
+    if(empty($options['license'])){
+      ?>
+        <div class="notice-warning notice notice-bi" style="display: none;">
+            <p><?php _e( 'Please register your license at Signup.aesirx.io to enable decentralized consent functionality.', 'aesirx-analytics' ); ?></p>
+        </div>
+      <?php
+    }
+  }
+  add_action( 'admin_notices', 'add_warning_missing_license' );
+
   add_settings_field(
     'aesirx_analytics_storage',
     esc_html__('1st party server', 'aesirx-analytics'),
