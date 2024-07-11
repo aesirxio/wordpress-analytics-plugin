@@ -1028,26 +1028,22 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         function aesirx_analytics_get_ip_list_without_geo($params = []) {
             global $wpdb;
 
+            $allowed = [];
+            $bind = [];
+
             $sql       = "SELECT distinct ip FROM " . $wpdb->prefix . "analytics_visitors WHERE geo_created_at IS NULL";
             $total_sql = "SELECT count(distinct ip) as total FROM " . $wpdb->prefix . "analytics_visitors WHERE geo_created_at IS NULL";
             
-            $list = self::aesirx_analytics_get_list($sql, $total_sql, $params);
+            $list_response = self::aesirx_analytics_get_list($sql, $total_sql, $params, $allowed, $bind);
+            $list = $list_response['collection'];
     
             $ips = [];
             
-            foreach ($list->collection as $one) {
-                $ips[] = $one->ip;
+            foreach ($list as $one) {
+                $ips[] = $one['ip'];
             }
     
-            $list_response = [
-                'collection' => $ips,
-                'page' => (int) $list->page,
-                'page_size' => (int) $list->pageSize,
-                'total_pages' => $list->total_pages,
-                'total_elements' => $list->total_elements,
-            ];
-    
-            return $list_response;
+            return $ips;
         }
 
         function aesirx_analytics_update_null_geo_per_ip($ip, $geo) {
