@@ -7,10 +7,10 @@ Stable tag: 3.1.3
 Requires PHP: 8.1
 License: GPL 3.0
 
-WordPress plugin for tracking and storing the tracking data.
+Enhance website tracking with AesirX Analytics WordPress plugin, integrating first-party analytics and consent for GDPR/ePrivacy compliance.
 
 == Description ==
-WordPress plugin for tracking and storing the tracking data.
+Enhance website tracking with AesirX Analytics WordPress plugin, integrating first-party analytics and consent for GDPR/ePrivacy compliance.
 
 = 3rd party services =
 

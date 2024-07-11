@@ -11,11 +11,11 @@ add_action('admin_init', function () {
 
     if ($input['storage'] == 'internal') {
       if (empty($input['license'])) {
-        $valid = false;
         add_settings_error(
           'aesirx_analytics_plugin_options',
           'license',
-          esc_html__('License is empty.', 'aesirx-analytics')
+          esc_html__('Please register your license at Signup.aesirx.io to enable the external first-party server.', 'aesirx-analytics'),
+          'warning'
         );
       }
     } elseif ($input['storage'] == 'external') {

@@ -36,7 +36,7 @@ function aesirx_analytics_config_is_ok(string $isStorage = null): bool {
     $options = get_option('aesirx_analytics_plugin_options');
     $res = (!empty($options['storage'])
         && (
-            ($options['storage'] == 'internal' && !empty($options['license']))
+            ($options['storage'] == 'internal')
             || ($options['storage'] == 'external' && !empty($options['domain']))
         ));
 
