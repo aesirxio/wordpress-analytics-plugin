@@ -100,6 +100,11 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
 
     function aesirx_analytics_list_consent_level3_or_level4($web3id, $wallet, $domain, $expired) {
         global $wpdb;
+
+        $web3id = sanitize_text_field($web3id);
+        $wallet = sanitize_text_field($wallet);
+        $domain = sanitize_text_field($domain);
+
         $table_consent = $wpdb->prefix . 'analytics_consent';
         $table_visitor_consent = $wpdb->prefix . 'analytics_visitor_consent';
         $table_visitors = $wpdb->prefix . 'analytics_visitors';
@@ -156,7 +161,8 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
 
             return parent::aesirx_analytics_list_consent_common($consents, $visitors, $flows);
         } catch (Exception $e) {
-            return new WP_Error('db_update_error', esc_html__('There was a problem querying the data in the database.', 'aesirx-analytics'), $e->getMessage());
+            error_log("Query error: " . $e->getMessage());
+            return new WP_Error('db_update_error', esc_html__('There was a problem querying the data in the database.', 'aesirx-analytics'), ['status' => 500]);
         }
     }
 }

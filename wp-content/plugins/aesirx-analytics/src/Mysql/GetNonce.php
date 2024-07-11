@@ -29,6 +29,8 @@ Class AesirX_Analytics_Get_Nonce extends AesirxAnalyticsMysqlHelper
             $num = str_replace('{time}', date('Y-m-d H:i:s'), $num);
         }
 
+        $num = sanitize_text_field($num);
+
         $wallet = parent::aesirx_analytics_find_wallet($params['network'], $params['address']);
 
         if ($wallet) {

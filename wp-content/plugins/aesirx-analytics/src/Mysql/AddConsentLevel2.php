@@ -76,7 +76,7 @@ Class AesirX_Analytics_Add_Consent_Level2 extends AesirxAnalyticsMysqlHelper
                 ON visitor_consent.visitor_uuid = visitor.uuid 
                 WHERE consent.wallet_uuid IS NULL $exp AND consent.web3id = %s $dom 
                 GROUP BY consent.uuid", 
-                $web3id, $domain
+                sanitize_text_field($web3id), sanitize_text_field($domain)
             );
             $consents = $wpdb->get_results($sql);
 
@@ -89,7 +89,7 @@ Class AesirX_Analytics_Add_Consent_Level2 extends AesirxAnalyticsMysqlHelper
                 LEFT JOIN {$table_consent} AS consent 
                 ON consent.uuid = visitor_consent.consent_uuid 
                 WHERE consent.wallet_uuid IS NULL $exp AND consent.web3id = %s $dom", 
-                $web3id, $domain
+                sanitize_text_field($web3id), sanitize_text_field($domain)
             );
             $visitors = $wpdb->get_results($sql);
 
@@ -105,13 +105,14 @@ Class AesirX_Analytics_Add_Consent_Level2 extends AesirxAnalyticsMysqlHelper
                 ON consent.uuid = visitor_consent.consent_uuid 
                 WHERE consent.wallet_uuid IS NULL $exp AND consent.web3id = %s $dom 
                 ORDER BY id", 
-                $web3id, $domain
+                sanitize_text_field($web3id), sanitize_text_field($domain)
             );
             $flows = $wpdb->get_results($sql);
 
             return parent::aesirx_analytics_list_consent_common($consents, $visitors, $flows);
         } catch (Exception $e) {
-            return new WP_Error('db_update_error', esc_html__('There was a problem querying the data in the database.', 'aesirx-analytics'), $e->getMessage());
+            error_log("Query error: " . $e->getMessage());
+            return new WP_Error('db_update_error', esc_html__('There was a problem querying the data in the database.', 'aesirx-analytics'), ['status' => 500]);
         }
     }
 }

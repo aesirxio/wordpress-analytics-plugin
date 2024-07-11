@@ -73,19 +73,20 @@ Class AesirX_Analytics_Get_List_Events extends AesirxAnalyticsMysqlHelper
         $collection = [];
 
         if ($list) {
-            $bind = array_map(function($e) {
+            $event_attribute_bind = array_map(function($e) {
                 return $e['uuid'];
             }, $list);
 
-            $sql =
-                "SELECT *
-                from #__analytics_event_attributes
-                WHERE
-                event_uuid IN ('" . implode("', '", $bind) . "')";
+            $placeholders = implode(', ', array_fill(0, count($event_attribute_bind), '%s'));
 
-            $sql = str_replace("#__", $wpdb->prefix, $sql);
+            $event_attribute_sql = $wpdb->prepare(
+                "SELECT * 
+                FROM {$wpdb->prefix}analytics_event_attributes 
+                WHERE event_uuid IN ($placeholders)",
+                ...$bind
+            );
             
-            $secondArray = $wpdb->get_results($sql);
+            $secondArray = $wpdb->get_results($event_attribute_sql);
 
             $hash_map = [];
 

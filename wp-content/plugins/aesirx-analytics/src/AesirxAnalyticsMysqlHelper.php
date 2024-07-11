@@ -43,7 +43,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                 return $list_response;
     
             } catch (Exception $e) {
-                error_log("Error: " . $e->getMessage());
+                error_log("Query error: " . $e->getMessage());
                 return new WP_Error('database_error', esc_html__('Database error occurred.', 'aesirx-analytics'), ['status' => 500]);
             }
         }
@@ -199,6 +199,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                                 $where_clause[] = "#__analytics_events." . $key . " >= %s";
                                 $bind[] = $date;
                             } catch (Exception $e) {
+                                error_log('Validation error: ' . $e->getMessage());
                                 return new WP_Error('validation_error', esc_html__('"start" filter is not correct', 'aesirx-analytics'), ['status' => 400]);
                             }
                             break;
@@ -208,6 +209,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                                 $where_clause[] = "#__analytics_events." . $key . " < %s";
                                 $bind[] = $date;
                             } catch (Exception $e) {
+                                error_log('Validation error: ' . $e->getMessage());
                                 return new WP_Error('validation_error', esc_html__('"end" filter is not correct', 'aesirx-analytics'), ['status' => 400]);
                             }
                             break;
@@ -324,7 +326,12 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
     
             // Query to fetch the visitor
             try {
-                $sql = $wpdb->prepare("SELECT * FROM $visitors_table WHERE fingerprint = %s AND domain = %s", $fingerprint, $domain);
+                $sql = $wpdb->prepare(
+                    "SELECT * 
+                    FROM $visitors_table 
+                    WHERE fingerprint = %s AND domain = %s", 
+                    sanitize_text_field($fingerprint), sanitize_text_field($domain)
+                );
                 $visitor = $wpdb->get_row($sql);
     
                 if ($visitor) {
@@ -357,7 +364,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                     }
     
                     // Query to fetch the visitor flows
-                    $sql = $wpdb->prepare("SELECT * FROM $flows_table WHERE visitor_uuid = %s ORDER BY id", $visitor->uuid);
+                    $sql = $wpdb->prepare("SELECT * FROM $flows_table WHERE visitor_uuid = %s ORDER BY id", sanitize_text_field($visitor->uuid));
                     $flows = $wpdb->get_results($sql);
     
                     if ($flows) {
@@ -378,7 +385,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
     
                 return null;
             } catch (Exception $e) {
-                return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), $e->getMessage());
+                error_log('Query error: ' . $e->getMessage());
+                return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), ['status' => 500]);
             }
         }
     
@@ -439,7 +447,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         
                 return true;
             } catch (Exception $e) {
-                return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), $e->getMessage());
+                error_log('Query error: ' . $e->getMessage());
+                return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), ['status' => 500]);
             }
         }
     
@@ -490,7 +499,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
     
                 return true;
             } catch (Exception $e) {
-                return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), $e->getMessage());
+                error_log('Query error: ' . $e->getMessage());
+                return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), ['status' => 500]);
             }
         }
     
@@ -515,7 +525,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         
                 return true;
             } catch (Exception $e) {
-                return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), $e->getMessage());
+                error_log('Query error: ' . $e->getMessage());
+                return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), ['status' => 500]);
             }
         }
     
@@ -530,13 +541,14 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                 "UPDATE $table_name
                 SET visitor_flows = JSON_SET(visitor_flows, CONCAT('$[', JSON_UNQUOTE(JSON_SEARCH(visitor_flows, 'one', %s)), '].multiple_events'), true)
                 WHERE JSON_CONTAINS(visitor_flows, JSON_OBJECT('uuid', %s))",
-                $uuid_str, $uuid_str
+                sanitize_text_field($uuid_str), sanitize_text_field($uuid_str)
             );
     
             $wpdb->query($sql);
     
             if ($wpdb->last_error) {
-                return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), $wpdb->last_error);
+                error_log('Query error: ' . $wpdb->last_error);
+                return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), ['status' => 500]);
             }
         }
     
@@ -557,6 +569,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                                 $where_clause[] = "#__analytics_visitor_consent.datetime >= %s";
                                 $bind[] = $date;
                             } catch (Exception $e) {
+                                error_log('Validation error: ' . $e->getMessage());
                                 return new WP_Error('validation_error', esc_html__('"start" filter is not correct', 'aesirx-analytics'), ['status' => 400]);
                             }
                             break;
@@ -566,6 +579,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                                 $where_clause[] = "#__analytics_visitor_consent.datetime < %s";
                                 $bind[] = $date;
                             } catch (Exception $e) {
+                                error_log('Validation error: ' . $e->getMessage());
                                 return new WP_Error('validation_error', esc_html__('"end" filter is not correct', 'aesirx-analytics'), ['status' => 400]);
                             }
                             break;
@@ -591,6 +605,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                             $where_clause[] = "#__analytics_flows." . $key . " >= %s";
                             $bind[] = $date;
                         } catch (Exception $e) {
+                            error_log('Validation error: ' . $e->getMessage());
                             return new WP_Error('validation_error', esc_html__('"start" filter is not correct', 'aesirx-analytics'), ['status' => 400]);
                         }
                         break;
@@ -600,6 +615,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                             $where_clause[] = "#__analytics_flows." . $key . " < %s";
                             $bind[] = $date;
                         } catch (Exception $e) {
+                            error_log('Validation error: ' . $e->getMessage());
                             return new WP_Error('validation_error', esc_html__('"end" filter is not correct', 'aesirx-analytics'), ['status' => 400]);
                         }
                         break;
@@ -613,11 +629,15 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             global $wpdb;
             $table_name = $wpdb->prefix . 'analytics_wallet';
     
-            $sql = $wpdb->prepare("SELECT * FROM $table_name WHERE network = %s AND address = %s", $network, $address);
+            $sql = $wpdb->prepare(
+                "SELECT * FROM $table_name WHERE network = %s AND address = %s",
+                sanitize_text_field($network), sanitize_text_field($address)
+            );
             $wallet = $wpdb->get_row($sql);
     
             if ($wpdb->last_error) {
-                return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), $wpdb->last_error);
+                error_log('Query error: ' . $wpdb->last_error);
+                return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), ['status' => 500]);
             }
     
             return $wallet;
@@ -641,7 +661,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             );
     
             if ($wpdb->last_error) {
-                return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), $wpdb->last_error);
+                error_log('Query error: ' . $wpdb->last_error);
+                return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), ['status' => 500]);
             }
         }
     
@@ -649,11 +670,14 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             global $wpdb;
             $table_name = $wpdb->prefix . 'analytics_wallet';
     
-            $sql = $wpdb->prepare("UPDATE $table_name SET nonce = %s WHERE network = %s AND address = %s", $nonce, $network, $address);
+            $sql = $wpdb->prepare(
+                "UPDATE $table_name SET nonce = %s WHERE network = %s AND address = %s", 
+                sanitize_text_field($nonce), sanitize_text_field($network), sanitize_text_field($address));
             $wpdb->query($sql);
     
             if ($wpdb->last_error) {
-                return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), $wpdb->last_error);
+                error_log('Query error: ' . $wpdb->last_error);
+                return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), ['status' => 500]);
             }
         }
     
@@ -699,7 +723,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             $result = $wpdb->query($prepared_query);
     
             if ($wpdb->last_error) {
-                return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), $wpdb->last_error);
+                error_log('Query error: ' . $wpdb->last_error);
+                return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), ['status' => 500]);
             }
         }
     
@@ -751,6 +776,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             $result = $wpdb->query($prepared_query);
     
             if ($wpdb->last_error) {
+                error_log('Query error: ' . $wpdb->last_error);
                 return new WP_Error('db_insert_error', esc_html__('Could not insert consent', 'aesirx-analytics'), ['status' => 500]);
             }
     
@@ -800,7 +826,10 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
     
         function aesirx_analytics_validate_string($nonce, $wallet, $singnature) {
 
-            $api_url = 'http://dev01.aesirx.io:8888/validate/string?nonce=' . $nonce . '&wallet=' . $wallet . '&signature=' . $singnature;
+            $api_url = 'https://dev01.aesirx.io:8888/validate/string?nonce=' 
+            . sanitize_text_field($nonce) . '&wallet=' 
+            . sanitize_text_field($wallet) . '&signature=' 
+            . sanitize_text_field($singnature);
             $response = wp_remote_get($api_url, array(
                 'headers' => array(
                     'Content-Type' => 'application/json',
@@ -809,6 +838,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
 
             if (is_wp_error($response)) {
                 $error_message = $response->get_error_message();
+                error_log('API error: ' . $error_message);
                 return new WP_Error('validation_error', esc_html__('Something went wrong', 'aesirx-analytics'));
             }
 
@@ -819,7 +849,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         }
 
         function aesirx_analytics_validate_address($wallet) {
-            $api_url = 'http://dev01.aesirx.io:8888/validate/wallet?wallet=' . $wallet;
+            $api_url = 'https://dev01.aesirx.io:8888/validate/wallet?wallet=' . sanitize_text_field($wallet);
             $response = wp_remote_get($api_url, array(
                 'headers' => array(
                     'Content-Type' => 'application/json',
@@ -828,6 +858,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
 
             if (is_wp_error($response)) {
                 $error_message = $response->get_error_message();
+                error_log('API error: ' . $error_message);
                 return new WP_Error('validation_error', esc_html__('Something went wrong', 'aesirx-analytics'));
             }
 
@@ -838,16 +869,17 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         }
 
         function aesirx_analytics_validate_contract($token) {
-            $api_url = 'http://dev01.aesirx.io:8888/validate/contract';
+            $api_url = 'https://dev01.aesirx.io:8888/validate/contract';
             $response = wp_remote_get($api_url, array(
                 'headers' => array(
                     'Content-Type' => 'application/json',
-                    'Authorization' => 'Bearer ' . $token,
+                    'Authorization' => 'Bearer ' . sanitize_text_field($token),
                 ),
             ));
 
             if (is_wp_error($response)) {
                 $error_message = $response->get_error_message();
+                error_log('API error: ' . $error_message);
                 return new WP_Error('validation_error', esc_html__('Something went wrong', 'aesirx-analytics'));
             }
 
@@ -872,12 +904,13 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             try {
                 $result = $wpdb->query($prepared_query);
                 if ($result === false) {
+                    error_log('Query error: ' . $wpdb->last_error);
                     return new WP_Error($wpdb->last_error);
                 }
                 return true;
             } catch (Exception $e) {
-                error_log($e->getMessage());
-                return new WP_Error('db_update_error', esc_html__('There was a problem updating the data in the database.', 'aesirx-analytics'), $e->getMessage());
+                error_log("Query error: " . $e->getMessage());
+                return new WP_Error('db_update_error', esc_html__('There was a problem updating the data in the database.', 'aesirx-analytics'), ['status' => 500]);
             }
         }
     
@@ -886,11 +919,11 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             // Prepare the SQL queries
             $sql_visitor = $wpdb->prepare(
                 "SELECT * FROM {$wpdb->prefix}analytics_visitors WHERE uuid = %s",
-                $uuid
+                sanitize_text_field($uuid)
             );
             $sql_flows = $wpdb->prepare(
                 "SELECT * FROM {$wpdb->prefix}analytics_flows WHERE visitor_uuid = %s ORDER BY id",
-                $uuid
+                sanitize_text_field($uuid)
             );
     
             try {
@@ -946,8 +979,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                     return null;
                 }
             } catch (Exception $e) {
-                error_log($e->getMessage());
-                return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), $e->getMessage());
+                error_log("Query error: " . $e->getMessage());
+                return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), ['status' => 500]);
             }
         }
     
@@ -1062,13 +1095,13 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                     SET isp = %s, country_code = %s, country_name = %s, city = %s, region = %s, geo_created_at = %s
                     WHERE geo_created_at IS NULL AND ip = %s
                     ",
-                    $geo['isp'],
-                    $geo['country']['code'],
-                    $geo['country']['name'],
-                    $geo['city'],
-                    $geo['region'],
+                    sanitize_text_field($geo['isp']),
+                    sanitize_text_field($geo['country']['code']),
+                    sanitize_text_field($geo['country']['name']),
+                    sanitize_text_field($geo['city']),
+                    sanitize_text_field($geo['region']),
                     date('Y-m-d H:i:s', strtotime($geo['created_at'])),
-                    $ip
+                    sanitize_text_field($ip)
                 )
             );
         }
@@ -1085,28 +1118,29 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                     SET isp = %s, country_code = %s, country_name = %s, city = %s, region = %s, geo_created_at = %s
                     WHERE uuid = %s
                     ",
-                    $geo['isp'],
-                    $geo['country']['code'],
-                    $geo['country']['name'],
-                    $geo['city'],
-                    $geo['region'],
+                    sanitize_text_field($geo['isp']),
+                    sanitize_text_field($geo['country']['code']),
+                    sanitize_text_field($geo['country']['name']),
+                    sanitize_text_field($geo['city']),
+                    sanitize_text_field($geo['region']),
                     date('Y-m-d H:i:s', strtotime($geo['created_at'])),
-                    $uuid
+                    sanitize_text_field($uuid)
                 )
             );
         }
 
         function aesirx_analytics_decode_web3id ($token) {
-            $api_url = 'http://dev01.aesirx.io:8888/check/web3id';
+            $api_url = 'https://dev01.aesirx.io:8888/check/web3id';
             $response = wp_remote_get($api_url, array(
                 'headers' => array(
                     'Content-Type' => 'application/json',
-                    'Authorization' => 'Bearer ' . $token,
+                    'Authorization' => 'Bearer ' . sanitize_text_field($token),
                 ),
             ));
 
             if (is_wp_error($response)) {
                 $error_message = $response->get_error_message();
+                error_log('API error: ' . $error_message);
                 return new WP_Error('validation_error', esc_html__('Something went wrong', 'aesirx-analytics'));
             }
 
