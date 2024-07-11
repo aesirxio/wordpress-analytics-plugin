@@ -10,7 +10,7 @@ Class AesirX_Analytics_Job_Geo extends AesirxAnalyticsMysqlHelper
         $options = get_option('aesirx_analytics_plugin_options');
         $config =[
             'url_api_enrich' => 'https://dev01.aesirx.io/index.php?webserviceClient=site&webserviceVersion=1.0.0&option=aesir_analytics&api=hal&task=enrichVisitor',
-            'license' => $options['license']
+            'license' => sanitize_text_field($options['license'])
         ];
 
         $list = parent::aesirx_analytics_get_ip_list_without_geo($params);
@@ -34,14 +34,15 @@ Class AesirX_Analytics_Job_Geo extends AesirxAnalyticsMysqlHelper
     
         if ( is_wp_error( $response ) ) {
             error_log("Error in API request: " . $response->get_error_message());
-            return new WP_Error('api_request_error', esc_html__('Error in API request: ', 'aesirx-analytics'), $response->get_error_message());
+            return new WP_Error('api_error', esc_html__('Error in API request', 'aesirx-analytics'));
         }
     
         $body = wp_remote_retrieve_body( $response );
         $enrich = json_decode( $body, true );
     
         if (isset($enrich['error'])) {
-            return new WP_Error('api_error', esc_html__('API error: ', 'aesirx-analytics'), $enrich['error']['message']);
+            error_log("API error: " . $enrich['error']['message']);
+            return new WP_Error('api_error', esc_html__('Error in API request', 'aesirx-analytics'));
         }
     
         // Update geo information for IPs

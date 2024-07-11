@@ -10,7 +10,7 @@ Class AesirX_Analytics_Get_Nonce extends AesirxAnalyticsMysqlHelper
     {
         $validate_address = parent::aesirx_analytics_validate_address($params['address']);
 
-        if (!$validate_address) {
+        if (!$validate_address || is_wp_error($validate_address)) {
             return new WP_Error('validation_error', esc_html__('Address is not valid', 'aesirx-analytics'));
         }
 
@@ -29,7 +29,13 @@ Class AesirX_Analytics_Get_Nonce extends AesirxAnalyticsMysqlHelper
             $num = str_replace('{time}', date('Y-m-d H:i:s'), $num);
         }
 
+        $num = sanitize_text_field($num);
+
         $wallet = parent::aesirx_analytics_find_wallet($params['network'], $params['address']);
+
+        if (is_wp_error($wallet)) {
+            return $wallet;
+        }
 
         if ($wallet) {
             parent::aesirx_analytics_update_nonce($params['network'], $params['address'], $num);

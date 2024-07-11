@@ -9,7 +9,15 @@ Class AesirX_Analytics_Start_Fingerprint extends AesirxAnalyticsMysqlHelper
         $start = date('Y-m-d H:i:s');
         $domain = parent::aesirx_analytics_validate_domain($params['request']['url']);
 
+        if (is_wp_error($domain)) {
+            return $domain;
+        }
+
         $visitor = parent::aesirx_analytics_find_visitor_by_fingerprint_and_domain($params['request']['fingerprint'], $domain);
+
+        if (is_wp_error($visitor)) {
+            return $visitor;
+        }
 
         if (!$visitor) {
             $new_visitor_flow = [

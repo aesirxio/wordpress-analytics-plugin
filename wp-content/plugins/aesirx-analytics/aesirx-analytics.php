@@ -141,15 +141,12 @@ add_action( 'parse_request', 'aesirx_analytics_url_handler' );
 
 function aesirx_analytics_url_handler()
 {
-  $options = get_option('aesirx_analytics_plugin_options');
+    $options = get_option('aesirx_analytics_plugin_options');
 
-  if (($options['storage'] ?? 'internal') != 'internal') {
-    return;
-  }
+    if (($options['storage'] ?? 'internal') != 'internal') {
+        return;
+    }
 
-  //	define( 'WP_DEBUG', true );
-  //	define( 'WP_DEBUG_DISPLAY', true );
-  //	@ini_set( 'display_errors', 1 );
     $callCommand = function (array $command): string {
         try
         {
@@ -184,48 +181,48 @@ function aesirx_analytics_url_handler()
         return $data;
     };
 
-  try {
-      $router = (new RouterFactory(
-          $callCommand,
-          new IsBackendMiddleware(),
-          null,
-          site_url( '', 'relative' ))
-      )
-          ->getSimpleRouter();
+    try {
+        $router = (new RouterFactory(
+            $callCommand,
+            new IsBackendMiddleware(),
+            null,
+            site_url( '', 'relative' ))
+        )
+            ->getSimpleRouter();
 
-      $router->addRoute(
-          (new RouteUrl('/remember_flow/{flow}', static function (string $flow): string {
+        $router->addRoute(
+            (new RouteUrl('/remember_flow/{flow}', static function (string $flow): string {
 
-              $_SESSION['analytics_flow_uuid'] = $flow;
+                $_SESSION['analytics_flow_uuid'] = $flow;
 
-              return json_encode(true);
-          }))
-              ->setWhere(['flow' => '[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}'])
-              ->setRequestMethods([Request::REQUEST_TYPE_POST])
-      );
+                return json_encode(true);
+            }))
+                ->setWhere(['flow' => '[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}'])
+                ->setRequestMethods([Request::REQUEST_TYPE_POST])
+        );
 
-      echo wp_kses_post($router->start());
-  } catch (Throwable $e) {
-    if ($e instanceof NotFoundHttpException) {
-      return;
+        echo wp_kses_post($router->start());
+    } catch (Throwable $e) {
+        if ($e instanceof NotFoundHttpException) {
+        return;
+        }
+
+        if ($e instanceof ExceptionWithResponseCode) {
+            $code = $e->getResponseCode();
+        } else {
+            $code = 500;
+        }
+
+        if (!headers_sent()) {
+            header( 'Content-Type: application/json; charset=utf-8' );
+        }
+        http_response_code($code);
+        echo wp_json_encode([
+            'error' => $e->getMessage(),
+        ]);
     }
 
-    if ($e instanceof ExceptionWithResponseCode) {
-        $code = $e->getResponseCode();
-    } else {
-        $code = 500;
-    }
-
-      if (!headers_sent()) {
-          header( 'Content-Type: application/json; charset=utf-8' );
-      }
-    http_response_code($code);
-    echo wp_json_encode([
-        'error' => $e->getMessage(),
-    ]);
-  }
-
-  die();
+    die();
 }
 
 register_activation_hook(__FILE__, 'aesirx_analytics_initialize_function');
