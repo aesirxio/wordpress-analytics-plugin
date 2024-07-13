@@ -454,14 +454,17 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                     $placeholders = [];
     
                     foreach ($visitor_event['attributes'] as $attribute) {
-                        $values[] = $new_doc->uuid;
-                        $values[] = $attribute->name;
-                        $values[] = $attribute->value;
-
-                        $wpdb->query(
-                            $wpdb->prepare(
-                                "INSERT INTO {$wpdb->prefix}analytics_event_attributes (event_uuid, name, value) VALUES (%s, %s, %s)",
-                                $values
+                        $wpdb->insert(
+                            $wpdb->prefix . 'analytics_event_attributes',
+                            array(
+                                'event_uuid' => $visitor_event->uuid,
+                                'name'       => $attribute->name,
+                                'value'      => $attribute->value
+                            ),
+                            array(
+                                '%s',
+                                '%s',
+                                '%s'
                             )
                         );
                     }     
@@ -505,6 +508,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             // Ensure UUID is properly formatted for the database
             $uuid_str = (string) $uuid;
     
+            // need $wpdb->query() due to the complexity of the JSON manipulation required
             $wpdb->query(
                 $wpdb->prepare(
                     "UPDATE {$wpdb->prefix}visitor
@@ -636,10 +640,22 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         function aesirx_analytics_update_nonce($network, $address, $nonce) {
             global $wpdb;
 
-            $wpdb->query(
-                $wpdb->prepare(
-                    "UPDATE {$wpdb->prefix}analytics_wallet SET nonce = %s WHERE network = %s AND address = %s", 
-                    sanitize_text_field($nonce), sanitize_text_field($network), sanitize_text_field($address))
+            $wpdb->update(
+                $wpdb->prefix . 'analytics_wallet',
+                array(
+                    'nonce' => sanitize_text_field($nonce)
+                ),
+                array(
+                    'network' => sanitize_text_field($network),
+                    'address' => sanitize_text_field($address)
+                ),
+                array(
+                    '%s'  // Data type for 'nonce'
+                ),
+                array(
+                    '%s', // Data type for 'network'
+                    '%s'  // Data type for 'address'
+                )
             );
     
             if ($wpdb->last_error) {
@@ -651,42 +667,36 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         function aesirx_analytics_add_consent($uuid, $consent, $datetime, $web3id = null, $wallet_uuid = null, $expiration = null) {
             global $wpdb;
     
-            // Prepare the base query and values
-            $query = "INSERT INTO {$wpdb->prefix}analytics_consent (uuid, consent, datetime";
-            $values = "VALUES (%s, %s, %s";
-            $bind = [
-                sanitize_text_field($uuid),
-                sanitize_text_field($consent),
-                $datetime,
-            ];
-    
+            $data = array(
+                'uuid'      => sanitize_text_field($uuid),
+                'consent'   => sanitize_text_field($consent),
+                'datetime'  => $datetime
+            );
+            
             // Conditionally add wallet_uuid
             if (!empty($wallet_uuid)) {
-                $query .= ", wallet_uuid";
-                $values .= ", %s";
-                $bind[] = sanitize_text_field($wallet_uuid);
+                $data['wallet_uuid'] = sanitize_text_field($wallet_uuid);
             }
-    
+            
             // Conditionally add web3id
             if (!empty($web3id)) {
-                $query .= ", web3id";
-                $values .= ", %s";
-                $bind[] = sanitize_text_field($web3id);
+                $data['web3id'] = sanitize_text_field($web3id);
             }
-    
+            
             // Conditionally add expiration
             if (!empty($expiration)) {
-                $query .= ", expiration";
-                $values .= ", %s";
-                $bind[] = $expiration;
+                $data['expiration'] = $expiration;
             }
-    
-            // Complete the query
-            $query .= ") " . $values . ")";
-
-            // used placeholders in variable $query and $bind
-            // Execute the query
-            $result = $wpdb->query($wpdb->prepare($query, $bind));
+            
+            // Prepare the data types based on the keys
+            $data_types = array_fill(0, count($data), '%s'); // Adjust the types as needed
+            
+            // Execute the insert
+            $wpdb->insert(
+                $wpdb->prefix . 'analytics_consent',
+                $data,
+                $data_types
+            );
     
             if ($wpdb->last_error) {
                 error_log('Query error: ' . $wpdb->last_error);
@@ -697,48 +707,43 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         function aesirx_analytics_add_visitor_consent($visitor_uuid, $consent_uuid = null, $consent = null, $datetime = null, $expiration = null) {
             global $wpdb;
     
-            $bind = [];
-            $columns = ['uuid', 'visitor_uuid'];
-            $values = ['%s', '%s'];
-    
-            $bind[] = wp_generate_uuid4();
-            $bind[] = $visitor_uuid;
-    
+            $data = array(
+                'uuid'         => wp_generate_uuid4(),
+                'visitor_uuid' => $visitor_uuid,
+            );
+            
+            // Conditionally add consent_uuid
             if (!empty($consent_uuid)) {
-                $columns[] = 'consent_uuid';
-                $values[] = '%s';
-                $bind[] = $consent_uuid;
+                $data['consent_uuid'] = $consent_uuid;
             }
-    
+            
+            // Conditionally add consent
             if (!empty($consent)) {
-                $columns[] = 'consent';
-                $values[] = '%d';
-                $bind[] = $consent;
+                $data['consent'] = intval($consent);
             }
-    
+            
+            // Conditionally add datetime
             if (!empty($datetime)) {
-                $columns[] = 'datetime';
-                $values[] = '%s';
-                $bind[] = $datetime;
+                $data['datetime'] = $datetime;
             }
-    
+            
+            // Conditionally add expiration
             if (!empty($expiration)) {
-                $columns[] = 'expiration';
-                $values[] = '%s';
-                $bind[] = $expiration;
+                $data['expiration'] = $expiration;
             }
-    
-            // used placeholders in variable $query and $bind
-            // $bind replace for %s in $values
-            $result = $wpdb->query(
-                $wpdb->prepare(
-                    sprintf(
-                        "INSERT INTO {$wpdb->prefix}analytics_visitor_consent (%s) VALUES (%s)",
-                        implode(', ', $columns),
-                        implode(', ', $values)
-                    ),
-                    $bind
-                )
+            
+            // Prepare the data types based on the keys
+            $data_types = array_fill(0, count($data), '%s'); // Default to '%s' for all
+            
+            if (isset($data['consent'])) {
+                $data_types[array_search('consent', array_keys($data))] = '%d'; // Change to '%d' if consent is an integer
+            }
+            
+            // Execute the insert
+            $wpdb->insert(
+                $wpdb->prefix . 'analytics_visitor_consent',
+                $data,
+                $data_types
             );
     
             if ($wpdb->last_error) {
@@ -857,17 +862,27 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
     
         function aesirx_analytics_expired_consent($consent_uuid, $expiration) {
             global $wpdb;
-            
-            // Format the expiration date if it is set
-            $expiration_formatted = $expiration ? $expiration : null;
     
             try {
-                $result = $wpdb->query(
-                    $wpdb->prepare(
-                        "UPDATE {$wpdb->prefix}analytics_consent SET expiration = %s WHERE uuid = %s", $expiration_formatted, sanitize_text_field($consent_uuid)
-                    )
+                // Format the expiration date if it is set
+                $data = array(
+                    'expiration' => $expiration ? $expiration : null,
                 );
-                if ($result === false) {
+                
+                $where = array(
+                    'uuid' => sanitize_text_field($consent_uuid),
+                );
+                
+                // Execute the update
+                $wpdb->update(
+                    $wpdb->prefix . 'analytics_consent',
+                    $data,
+                    $where,
+                    array('%s'),  // Data type for 'expiration'
+                    array('%s')   // Data type for 'uuid'
+                );
+
+                if ($wpdb->last_error) {
                     error_log('Query error: ' . $wpdb->last_error);
                     return new WP_Error($wpdb->last_error);
                 }
@@ -1052,42 +1067,53 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         function aesirx_analytics_update_null_geo_per_ip($ip, $geo) {
             global $wpdb;
 
-            $wpdb->query(
-                $wpdb->prepare(
-                    "
-                    UPDATE {$wpdb->prefix}analytics_visitors
-                    SET isp = %s, country_code = %s, country_name = %s, city = %s, region = %s, geo_created_at = %s
-                    WHERE geo_created_at IS NULL AND ip = %s
-                    ",
-                    sanitize_text_field($geo['isp']),
-                    sanitize_text_field($geo['country']['code']),
-                    sanitize_text_field($geo['country']['name']),
-                    sanitize_text_field($geo['city']),
-                    sanitize_text_field($geo['region']),
-                    gmdate('Y-m-d H:i:s', strtotime($geo['created_at'])),
-                    sanitize_text_field($ip)
-                )
+            $data = array(
+                'isp'           => sanitize_text_field($geo['isp']),
+                'country_code'  => sanitize_text_field($geo['country']['code']),
+                'country_name'  => sanitize_text_field($geo['country']['name']),
+                'city'          => sanitize_text_field($geo['city']),
+                'region'        => sanitize_text_field($geo['region']),
+                'geo_created_at'=> gmdate('Y-m-d H:i:s', strtotime($geo['created_at'])),
+            );
+            
+            $where = array(
+                'geo_created_at' => null,
+                'ip'             => sanitize_text_field($ip),
+            );
+            
+            // Execute the update
+            $result = $wpdb->update(
+                $wpdb->prefix . 'analytics_visitors',
+                $data,
+                $where,
+                array('%s', '%s', '%s', '%s', '%s', '%s'), // Data types for values in $data
+                array('%s', '%s') // Data types for values in $where
             );
         }
 
         function aesirx_analytics_update_geo_per_uuid($uuid, $geo) {
             global $wpdb;
 
-            $wpdb->query(
-                $wpdb->prepare(
-                    "
-                    UPDATE {$wpdb->prefix}analytics_visitors
-                    SET isp = %s, country_code = %s, country_name = %s, city = %s, region = %s, geo_created_at = %s
-                    WHERE uuid = %s
-                    ",
-                    sanitize_text_field($geo['isp']),
-                    sanitize_text_field($geo['country']['code']),
-                    sanitize_text_field($geo['country']['name']),
-                    sanitize_text_field($geo['city']),
-                    sanitize_text_field($geo['region']),
-                    gmdate('Y-m-d H:i:s', strtotime($geo['created_at'])),
-                    sanitize_text_field($uuid)
-                )
+            $data = array(
+                'isp'           => sanitize_text_field($geo['isp']),
+                'country_code'  => sanitize_text_field($geo['country']['code']),
+                'country_name'  => sanitize_text_field($geo['country']['name']),
+                'city'          => sanitize_text_field($geo['city']),
+                'region'        => sanitize_text_field($geo['region']),
+                'geo_created_at'=> gmdate('Y-m-d H:i:s', strtotime($geo['created_at'])),
+            );
+            
+            $where = array(
+                'uuid' => sanitize_text_field($uuid),
+            );
+            
+            // Execute the update
+            $result = $wpdb->update(
+                $wpdb->prefix . 'analytics_visitors',
+                $data,
+                $where,
+                array('%s', '%s', '%s', '%s', '%s', '%s'), // Data types for values in $data
+                array('%s') // Data type for the 'uuid' in $where
             );
         }
 

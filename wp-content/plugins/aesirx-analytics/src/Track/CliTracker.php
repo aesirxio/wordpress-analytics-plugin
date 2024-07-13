@@ -29,7 +29,8 @@ class CliTracker extends AbstractTracker {
                 $this->cli->processAnalytics($message->asCliCommand());
             } catch (Exception $e) {
                 // Handle any other general exceptions that might occur
-                throw esc_html($e->getMessage());
+                $error = $e->getMessage();
+                throw esc_html($error);
             }
         }
     }

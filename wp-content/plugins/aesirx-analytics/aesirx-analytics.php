@@ -231,6 +231,7 @@ function aesirx_analytics_initialize_function() {
             MigratorMysql::aesirx_analytics_add_migration_query($file_name);
             foreach ($sql as $each_query) {
                 // used placeholders and $wpdb->prepare() in variable $each_query
+                // need $wpdb->query() for ALTER TABLE
                 $wpdb->query($each_query);
             }
         }       
@@ -265,31 +266,4 @@ add_action('admin_init', function () {
             exit();
         }
     }
-
-    add_action('load-options.php', function () {
-        if (!array_key_exists('submit', $_REQUEST)
-            || $_REQUEST['submit'] !== 'download_analytics_cli'
-            || !array_key_exists('option_page', $_REQUEST)
-            || $_REQUEST['option_page'] !== 'aesirx_analytics_plugin_options') {
-            return;
-        }
-
-        try {
-            add_settings_error(
-                'aesirx_analytics_plugin_options',
-                'download',
-                esc_html__('Library successfully downloaded.', 'aesirx-analytics'),
-                'info'
-            );
-        }
-        catch (Throwable $e)
-        {
-            add_settings_error(
-                'aesirx_analytics_plugin_options',
-                'download',
-                /* translators: %s: error message */
-                sprintf(esc_html__('Error: %s', 'aesirx-analytics'), $e->getMessage())
-            );
-        }
-    });
 });

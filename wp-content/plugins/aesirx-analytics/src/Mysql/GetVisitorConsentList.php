@@ -8,12 +8,14 @@ Class AesirX_Analytics_Get_Visitor_Consent_List extends AesirxAnalyticsMysqlHelp
     {
         global $wpdb;
 
+        $uuid = sanitize_text_field($params['uuid']);
+
         $visitor = $wpdb->get_row(
-            $wpdb->prepare("SELECT * FROM {$wpdb->prefix}analytics_visitors WHERE uuid = %s", sanitize_text_field($params['uuid']))
+            $wpdb->prepare("SELECT * FROM {$wpdb->prefix}analytics_visitors WHERE uuid = %s", $uuid)
         );
 
         $flows = $wpdb->get_results(
-            $wpdb->prepare("SELECT * FROM {$wpdb->prefix}analytics_flows WHERE visitor_uuid = %s ORDER BY id", sanitize_text_field($params['uuid']))
+            $wpdb->prepare("SELECT * FROM {$wpdb->prefix}analytics_flows WHERE visitor_uuid = %s ORDER BY id", $uuid)
         );
 
         $exp = '';
