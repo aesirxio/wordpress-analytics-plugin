@@ -31,6 +31,7 @@ use AesirxAnalytics\Migrator\MigratorMysql;
 
 require_once plugin_dir_path(__FILE__) . 'vendor/autoload.php';
 require_once 'includes/settings.php';
+session_start();
 
 function aesirx_analytics_config_is_ok(string $isStorage = null): bool {
     $options = get_option('aesirx_analytics_plugin_options');
@@ -217,9 +218,6 @@ function aesirx_analytics_initialize_function() {
     //Add migration table
     MigratorMysql::aesirx_analytics_create_migrator_table_query();
     $migration_list = array_column(MigratorMysql::aesirx_analytics_fetch_rows(), 'name');
-
-    // Include upgrade.php to use dbDelta()
-    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
     $files = glob(plugin_dir_path( __FILE__ ) . 'src/Migration/*.php');
     

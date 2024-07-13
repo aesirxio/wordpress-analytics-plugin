@@ -963,6 +963,64 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                 return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), ['status' => 500]);
             }
         }
+
+        function aesirx_analytics_find_event_by_uuid($event_uuid, $visitor_uuid = null) {
+            global $wpdb;
+
+            // Prefix for the tables
+            $prefix = $wpdb->prefix;
+        
+            // Initial SQL query
+            $sql = "SELECT * FROM {$prefix}analytics_events WHERE uuid = %s";
+            $bind_values = [$event_uuid];
+        
+            // Add condition for visitor_uuid if provided
+            if ($visitor_uuid !== null) {
+                $sql .= " AND visitor_uuid = %s";
+                $bind_values[] = $visitor_uuid;
+            }
+        
+            // Prepare and execute the query
+            $sql = $wpdb->prepare($sql, ...$bind_values);
+            $event = $wpdb->get_row($sql);
+        
+            if ($event === null) {
+                return null;
+            }
+        
+            // Query for event attributes
+            $sql_attributes = $wpdb->prepare(
+                "SELECT * FROM {$prefix}analytics_event_attributes WHERE event_uuid = %s",
+                $event_uuid
+            );
+            $attributes = $wpdb->get_results($sql_attributes);
+        
+            // Construct the VisitorEventRaw object
+            $visitor_event_raw = (object) [
+                'uuid' => $event->uuid,
+                'visitor_uuid' => $event->visitor_uuid,
+                'flow_uuid' => $event->flow_uuid,
+                'url' => $event->url,
+                'referer' => $event->referer,
+                'start' => $event->start,
+                'end' => $event->end,
+                'event_name' => $event->event_name,
+                'event_type' => $event->event_type,
+                'attributes' => []
+            ];
+        
+            // Convert attributes
+            if (!empty($attributes)) {
+                foreach ($attributes as $attr) {
+                    $visitor_event_raw->attributes[] = (object) [
+                        'name' => $attr->name,
+                        'value' => $attr->value
+                    ];
+                }
+            }
+        
+            return $visitor_event_raw;
+        }
     
         function aesirx_analytics_list_consent_common($consents, $visitors, $flows) {
             $list = new \stdClass();
