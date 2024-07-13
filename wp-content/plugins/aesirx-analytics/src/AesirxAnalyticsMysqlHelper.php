@@ -302,7 +302,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                 $visitor = $wpdb->get_row(
                     $wpdb->prepare(
                         "SELECT * 
-                        FROM $wpdb->prefix . 'analytics_visitors' 
+                        FROM {$wpdb->prefix}analytics_visitors
                         WHERE fingerprint = %s AND domain = %s", 
                         sanitize_text_field($fingerprint), sanitize_text_field($domain))
                 );
@@ -338,7 +338,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
     
                     // Query to fetch the visitor flows
                     $flows = $wpdb->get_results(
-                        $wpdb->prepare("SELECT * FROM $wpdb->prefix . 'analytics_flows' WHERE visitor_uuid = %s ORDER BY id", sanitize_text_field($visitor->uuid))
+                        $wpdb->prepare("SELECT * FROM {$wpdb->prefix}analytics_flows WHERE visitor_uuid = %s ORDER BY id", sanitize_text_field($visitor->uuid))
                     );
     
                     if ($flows) {
@@ -460,7 +460,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
 
                         $wpdb->query(
                             $wpdb->prepare(
-                                "INSERT INTO $wpdb->prefix . 'analytics_event_attributes' (event_uuid, name, value) VALUES (%s, %s, %s)",
+                                "INSERT INTO {$wpdb->prefix}analytics_event_attributes (event_uuid, name, value) VALUES (%s, %s, %s)",
                                 $values
                             )
                         );
@@ -507,7 +507,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
     
             $wpdb->query(
                 $wpdb->prepare(
-                    "UPDATE $wpdb->prefix . 'visitor'
+                    "UPDATE {$wpdb->prefix}visitor
                     SET visitor_flows = JSON_SET(visitor_flows, CONCAT('$[', JSON_UNQUOTE(JSON_SEARCH(visitor_flows, 'one', %s)), '].multiple_events'), true)
                     WHERE JSON_CONTAINS(visitor_flows, JSON_OBJECT('uuid', %s))",
                     sanitize_text_field($uuid_str), sanitize_text_field($uuid_str)
@@ -598,7 +598,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
 
             $wallet = $wpdb->get_row(
                 $wpdb->prepare(
-                    "SELECT * FROM $wpdb->prefix . 'analytics_wallet' WHERE network = %s AND address = %s",
+                    "SELECT * FROM {$wpdb->prefix}analytics_wallet WHERE network = %s AND address = %s",
                     sanitize_text_field($network), sanitize_text_field($address)
                 )
             );
@@ -638,7 +638,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
 
             $wpdb->query(
                 $wpdb->prepare(
-                    "UPDATE $wpdb->prefix . 'analytics_wallet' SET nonce = %s WHERE network = %s AND address = %s", 
+                    "UPDATE {$wpdb->prefix}analytics_wallet SET nonce = %s WHERE network = %s AND address = %s", 
                     sanitize_text_field($nonce), sanitize_text_field($network), sanitize_text_field($address))
             );
     
@@ -652,7 +652,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             global $wpdb;
     
             // Prepare the base query and values
-            $query = "INSERT INTO $wpdb->prefix . 'analytics_consent' (uuid, consent, datetime";
+            $query = "INSERT INTO {$wpdb->prefix}analytics_consent (uuid, consent, datetime";
             $values = "VALUES (%s, %s, %s";
             $bind = [
                 sanitize_text_field($uuid),
@@ -733,7 +733,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             $result = $wpdb->query(
                 $wpdb->prepare(
                     sprintf(
-                        "INSERT INTO $wpdb->prefix . 'analytics_visitor_consent' (%s) VALUES (%s)",
+                        "INSERT INTO {$wpdb->prefix}analytics_visitor_consent (%s) VALUES (%s)",
                         implode(', ', $columns),
                         implode(', ', $values)
                     ),
@@ -1029,8 +1029,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             $allowed = [];
             $bind = [];
 
-            $sql       = "SELECT distinct ip FROM " . $wpdb->prefix . "analytics_visitors WHERE geo_created_at IS NULL";
-            $total_sql = "SELECT count(distinct ip) as total FROM " . $wpdb->prefix . "analytics_visitors WHERE geo_created_at IS NULL";
+            $sql       = $wpdb->prepare("SELECT distinct ip FROM {$wpdb->prefix}analytics_visitors WHERE geo_created_at IS NULL");
+            $total_sql = $wpdb->prepare("SELECT count(distinct ip) as total FROM {$wpdb->prefix}analytics_visitors WHERE geo_created_at IS NULL");
             
             $list_response = self::aesirx_analytics_get_list($sql, $total_sql, $params, $allowed, $bind);
             
@@ -1055,7 +1055,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             $wpdb->query(
                 $wpdb->prepare(
                     "
-                    UPDATE $wpdb->prefix . 'analytics_visitors'
+                    UPDATE {$wpdb->prefix}analytics_visitors
                     SET isp = %s, country_code = %s, country_name = %s, city = %s, region = %s, geo_created_at = %s
                     WHERE geo_created_at IS NULL AND ip = %s
                     ",
@@ -1076,7 +1076,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             $wpdb->query(
                 $wpdb->prepare(
                     "
-                    UPDATE $wpdb->prefix . 'analytics_visitors'
+                    UPDATE {$wpdb->prefix}analytics_visitors
                     SET isp = %s, country_code = %s, country_name = %s, city = %s, region = %s, geo_created_at = %s
                     WHERE uuid = %s
                     ",

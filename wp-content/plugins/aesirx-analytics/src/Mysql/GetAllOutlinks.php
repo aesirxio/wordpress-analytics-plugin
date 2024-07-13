@@ -87,12 +87,12 @@ Class AesirX_Analytics_Get_All_Outlinks extends AesirxAnalyticsMysqlHelper
                 $second = $wpdb->get_results(
                     $wpdb->prepare(
                         "SELECT 
-                        $wpdb->prefix . 'analytics_events.referer' AS url, 
-                        COUNT( $wpdb->prefix . 'analytics_events.visitor_uuid') as total_number_of_visitors, 
-                        COUNT( DISTINCT $wpdb->prefix . 'analytics_events.visitor_uuid') as number_of_visitors 
-                        from $wpdb->prefix . 'analytics_events'
-                        left join $wpdb->prefix . 'analytics_visitors' on $wpdb->prefix . 'analytics_visitors.uuid' = $wpdb->prefix . 'analytics_events.visitor_uuid' 
-                        WHERE $wpdb->prefix . 'analytics_events.referer' LIKE %s
+                        {$wpdb->prefix}analytics_events.referer AS url, 
+                        COUNT( {$wpdb->prefix}analytics_events.visitor_uuid) as total_number_of_visitors, 
+                        COUNT( DISTINCT {$wpdb->prefix}analytics_events.visitor_uuid) as number_of_visitors 
+                        from {$wpdb->prefix}analytics_events
+                        left join {$wpdb->prefix}analytics_visitors on {$wpdb->prefix}analytics_visitors.uuid = {$wpdb->prefix}analytics_events.visitor_uuid 
+                        WHERE {$wpdb->prefix}analytics_events.referer LIKE %s
                         GROUP BY url ",
                         '%' . $wpdb->esc_like($vals['referer']) . '%'
                     ),

@@ -120,9 +120,9 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
                 $wpdb->prepare(
                     "SELECT consent.*, wallet.address 
                     FROM $wpdb->prefix . 'analytics_consent' AS consent
-                    LEFT JOIN $wpdb->prefix . 'analytics_wallet' AS wallet ON wallet.uuid = consent.wallet_uuid
-                    LEFT JOIN $wpdb->prefix . 'analytics_visitor_consent' AS visitor_consent ON consent.uuid = visitor_consent.consent_uuid
-                    LEFT JOIN $wpdb->prefix . 'analytics_visitors' AS visitor ON visitor_consent.visitor_uuid = visitor.uuid
+                    LEFT JOIN {$wpdb->prefix}analytics_wallet AS wallet ON wallet.uuid = consent.wallet_uuid
+                    LEFT JOIN {$wpdb->prefix}analytics_visitor_consent AS visitor_consent ON consent.uuid = visitor_consent.consent_uuid
+                    LEFT JOIN {$wpdb->prefix}analytics_visitors AS visitor ON visitor_consent.visitor_uuid = visitor.uuid
                     WHERE wallet.address = %s $expired_condition $web3id_condition $domain_condition
                     GROUP BY consent.uuid",
                     $wallet, $web3id, $domain
@@ -133,9 +133,9 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
                 $wpdb->prepare(
                     "SELECT visitor.*, visitor_consent.consent_uuid
                     FROM $wpdb->prefix . 'analytics_visitors' AS visitor
-                    LEFT JOIN $wpdb->prefix . 'analytics_visitor_consent' AS visitor_consent ON visitor_consent.visitor_uuid = visitor.uuid
-                    LEFT JOIN $wpdb->prefix . 'analytics_consent' AS consent ON consent.uuid = visitor_consent.consent_uuid
-                    LEFT JOIN $wpdb->prefix . 'analytics_wallet' AS wallet ON wallet.uuid = consent.wallet_uuid
+                    LEFT JOIN {$wpdb->prefix}analytics_visitor_consent AS visitor_consent ON visitor_consent.visitor_uuid = visitor.uuid
+                    LEFT JOIN {$wpdb->prefix}analytics_consent AS consent ON consent.uuid = visitor_consent.consent_uuid
+                    LEFT JOIN {$wpdb->prefix}analytics_wallet AS wallet ON wallet.uuid = consent.wallet_uuid
                     WHERE wallet.address = %s $expired_condition $web3id_condition $domain_condition",
                     $wallet, $web3id, $domain
                 )
@@ -145,10 +145,10 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
                 $wpdb->prepare(
                     "SELECT flows.*
                     FROM $wpdb->prefix . 'analytics_flows' AS flows
-                    LEFT JOIN $wpdb->prefix . 'analytics_visitors' AS visitor ON visitor.uuid = flows.visitor_uuid
-                    LEFT JOIN $wpdb->prefix . 'analytics_visitor_consent' AS visitor_consent ON visitor_consent.visitor_uuid = visitor.uuid
-                    LEFT JOIN $wpdb->prefix . 'analytics_consent' AS consent ON consent.uuid = visitor_consent.consent_uuid
-                    LEFT JOIN $wpdb->prefix . 'analytics_wallet' AS wallet ON wallet.uuid = consent.wallet_uuid
+                    LEFT JOIN {$wpdb->prefix}analytics_visitors AS visitor ON visitor.uuid = flows.visitor_uuid
+                    LEFT JOIN {$wpdb->prefix}analytics_visitor_consent AS visitor_consent ON visitor_consent.visitor_uuid = visitor.uuid
+                    LEFT JOIN {$wpdb->prefix}analytics_consent AS consent ON consent.uuid = visitor_consent.consent_uuid
+                    LEFT JOIN {$wpdb->prefix}analytics_wallet AS wallet ON wallet.uuid = consent.wallet_uuid
                     WHERE wallet.address = %s $expired_condition $web3id_condition $domain_condition
                     ORDER BY flows.id",
                     $wallet, $web3id, $domain
