@@ -31,7 +31,6 @@ use AesirxAnalytics\Migrator\MigratorMysql;
 
 require_once plugin_dir_path(__FILE__) . 'vendor/autoload.php';
 require_once 'includes/settings.php';
-session_start();
 
 function aesirx_analytics_config_is_ok(string $isStorage = null): bool {
     $options = get_option('aesirx_analytics_plugin_options');
