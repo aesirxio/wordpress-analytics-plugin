@@ -22,8 +22,8 @@ Class AesirX_Analytics_Get_Visitor_Consent_List extends AesirxAnalyticsMysqlHelp
 
         // handle expiration
         if (is_null($params['expired']) || !$params['expired']) {
-            $exp = " AND (`vc`.`expiration` >= %s OR `vc`.`expiration` IS NULL)
-                    AND IF (c.uuid IS NULL, true, c.expiration IS NULL)";
+            $exp = $wpdb->prepare(" AND (`vc`.`expiration` >= %s OR `vc`.`expiration` IS NULL)
+                    AND IF (c.uuid IS NULL, true, c.expiration IS NULL)", gmdate('Y-m-d H:i:s'));
         }
 
         $consents = $wpdb->get_results(
@@ -33,8 +33,8 @@ Class AesirX_Analytics_Get_Visitor_Consent_List extends AesirxAnalyticsMysqlHelp
                 FROM {$wpdb->prefix}analytics_visitor_consent AS vc
                 LEFT JOIN {$wpdb->prefix}analytics_consent AS c ON vc.consent_uuid = c.uuid
                 LEFT JOIN {$wpdb->prefix}analytics_wallet AS w ON c.wallet_uuid = w.uuid
-                WHERE vc.visitor_uuid = %s {$exp} ORDER BY vc.datetime",
-                sanitize_text_field($params['uuid']), gmdate('Y-m-d H:i:s')
+                WHERE vc.visitor_uuid = %s %s ORDER BY vc.datetime",
+                sanitize_text_field($params['uuid']), $exp
             )
         );
 
