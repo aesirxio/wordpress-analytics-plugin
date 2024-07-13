@@ -23,14 +23,12 @@ class MigratorMysql {
 
     public static function aesirx_analytics_fetch_rows() {
         global $wpdb;
+    
+        $results = $wpdb->get_results(
+            "SELECT name FROM $wpdb->prefix . 'analytics_migrations'",
+            ARRAY_A
+        );
 
-        $table_name = $wpdb->prefix . 'analytics_migrations';
-    
-        $results = $wpdb->get_results("
-            SELECT name
-            FROM $table_name
-        ", ARRAY_A);
-    
         // Validate and sanitize results
         $validated_results = array();
         if (!empty($results)) {
@@ -54,17 +52,13 @@ class MigratorMysql {
         // Sanitize the input parameter
         $name = sanitize_text_field($name);
     
-        // Sanitize the table name
-        $table_name = sanitize_text_field($wpdb->prefix . 'analytics_migrations');
-    
-        // Prepare the SQL query using sanitized parameters
-        $query = $wpdb->prepare(
-            "INSERT INTO $table_name (app, name) VALUES (%s, %s)",
-            'main', // Static value
-            $name   // Sanitized user input
-        );
-    
         // Execute the query
-        $wpdb->query($query);
+        $wpdb->query(
+            $wpdb->prepare(
+                "INSERT INTO $wpdb->prefix . 'analytics_migrations' (app, name) VALUES (%s, %s)",
+                'main', // Static value
+                $name   // Sanitized user input
+            )
+        );
     }
 }

@@ -27,12 +27,9 @@ class CliTracker extends AbstractTracker {
             try {
                 // Convert the message to a CLI command and process it using the CLI handler
                 $this->cli->processAnalytics($message->asCliCommand());
-            } catch (ExceptionWithErrorType $e) {
-                // Handle specific exceptions that might occur during CLI command processing
-                throw $e;
             } catch (Exception $e) {
                 // Handle any other general exceptions that might occur
-                throw new ExceptionWithErrorType('Error processing CLI command', 0, $e);
+                throw esc_html($e->getMessage());
             }
         }
     }

@@ -53,20 +53,22 @@ Class AesirX_Analytics_Get_Attribute_Value_Date extends AesirxAnalyticsMysqlHelp
                 return $e['name'];
             }, $list);
 
-            $where_clause = [
-                "#__analytics_event_attributes.name IN ('" . implode("', '", $names) . "')",
-            ];
-
-            $sql =
-                "SELECT DATE_FORMAT(#__analytics_events.start, '%%Y-%%m-%%d') as date, #__analytics_event_attributes.name, #__analytics_event_attributes.value, COUNT(#__analytics_event_attributes.id) as count
-                from `#__analytics_event_attributes`
-                left join `#__analytics_events` on #__analytics_event_attributes.event_uuid = #__analytics_events.uuid
-                left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
-                GROUP BY #__analytics_event_attributes.name, #__analytics_event_attributes.value";
-
-            $sql = str_replace("#__", $wpdb->prefix, $sql);
-
-            $secondArray = $wpdb->get_results($sql);
+            $secondArray = $wpdb->get_results(
+                $wpdb->prepare(
+                    "SELECT 
+                    DATE_FORMAT( $wpdb->prefix . 'analytics_events.start', '%%Y-%%m-%%d') as date,
+                    $wpdb->prefix . 'analytics_event_attributes.name', 
+                    $wpdb->prefix . 'analytics_event_attributes.value',
+                    COUNT( $wpdb->prefix . 'analytics_event_attributes.id') as count
+                    from `$wpdb->prefix . 'analytics_event_attributes'`
+                    left join `$wpdb->prefix . 'analytics_events'` 
+                        on $wpdb->prefix . 'analytics_event_attributes.event_uuid' = $wpdb->prefix . 'analytics_events.uuid'
+                    left join `$wpdb->prefix . 'analytics_visitors'` on $wpdb->prefix . 'analytics_visitors.uuid' = $wpdb->prefix . 'analytics_events.visitor_uuid'
+                    WHERE $wpdb->prefix . 'analytics_event_attributes.name' IN (%s)" .
+                    " GROUP BY $wpdb->prefix . 'analytics_event_attributes.name',  $wpdb->prefix . 'analytics_event_attributes.value'",
+                    "'" . implode("', '", $names) . "'"
+                )
+            );
 
             foreach ($secondArray as $second) {
                 $key_string = $second->date . '-' . $second->name;

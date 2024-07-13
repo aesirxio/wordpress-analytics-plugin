@@ -44,7 +44,7 @@ Class AesirX_Analytics_Revoke_Consent_Level3or4 extends AesirxAnalyticsMysqlHelp
         }
 
         // Expire the consent
-        $expiration = date('Y-m-d H:i:s');
+        $expiration = gmdate('Y-m-d H:i:s');
         $consent_uuid = sanitize_text_field($params['consent_uuid']);
 
         $result = parent::aesirx_analytics_expired_consent($consent_uuid, $expiration);

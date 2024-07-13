@@ -12,6 +12,6 @@ Class AesirX_Analytics_Revoke_Consent_Level2 extends AesirxAnalyticsMysqlHelper
             $validated_params[$key] = sanitize_text_field($value);
         }
 
-        return parent::aesirx_analytics_expired_consent($validated_params['consent_uuid'], date('Y-m-d H:i:s'));
+        return parent::aesirx_analytics_expired_consent($validated_params['consent_uuid'], gmdate('Y-m-d H:i:s'));
     }
 }

@@ -100,30 +100,35 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
                         return $e->uuid;
                     }, $list);
 
-                    $sql =
+                    $event_sql =
                         "SELECT * FROM #__analytics_events WHERE " .
                         sprintf("flow_uuid IN ('" . implode("', '", $bind) . "')");
 
                     if (!empty($where_clause_event)) {
-                        $sql .= "AND " . implode(" AND ", $where_clause_event);
+                        $event_sql .= "AND " . implode(" AND ", $where_clause_event);
                     }
 
-                    $sql = str_replace("#__", $wpdb->prefix, $sql);
+                    $event_sql = str_replace("#__", $wpdb->prefix, $event_sql);
 
-                    $events = $wpdb->get_results($sql);
+                    // Used placeholders and $wpdb->prepare() in $event_sql
+                    // $event_sql is dynamic, depends on another condition
+                    $events = $wpdb->get_results($event_sql);
 
-                    $sql =
+                    $attribute_sql =
                         "SELECT * FROM #__analytics_event_attributes LEFT JOIN #__analytics_events
                         ON #__analytics_events.uuid = #__analytics_event_attributes.event_uuid WHERE " .
                         sprintf("#__analytics_events.flow_uuid IN ('" . implode("', '", $bind) . "')");
 
                     if (!empty($where_clause_event)) {
-                        $sql .= "AND " . implode(" AND ", $where_clause_event);
+                        $attribute_sql .= "AND " . implode(" AND ", $where_clause_event);
                     }
 
-                    $sql = str_replace("#__", $wpdb->prefix, $sql);
+                    $attribute_sql = str_replace("#__", $wpdb->prefix, $attribute_sql);
 
-                    $attributes = $wpdb->get_results($sql);
+                    // Used placeholders and $wpdb->prepare() in $attribute_sql
+                    // $attribute_sql is dynamic, depends on another condition
+                    $attributes = $wpdb->get_results($attribute_sql);
+                    
                     $hash_attributes = [];
 
                     foreach ($attributes as $second) {

@@ -19,13 +19,16 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             $sql = str_replace("#__", $wpdb->prefix, $sql);
             $total_sql = str_replace("#__", $wpdb->prefix, $total_sql);
     
+            // used placeholders in variable $sql and $bind
             $sql = $wpdb->prepare($sql, $bind);
+            // used placeholders in variable $total_sql and $bind
             $total_sql = $wpdb->prepare($total_sql, $bind);
     
             $total_elements = (int) $wpdb->get_var($total_sql);
             $total_pages = ceil($total_elements / $pageSize);
     
             try {
+                // used placeholders and $wpdb->prepare() in variable $sql
                 $collection = $wpdb->get_results($sql, ARRAY_A);
     
                 $list_response = [
@@ -195,7 +198,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                     switch ($key) {
                         case 'start':
                             try {
-                                $date = date("Y-m-d", strtotime($list[0]));
+                                $date = gmdate("Y-m-d", strtotime($list[0]));
                                 $where_clause[] = "#__analytics_events." . $key . " >= %s";
                                 $bind[] = $date;
                             } catch (Exception $e) {
@@ -205,7 +208,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                             break;
                         case 'end':
                             try {
-                                $date = date("Y-m-d", strtotime($list[0] . ' +1 day'));
+                                $date = gmdate("Y-m-d", strtotime($list[0] . ' +1 day'));
                                 $where_clause[] = "#__analytics_events." . $key . " < %s";
                                 $bind[] = $date;
                             } catch (Exception $e) {
@@ -276,7 +279,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         }
     
         function aesirx_analytics_validate_domain($url) {
-            $parsed_url = parse_url($url);
+            $parsed_url = wp_parse_url($url);
     
             if ($parsed_url === false || !isset($parsed_url['host'])) {
                 return new WP_Error('validation_error', esc_html__('Domain not found', 'aesirx-analytics'), ['status' => 400]);
@@ -287,52 +290,22 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             if (strpos($domain, 'www.') === 0) {
                 $domain = substr($domain, 4);
             }
-    
-            $transient_name = 'aesirx_analytics_domain_list';
-            $data = get_transient($transient_name);
-    
-            if ($data === false) {
-                $data = [
-                    'aesirx_analytics_domain_list' => [],
-                    'aesirx_analytics_limit_domain' => 10,
-                ];
-            }
-    
-            $passed = false;
-            $domain_list = $data['aesirx_analytics_domain_list'];
-            $limit_domain = $data['aesirx_analytics_limit_domain'];
-    
-            if (in_array($domain, $domain_list) || count($domain_list) < $limit_domain) {
-                if (!in_array($domain, $domain_list)) {
-                    $domain_list[] = $domain;
-                    $data['aesirx_analytics_domain_list'] = $domain_list;
-                    set_transient($transient_name, $data, 12 * HOUR_IN_SECONDS);
-                }
-                $passed = true;
-            }
-    
-            if ($passed) {
-                return $domain;
-            } else {
-                return new WP_Error('rejected', esc_html__('Your domain name has exceeded the allowed number', 'aesirx-analytics'), ['status' => 403]);
-            }
+
+            return $domain;
         }
     
         function aesirx_analytics_find_visitor_by_fingerprint_and_domain($fingerprint, $domain) {
             global $wpdb;
     
-            $visitors_table = $wpdb->prefix . 'analytics_visitors';
-            $flows_table = $wpdb->prefix . 'analytics_flows';
-    
             // Query to fetch the visitor
             try {
-                $sql = $wpdb->prepare(
-                    "SELECT * 
-                    FROM $visitors_table 
-                    WHERE fingerprint = %s AND domain = %s", 
-                    sanitize_text_field($fingerprint), sanitize_text_field($domain)
+                $visitor = $wpdb->get_row(
+                    $wpdb->prepare(
+                        "SELECT * 
+                        FROM $wpdb->prefix . 'analytics_visitors' 
+                        WHERE fingerprint = %s AND domain = %s", 
+                        sanitize_text_field($fingerprint), sanitize_text_field($domain))
                 );
-                $visitor = $wpdb->get_row($sql);
     
                 if ($visitor) {
                     $res = [
@@ -364,8 +337,9 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                     }
     
                     // Query to fetch the visitor flows
-                    $sql = $wpdb->prepare("SELECT * FROM $flows_table WHERE visitor_uuid = %s ORDER BY id", sanitize_text_field($visitor->uuid));
-                    $flows = $wpdb->get_results($sql);
+                    $flows = $wpdb->get_results(
+                        $wpdb->prepare("SELECT * FROM $wpdb->prefix . 'analytics_flows' WHERE visitor_uuid = %s ORDER BY id", sanitize_text_field($visitor->uuid))
+                    );
     
                     if ($flows) {
                         $ret_flows = [];
@@ -392,12 +366,11 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
     
         function aesirx_analytics_create_visitor($visitor) {
             global $wpdb;
-            $table_name = $wpdb->prefix . 'analytics_visitors';
     
             try {
                 if (empty($visitor['geo'])) {
                     $wpdb->insert(
-                        $table_name,
+                        $wpdb->prefix . 'analytics_visitors',
                         [
                             'fingerprint'      => sanitize_text_field($visitor['fingerprint']),
                             'uuid'             => sanitize_text_field($visitor['uuid']),
@@ -416,7 +389,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                 } else {
                     $geo = $visitor['geo'];
                     $wpdb->insert(
-                        $table_name,
+                        $wpdb->prefix . 'analytics_visitors',
                         [
                             'fingerprint'      => sanitize_text_field($visitor['fingerprint']),
                             'uuid'             => sanitize_text_field($visitor['uuid']),
@@ -454,13 +427,11 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
     
         function aesirx_analytics_create_visitor_event($visitor_event) {
             global $wpdb;
-            $table_name_events = $wpdb->prefix . 'analytics_events';
-            $table_name_event_attributes = $wpdb->prefix . 'analytics_event_attributes';
     
             try {
                 // Insert event
                 $wpdb->insert(
-                    $table_name_events,
+                    $wpdb->prefix . 'analytics_events',
                     [
                         'uuid'         => sanitize_text_field($visitor_event['uuid']),
                         'visitor_uuid' => sanitize_text_field($visitor_event['visitor_uuid']),
@@ -481,20 +452,19 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                 if (!empty($visitor_event['attributes'])) {
                     $values = [];
                     $placeholders = [];
-                    $types = [];
     
                     foreach ($visitor_event['attributes'] as $attribute) {
                         $values[] = $new_doc->uuid;
                         $values[] = $attribute->name;
                         $values[] = $attribute->value;
-    
-                        $placeholders[] = "(%s, %s, %s)";
-                        $types = array_merge($types, ['%s', '%s', '%s']);
-                    }
-    
-                    $sql = "INSERT INTO $table_name_event_attributes (event_uuid, name, value) VALUES " . implode(", ", $placeholders);
-    
-                    $wpdb->query($wpdb->prepare($sql, $values));
+
+                        $wpdb->query(
+                            $wpdb->prepare(
+                                "INSERT INTO $wpdb->prefix . 'analytics_event_attributes' (event_uuid, name, value) VALUES (%s, %s, %s)",
+                                $values
+                            )
+                        );
+                    }     
                 }
     
                 return true;
@@ -506,11 +476,10 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
     
         function aesirx_analytics_create_visitor_flow($visitor_uuid, $visitor_flow) {
             global $wpdb;
-            $table_name = $wpdb->prefix . 'analytics_flows';
     
             try {
                 $wpdb->insert(
-                    $table_name,
+                    $wpdb->prefix . 'analytics_flows',
                     [
                         'visitor_uuid'    => sanitize_text_field($visitor_uuid),
                         'uuid'            => sanitize_text_field($visitor_flow['uuid']),
@@ -532,19 +501,18 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
     
         function aesirx_analytics_mark_visitor_flow_as_multiple($visitor_flow_uuid) {
             global $wpdb;
-            $table_name = $wpdb->prefix . 'visitor';
     
             // Ensure UUID is properly formatted for the database
             $uuid_str = (string) $uuid;
     
-            $sql = $wpdb->prepare(
-                "UPDATE $table_name
-                SET visitor_flows = JSON_SET(visitor_flows, CONCAT('$[', JSON_UNQUOTE(JSON_SEARCH(visitor_flows, 'one', %s)), '].multiple_events'), true)
-                WHERE JSON_CONTAINS(visitor_flows, JSON_OBJECT('uuid', %s))",
-                sanitize_text_field($uuid_str), sanitize_text_field($uuid_str)
+            $wpdb->query(
+                $wpdb->prepare(
+                    "UPDATE $wpdb->prefix . 'visitor'
+                    SET visitor_flows = JSON_SET(visitor_flows, CONCAT('$[', JSON_UNQUOTE(JSON_SEARCH(visitor_flows, 'one', %s)), '].multiple_events'), true)
+                    WHERE JSON_CONTAINS(visitor_flows, JSON_OBJECT('uuid', %s))",
+                    sanitize_text_field($uuid_str), sanitize_text_field($uuid_str)
+                )
             );
-    
-            $wpdb->query($sql);
     
             if ($wpdb->last_error) {
                 error_log('Query error: ' . $wpdb->last_error);
@@ -565,7 +533,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                     switch ($key) {
                         case 'start':
                             try {
-                                $date = date("Y-m-d", strtotime($list[0]));
+                                $date = gmdate("Y-m-d", strtotime($list[0]));
                                 $where_clause[] = "#__analytics_visitor_consent.datetime >= %s";
                                 $bind[] = $date;
                             } catch (Exception $e) {
@@ -575,7 +543,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                             break;
                         case 'end':
                             try {
-                                $date = date("Y-m-d", strtotime($list[0] . ' +1 day'));
+                                $date = gmdate("Y-m-d", strtotime($list[0] . ' +1 day'));
                                 $where_clause[] = "#__analytics_visitor_consent.datetime < %s";
                                 $bind[] = $date;
                             } catch (Exception $e) {
@@ -601,7 +569,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                 switch ($key) {
                     case 'start':
                         try {
-                            $date = date("Y-m-d", strtotime($list[0]));
+                            $date = gmdate("Y-m-d", strtotime($list[0]));
                             $where_clause[] = "#__analytics_flows." . $key . " >= %s";
                             $bind[] = $date;
                         } catch (Exception $e) {
@@ -611,7 +579,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                         break;
                     case 'end':
                         try {
-                            $date = date("Y-m-d", strtotime($list[0] . ' +1 day'));
+                            $date = gmdate("Y-m-d", strtotime($list[0] . ' +1 day'));
                             $where_clause[] = "#__analytics_flows." . $key . " < %s";
                             $bind[] = $date;
                         } catch (Exception $e) {
@@ -627,13 +595,13 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
     
         function aesirx_analytics_find_wallet($network, $address) {
             global $wpdb;
-            $table_name = $wpdb->prefix . 'analytics_wallet';
-    
-            $sql = $wpdb->prepare(
-                "SELECT * FROM $table_name WHERE network = %s AND address = %s",
-                sanitize_text_field($network), sanitize_text_field($address)
+
+            $wallet = $wpdb->get_row(
+                $wpdb->prepare(
+                    "SELECT * FROM $wpdb->prefix . 'analytics_wallet' WHERE network = %s AND address = %s",
+                    sanitize_text_field($network), sanitize_text_field($address)
+                )
             );
-            $wallet = $wpdb->get_row($sql);
     
             if ($wpdb->last_error) {
                 error_log('Query error: ' . $wpdb->last_error);
@@ -645,10 +613,9 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
     
         function aesirx_analytics_add_wallet($uuid, $network, $address, $nonce) {
             global $wpdb;
-            $table_name = $wpdb->prefix . 'analytics_wallet';
     
             $wpdb->insert(
-                $table_name,
+                $wpdb->prefix . 'analytics_wallet',
                 [
                     'uuid'     => sanitize_text_field($uuid),
                     'network'  => sanitize_text_field($network),
@@ -668,12 +635,12 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
     
         function aesirx_analytics_update_nonce($network, $address, $nonce) {
             global $wpdb;
-            $table_name = $wpdb->prefix . 'analytics_wallet';
-    
-            $sql = $wpdb->prepare(
-                "UPDATE $table_name SET nonce = %s WHERE network = %s AND address = %s", 
-                sanitize_text_field($nonce), sanitize_text_field($network), sanitize_text_field($address));
-            $wpdb->query($sql);
+
+            $wpdb->query(
+                $wpdb->prepare(
+                    "UPDATE $wpdb->prefix . 'analytics_wallet' SET nonce = %s WHERE network = %s AND address = %s", 
+                    sanitize_text_field($nonce), sanitize_text_field($network), sanitize_text_field($address))
+            );
     
             if ($wpdb->last_error) {
                 error_log('Query error: ' . $wpdb->last_error);
@@ -683,10 +650,9 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
     
         function aesirx_analytics_add_consent($uuid, $consent, $datetime, $web3id = null, $wallet_uuid = null, $expiration = null) {
             global $wpdb;
-            $table_name = $wpdb->prefix . 'analytics_consent';
     
             // Prepare the base query and values
-            $query = "INSERT INTO {$table_name} (uuid, consent, datetime";
+            $query = "INSERT INTO $wpdb->prefix . 'analytics_consent' (uuid, consent, datetime";
             $values = "VALUES (%s, %s, %s";
             $bind = [
                 sanitize_text_field($uuid),
@@ -717,10 +683,10 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
     
             // Complete the query
             $query .= ") " . $values . ")";
-            $prepared_query = $wpdb->prepare($query, $bind);
-    
+
+            // used placeholders in variable $query and $bind
             // Execute the query
-            $result = $wpdb->query($prepared_query);
+            $result = $wpdb->query($wpdb->prepare($query, $bind));
     
             if ($wpdb->last_error) {
                 error_log('Query error: ' . $wpdb->last_error);
@@ -730,8 +696,6 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
     
         function aesirx_analytics_add_visitor_consent($visitor_uuid, $consent_uuid = null, $consent = null, $datetime = null, $expiration = null) {
             global $wpdb;
-    
-            $table = $wpdb->prefix . 'analytics_visitor_consent';
     
             $bind = [];
             $columns = ['uuid', 'visitor_uuid'];
@@ -764,16 +728,18 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                 $bind[] = $expiration;
             }
     
-            $query = sprintf(
-                "INSERT INTO %s (%s) VALUES (%s)",
-                $table,
-                implode(', ', $columns),
-                implode(', ', $values)
+            // used placeholders in variable $query and $bind
+            // $bind replace for %s in $values
+            $result = $wpdb->query(
+                $wpdb->prepare(
+                    sprintf(
+                        "INSERT INTO $wpdb->prefix . 'analytics_visitor_consent' (%s) VALUES (%s)",
+                        implode(', ', $columns),
+                        implode(', ', $values)
+                    ),
+                    $bind
+                )
             );
-    
-            $prepared_query = $wpdb->prepare($query, $bind);
-    
-            $result = $wpdb->query($prepared_query);
     
             if ($wpdb->last_error) {
                 error_log('Query error: ' . $wpdb->last_error);
@@ -891,18 +857,16 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
     
         function aesirx_analytics_expired_consent($consent_uuid, $expiration) {
             global $wpdb;
-    
-            // Prepare the query
-            $query = "UPDATE {$wpdb->prefix}analytics_consent SET expiration = %s WHERE uuid = %s";
             
             // Format the expiration date if it is set
             $expiration_formatted = $expiration ? $expiration : null;
     
-            // Prepare and execute the query
-            $prepared_query = $wpdb->prepare($query, $expiration_formatted, sanitize_text_field($consent_uuid));
-    
             try {
-                $result = $wpdb->query($prepared_query);
+                $result = $wpdb->query(
+                    $wpdb->prepare(
+                        "UPDATE {$wpdb->prefix}analytics_consent SET expiration = %s WHERE uuid = %s", $expiration_formatted, sanitize_text_field($consent_uuid)
+                    )
+                );
                 if ($result === false) {
                     error_log('Query error: ' . $wpdb->last_error);
                     return new WP_Error($wpdb->last_error);
@@ -916,20 +880,21 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
     
         function aesirx_analytics_find_visitor_by_uuid($uuid) {
             global $wpdb;
-            // Prepare the SQL queries
-            $sql_visitor = $wpdb->prepare(
-                "SELECT * FROM {$wpdb->prefix}analytics_visitors WHERE uuid = %s",
-                sanitize_text_field($uuid)
-            );
-            $sql_flows = $wpdb->prepare(
-                "SELECT * FROM {$wpdb->prefix}analytics_flows WHERE visitor_uuid = %s ORDER BY id",
-                sanitize_text_field($uuid)
-            );
-    
+
             try {
                 // Execute the queries
-                $visitor_result = $wpdb->get_row($sql_visitor);
-                $flows_result = $wpdb->get_results($sql_flows);
+                $visitor_result = $wpdb->get_row(
+                    $wpdb->prepare(
+                        "SELECT * FROM {$wpdb->prefix}analytics_visitors WHERE uuid = %s",
+                        sanitize_text_field($uuid)
+                    )
+                );
+                $flows_result = $wpdb->get_results(
+                    $wpdb->prepare(
+                        "SELECT * FROM {$wpdb->prefix}analytics_flows WHERE visitor_uuid = %s ORDER BY id",
+                        sanitize_text_field($uuid)
+                    )
+                );
     
                 if ($visitor_result) {
                     // Create the visitor object
@@ -1087,12 +1052,10 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         function aesirx_analytics_update_null_geo_per_ip($ip, $geo) {
             global $wpdb;
 
-            $table_name = $wpdb->prefix . 'analytics_visitors';
-
             $wpdb->query(
                 $wpdb->prepare(
                     "
-                    UPDATE $table_name
+                    UPDATE $wpdb->prefix . 'analytics_visitors'
                     SET isp = %s, country_code = %s, country_name = %s, city = %s, region = %s, geo_created_at = %s
                     WHERE geo_created_at IS NULL AND ip = %s
                     ",
@@ -1101,7 +1064,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                     sanitize_text_field($geo['country']['name']),
                     sanitize_text_field($geo['city']),
                     sanitize_text_field($geo['region']),
-                    date('Y-m-d H:i:s', strtotime($geo['created_at'])),
+                    gmdate('Y-m-d H:i:s', strtotime($geo['created_at'])),
                     sanitize_text_field($ip)
                 )
             );
@@ -1110,12 +1073,10 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         function aesirx_analytics_update_geo_per_uuid($uuid, $geo) {
             global $wpdb;
 
-            $table_name = $wpdb->prefix . 'analytics_visitors';
-
             $wpdb->query(
                 $wpdb->prepare(
                     "
-                    UPDATE $table_name
+                    UPDATE $wpdb->prefix . 'analytics_visitors'
                     SET isp = %s, country_code = %s, country_name = %s, city = %s, region = %s, geo_created_at = %s
                     WHERE uuid = %s
                     ",
@@ -1124,7 +1085,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                     sanitize_text_field($geo['country']['name']),
                     sanitize_text_field($geo['city']),
                     sanitize_text_field($geo['region']),
-                    date('Y-m-d H:i:s', strtotime($geo['created_at'])),
+                    gmdate('Y-m-d H:i:s', strtotime($geo['created_at'])),
                     sanitize_text_field($uuid)
                 )
             );

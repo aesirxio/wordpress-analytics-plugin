@@ -109,9 +109,7 @@ add_action('admin_init', function () {
         jQuery("input.analytic-storage-class").click(function() {
         switch_radio(jQuery(this).val())
         });
-      switch_radio("' .
-            $storage .
-            '");
+      switch_radio("' . esc_html($storage) . '");
     });
     </script>';
 
@@ -140,7 +138,7 @@ add_action('admin_init', function () {
            /* translators: %s: URL to aesir.io */
            /* translators: %s: URL to aesir.io */
            . sprintf(__("<p class= 'description'>
-		    You can setup 1st party server at <a target='_blank' href='%s'>%s</a>.</p>", 'aesirx-analytics'), 'https://github.com/aesirxio/analytics-1stparty', 'https://github.com/aesirxio/analytics-1stparty')
+		    You can setup 1st party server at <a target='_blank' href='%1\$s'>%2\$s</a>.</p>", 'aesirx-analytics'), 'https://github.com/aesirxio/analytics-1stparty', 'https://github.com/aesirxio/analytics-1stparty')
       );
     },
     'aesirx_analytics_plugin',

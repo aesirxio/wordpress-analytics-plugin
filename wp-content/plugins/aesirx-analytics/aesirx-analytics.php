@@ -152,27 +152,12 @@ function aesirx_analytics_url_handler()
         {
             $data = CliFactory::getCli()->processAnalytics($command);
         }
-        catch (Throwable $e)
+        catch (Exception $e)
         {
-            $code = 500;
-
-            if ($e instanceof ExceptionWithErrorType)
-            {
-                switch ($e->getErrorType())
-                {
-                    case "NotFoundError":
-                        $code = 404;
-                        break;
-                    case "ValidationError":
-                        $code = 400;
-                        break;
-                    case "Rejected":
-                        $code = 406;
-                        break;
-                }
-            }
-
-            throw new ExceptionWithResponseCode($e->getMessage(), $code, $e->getCode(), $e);
+            error_log($e->getMessage());
+            $data = wp_json_encode([
+                'error' => $e->getMessage()
+            ]);
         }
 
         if (!headers_sent()) {
@@ -195,7 +180,7 @@ function aesirx_analytics_url_handler()
 
                 $_SESSION['analytics_flow_uuid'] = $flow;
 
-                return json_encode(true);
+                return wp_json_encode(true);
             }))
                 ->setWhere(['flow' => '[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}'])
                 ->setRequestMethods([Request::REQUEST_TYPE_POST])
@@ -245,6 +230,7 @@ function aesirx_analytics_initialize_function() {
         if(!in_array($file_name, $migration_list)) {
             MigratorMysql::aesirx_analytics_add_migration_query($file_name);
             foreach ($sql as $each_query) {
+                // used placeholders and $wpdb->prepare() in variable $each_query
                 $wpdb->query($each_query);
             }
         }       

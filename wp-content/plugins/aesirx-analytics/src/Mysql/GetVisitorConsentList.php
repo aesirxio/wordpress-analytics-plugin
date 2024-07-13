@@ -8,13 +8,13 @@ Class AesirX_Analytics_Get_Visitor_Consent_List extends AesirxAnalyticsMysqlHelp
     {
         global $wpdb;
 
-        $visitor_sql = "SELECT * FROM {$wpdb->prefix}analytics_visitors WHERE uuid = %s";
-        $visitor_sql = $wpdb->prepare($visitor_sql, sanitize_text_field($params['uuid']));
-        $visitor = $wpdb->get_row($visitor_sql);
+        $visitor = $wpdb->get_row(
+            $wpdb->prepare("SELECT * FROM {$wpdb->prefix}analytics_visitors WHERE uuid = %s", sanitize_text_field($params['uuid']))
+        );
 
-        $flow_sql = "SELECT * FROM {$wpdb->prefix}analytics_flows WHERE visitor_uuid = %s ORDER BY id";
-        $flow_sql = $wpdb->prepare($flow_sql, sanitize_text_field($params['uuid']));
-        $flows = $wpdb->get_results($sql);
+        $flows = $wpdb->get_results(
+            $wpdb->prepare("SELECT * FROM {$wpdb->prefix}analytics_flows WHERE visitor_uuid = %s ORDER BY id", sanitize_text_field($params['uuid']))
+        );
 
         $exp = '';
 
@@ -24,14 +24,17 @@ Class AesirX_Analytics_Get_Visitor_Consent_List extends AesirxAnalyticsMysqlHelp
                     AND IF (c.uuid IS NULL, true, c.expiration IS NULL)";
         }
 
-        $consents_sql = "SELECT vc.*, c.web3id, c.consent AS consent_from_consent, w.network, w.address,
-            c.expiration as consent_expiration, c.datetime as consent_datetime
-            FROM {$wpdb->prefix}analytics_visitor_consent AS vc
-            LEFT JOIN {$wpdb->prefix}analytics_consent AS c ON vc.consent_uuid = c.uuid
-            LEFT JOIN {$wpdb->prefix}analytics_wallet AS w ON c.wallet_uuid = w.uuid
-            WHERE vc.visitor_uuid = %s {$exp} ORDER BY vc.datetime";
-        $consents_sql = $wpdb->prepare($consents_sql, sanitize_text_field($params['uuid']), date('Y-m-d H:i:s'));
-        $consents = $wpdb->get_results($consents_sql);
+        $consents = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT vc.*, c.web3id, c.consent AS consent_from_consent, w.network, w.address,
+                c.expiration as consent_expiration, c.datetime as consent_datetime
+                FROM {$wpdb->prefix}analytics_visitor_consent AS vc
+                LEFT JOIN {$wpdb->prefix}analytics_consent AS c ON vc.consent_uuid = c.uuid
+                LEFT JOIN {$wpdb->prefix}analytics_wallet AS w ON c.wallet_uuid = w.uuid
+                WHERE vc.visitor_uuid = %s {$exp} ORDER BY vc.datetime",
+                sanitize_text_field($params['uuid']), gmdate('Y-m-d H:i:s')
+            )
+        );
 
         if ($wpdb->last_error) {
             error_log("Query error: " . $wpdb->last_error);

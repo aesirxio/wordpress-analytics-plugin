@@ -6,7 +6,7 @@ Class AesirX_Analytics_Start_Fingerprint extends AesirxAnalyticsMysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
-        $start = date('Y-m-d H:i:s');
+        $start = gmdate('Y-m-d H:i:s');
         $domain = parent::aesirx_analytics_validate_domain($params['request']['url']);
 
         if (is_wp_error($domain)) {
@@ -62,7 +62,7 @@ Class AesirX_Analytics_Start_Fingerprint extends AesirxAnalyticsMysqlHelper
                 'flow_uuid' => $new_visitor_event['flow_uuid'],
             ];
         } else {
-            $url = parse_url($params['request']['url']);
+            $url = wp_parse_url($params['request']['url']);
             if (!$url || !isset($url['host'])) {
                 return new WP_Error('validation_error', esc_html__('Wrong URL format, domain not found', 'aesirx-analytics'));
             }
@@ -81,7 +81,7 @@ Class AesirX_Analytics_Start_Fingerprint extends AesirxAnalyticsMysqlHelper
             $is_already_multiple = false;
     
             if ($params['request']['referer']) {
-                $referer = parse_url($params['request']['referer']);
+                $referer = wp_parse_url($params['request']['referer']);
                 if ($referer && $referer['host'] == $url['host'] && $visitor['visitor_flows']) {
                     foreach ($visitor['visitor_flows'] as $flow) {
                         if ($flow['start'] > $visitor_flow['start']) {

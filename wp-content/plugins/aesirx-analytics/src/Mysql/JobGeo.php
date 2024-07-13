@@ -6,7 +6,7 @@ Class AesirX_Analytics_Job_Geo extends AesirxAnalyticsMysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
-        $now = date('Y-m-d H:i:s');
+        $now = gmdate('Y-m-d H:i:s');
         $options = get_option('aesirx_analytics_plugin_options');
         $config =[
             'url_api_enrich' => 'https://dev01.aesirx.io/index.php?webserviceClient=site&webserviceVersion=1.0.0&option=aesir_analytics&api=hal&task=enrichVisitor',
@@ -26,7 +26,7 @@ Class AesirX_Analytics_Job_Geo extends AesirxAnalyticsMysqlHelper
             'headers' => array(
                 'Content-Type' => 'application/json',
             ),
-            'body' => json_encode(array(
+            'body' => wp_json_encode(array(
                 'licenses' => $config['license'],
                 'ip' => $list,
             )),
@@ -38,7 +38,7 @@ Class AesirX_Analytics_Job_Geo extends AesirxAnalyticsMysqlHelper
         }
     
         $body = wp_remote_retrieve_body( $response );
-        $enrich = json_decode( $body, true );
+        $enrich = wp_json_decode( $body, true );
     
         if (isset($enrich['error'])) {
             error_log("API error: " . $enrich['error']['message']);
