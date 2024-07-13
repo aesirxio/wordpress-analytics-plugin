@@ -218,9 +218,6 @@ function aesirx_analytics_initialize_function() {
     MigratorMysql::aesirx_analytics_create_migrator_table_query();
     $migration_list = array_column(MigratorMysql::aesirx_analytics_fetch_rows(), 'name');
 
-    // Include upgrade.php to use dbDelta()
-    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-
     $files = glob(plugin_dir_path( __FILE__ ) . 'src/Migration/*.php');
     
     foreach ($files as $file) {

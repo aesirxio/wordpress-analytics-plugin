@@ -66,7 +66,7 @@ Class AesirX_Analytics_Add_Consent_Level2 extends AesirxAnalyticsMysqlHelper
     function list_consent_level2($web3id, $domain, $consent) {
         global $wpdb;
 
-        $dom = $domain ? "AND visitor.domain = %s" : "";
+        $dom = $domain ? $wpdb->prepare("AND visitor.domain = %s", sanitize_text_field($domain)) : "";
         $exp = !$expired ? "AND consent.expiration IS NULL" : "";
 
         try {
@@ -79,9 +79,9 @@ Class AesirX_Analytics_Add_Consent_Level2 extends AesirxAnalyticsMysqlHelper
                     ON consent.uuid = visitor_consent.consent_uuid 
                     LEFT JOIN {$wpdb->prefix}analytics_visitors as visitor 
                     ON visitor_consent.visitor_uuid = visitor.uuid 
-                    WHERE consent.wallet_uuid IS NULL $exp AND consent.web3id = %s $dom 
+                    WHERE consent.wallet_uuid IS NULL %s AND consent.web3id = %s %s 
                     GROUP BY consent.uuid", 
-                    sanitize_text_field($web3id), sanitize_text_field($domain)
+                    $exp, sanitize_text_field($web3id), $dom
                 )
             );
 
@@ -94,8 +94,8 @@ Class AesirX_Analytics_Add_Consent_Level2 extends AesirxAnalyticsMysqlHelper
                     ON visitor_consent.visitor_uuid = visitor.uuid 
                     LEFT JOIN {$wpdb->prefix}analytics_consent AS consent 
                     ON consent.uuid = visitor_consent.consent_uuid 
-                    WHERE consent.wallet_uuid IS NULL $exp AND consent.web3id = %s $dom", 
-                    sanitize_text_field($web3id), sanitize_text_field($domain)
+                    WHERE consent.wallet_uuid IS NULL %s AND consent.web3id = %s %s", 
+                    $exp, sanitize_text_field($web3id), $dom
                 )
             );
 
@@ -110,9 +110,9 @@ Class AesirX_Analytics_Add_Consent_Level2 extends AesirxAnalyticsMysqlHelper
                     ON visitor_consent.visitor_uuid = visitor.uuid 
                     LEFT JOIN {$wpdb->prefix}analytics_consent AS consent 
                     ON consent.uuid = visitor_consent.consent_uuid 
-                    WHERE consent.wallet_uuid IS NULL $exp AND consent.web3id = %s $dom 
+                    WHERE consent.wallet_uuid IS NULL %s AND consent.web3id = %s %s 
                     ORDER BY id", 
-                    sanitize_text_field($web3id), sanitize_text_field($domain)
+                    $exp, sanitize_text_field($web3id), $dom
                 )
             );
 

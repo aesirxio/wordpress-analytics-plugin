@@ -110,9 +110,9 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
         $domain = sanitize_text_field($domain);
 
         // Prepare SQL conditions based on input parameters
-        $domain_condition = $domain ? "AND visitor.domain = %s" : "";
+        $domain_condition = $domain ? $wpdb->prepare(" AND visitor.domain = %s", $domain) : "";
         $expired_condition = !$expired ? "AND consent.expiration IS NULL" : "";
-        $web3id_condition = $web3id ? "AND consent.web3id = %s" : "AND consent.web3id IS NULL";
+        $web3id_condition = $web3id ? $wpdb->prepare(" AND consent.web3id = %s", $web3id) : "AND consent.web3id IS NULL";
 
         try {
 
@@ -123,9 +123,9 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
                     LEFT JOIN {$wpdb->prefix}analytics_wallet AS wallet ON wallet.uuid = consent.wallet_uuid
                     LEFT JOIN {$wpdb->prefix}analytics_visitor_consent AS visitor_consent ON consent.uuid = visitor_consent.consent_uuid
                     LEFT JOIN {$wpdb->prefix}analytics_visitors AS visitor ON visitor_consent.visitor_uuid = visitor.uuid
-                    WHERE wallet.address = %s $expired_condition $web3id_condition $domain_condition
-                    GROUP BY consent.uuid",
-                    $wallet, $web3id, $domain
+                    WHERE wallet.address = %s %s %s %s
+                    GROUP BY consent.uuid", 
+                    $wallet, $expired_condition, $web3id_condition, $domain_condition
                 )
             );
 
@@ -136,8 +136,8 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
                     LEFT JOIN {$wpdb->prefix}analytics_visitor_consent AS visitor_consent ON visitor_consent.visitor_uuid = visitor.uuid
                     LEFT JOIN {$wpdb->prefix}analytics_consent AS consent ON consent.uuid = visitor_consent.consent_uuid
                     LEFT JOIN {$wpdb->prefix}analytics_wallet AS wallet ON wallet.uuid = consent.wallet_uuid
-                    WHERE wallet.address = %s $expired_condition $web3id_condition $domain_condition",
-                    $wallet, $web3id, $domain
+                    WHERE wallet.address = %s %s %s %s",
+                    $wallet, $expired_condition, $web3id_condition, $domain_condition
                 )
             );
 
@@ -149,9 +149,9 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
                     LEFT JOIN {$wpdb->prefix}analytics_visitor_consent AS visitor_consent ON visitor_consent.visitor_uuid = visitor.uuid
                     LEFT JOIN {$wpdb->prefix}analytics_consent AS consent ON consent.uuid = visitor_consent.consent_uuid
                     LEFT JOIN {$wpdb->prefix}analytics_wallet AS wallet ON wallet.uuid = consent.wallet_uuid
-                    WHERE wallet.address = %s $expired_condition $web3id_condition $domain_condition
+                    WHERE wallet.address = %s %s %s %s
                     ORDER BY flows.id",
-                    $wallet, $web3id, $domain
+                    $wallet, $expired_condition, $web3id_condition, $domain_condition
                 )
             );
 
