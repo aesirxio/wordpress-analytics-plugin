@@ -56,16 +56,16 @@ Class AesirX_Analytics_Get_Attribute_Value_Date extends AesirxAnalyticsMysqlHelp
             $secondArray = $wpdb->get_results(
                 $wpdb->prepare(
                     "SELECT 
-                    DATE_FORMAT( $wpdb->prefix . 'analytics_events.start', '%%Y-%%m-%%d') as date,
-                    $wpdb->prefix . 'analytics_event_attributes.name', 
-                    $wpdb->prefix . 'analytics_event_attributes.value',
-                    COUNT( $wpdb->prefix . 'analytics_event_attributes.id') as count
-                    from `$wpdb->prefix . 'analytics_event_attributes'`
-                    left join `$wpdb->prefix . 'analytics_events'` 
-                        on $wpdb->prefix . 'analytics_event_attributes.event_uuid' = $wpdb->prefix . 'analytics_events.uuid'
-                    left join `$wpdb->prefix . 'analytics_visitors'` on $wpdb->prefix . 'analytics_visitors.uuid' = $wpdb->prefix . 'analytics_events.visitor_uuid'
-                    WHERE $wpdb->prefix . 'analytics_event_attributes.name' IN (%s)" .
-                    " GROUP BY $wpdb->prefix . 'analytics_event_attributes.name',  $wpdb->prefix . 'analytics_event_attributes.value'",
+                    DATE_FORMAT( {$wpdb->prefix}analytics_events.start, '%%Y-%%m-%%d') as date,
+                    {$wpdb->prefix}analytics_event_attributes.name, 
+                    {$wpdb->prefix}analytics_event_attributes.value,
+                    COUNT( {$wpdb->prefix}analytics_event_attributes.id) as count
+                    from {$wpdb->prefix}analytics_event_attributes
+                    left join {$wpdb->prefix}analytics_events'
+                        on {$wpdb->prefix}analytics_event_attributes.event_uuid = {$wpdb->prefix}analytics_events.uuid
+                    left join {$wpdb->prefix}analytics_visitors on {$wpdb->prefix}analytics_visitors.uuid = {$wpdb->prefix}analytics_events.visitor_uuid
+                    WHERE {$wpdb->prefix}analytics_event_attributes.name IN (%s)" .
+                    " GROUP BY {$wpdb->prefix}analytics_event_attributes.name,  {$wpdb->prefix}analytics_event_attributes.value",
                     "'" . implode("', '", $names) . "'"
                 )
             );

@@ -74,10 +74,10 @@ Class AesirX_Analytics_Add_Consent_Level2 extends AesirxAnalyticsMysqlHelper
             $consents = $wpdb->get_results(
                 $wpdb->prepare(
                     "SELECT consent.* 
-                    FROM $wpdb->prefix . 'analytics_consent' AS consent 
-                    LEFT JOIN $wpdb->prefix . 'analytics_visitor_consent' AS visitor_consent 
+                    FROM {$wpdb->prefix}analytics_consent AS consent 
+                    LEFT JOIN {$wpdb->prefix}analytics_visitor_consent AS visitor_consent 
                     ON consent.uuid = visitor_consent.consent_uuid 
-                    LEFT JOIN $wpdb->prefix . 'analytics_visitors' as visitor 
+                    LEFT JOIN {$wpdb->prefix}analytics_visitors as visitor 
                     ON visitor_consent.visitor_uuid = visitor.uuid 
                     WHERE consent.wallet_uuid IS NULL $exp AND consent.web3id = %s $dom 
                     GROUP BY consent.uuid", 
@@ -89,10 +89,10 @@ Class AesirX_Analytics_Add_Consent_Level2 extends AesirxAnalyticsMysqlHelper
             $visitors = $wpdb->get_results(
                 $wpdb->prepare(
                     "SELECT visitor.*, visitor_consent.consent_uuid 
-                    FROM $wpdb->prefix . 'analytics_visitors' AS visitor 
-                    LEFT JOIN $wpdb->prefix . 'analytics_visitor_consent' AS visitor_consent 
+                    FROM {$wpdb->prefix}analytics_visitors AS visitor 
+                    LEFT JOIN {$wpdb->prefix}analytics_visitor_consent AS visitor_consent 
                     ON visitor_consent.visitor_uuid = visitor.uuid 
-                    LEFT JOIN $wpdb->prefix . 'analytics_consent' AS consent 
+                    LEFT JOIN {$wpdb->prefix}analytics_consent AS consent 
                     ON consent.uuid = visitor_consent.consent_uuid 
                     WHERE consent.wallet_uuid IS NULL $exp AND consent.web3id = %s $dom", 
                     sanitize_text_field($web3id), sanitize_text_field($domain)
@@ -103,12 +103,12 @@ Class AesirX_Analytics_Add_Consent_Level2 extends AesirxAnalyticsMysqlHelper
             $flows = $wpdb->get_results(
                 $wpdb->prepare(
                     "SELECT flows.* 
-                    FROM $wpdb->prefix . 'analytics_flows' AS flows 
-                    LEFT JOIN $wpdb->prefix . 'analytics_visitors' AS visitor 
+                    FROM {$wpdb->prefix}analytics_flows AS flows 
+                    LEFT JOIN {$wpdb->prefix}analytics_visitors AS visitor 
                     ON visitor.uuid = flows.visitor_uuid 
-                    LEFT JOIN $wpdb->prefix . 'analytics_visitor_consent' AS visitor_consent 
+                    LEFT JOIN {$wpdb->prefix}analytics_visitor_consent AS visitor_consent 
                     ON visitor_consent.visitor_uuid = visitor.uuid 
-                    LEFT JOIN $wpdb->prefix . 'analytics_consent' AS consent 
+                    LEFT JOIN {$wpdb->prefix}analytics_consent AS consent 
                     ON consent.uuid = visitor_consent.consent_uuid 
                     WHERE consent.wallet_uuid IS NULL $exp AND consent.web3id = %s $dom 
                     ORDER BY id", 
