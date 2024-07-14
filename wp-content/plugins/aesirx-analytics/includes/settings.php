@@ -120,7 +120,7 @@ add_action('admin_init', function () {
 
       if ($manifest->entrypoints->plugin->assets) {
         foreach ($manifest->entrypoints->plugin->assets->js as $js) {
-          wp_enqueue_script('aesrix_bi' . md5($js), plugins_url($js, __DIR__), false, null, true);
+          wp_enqueue_script('aesrix_bi' . md5($js), plugins_url($js, __DIR__), false, '1.0', true);
         }
       }
     },
@@ -587,7 +587,7 @@ add_action('admin_enqueue_scripts', function ($hook) {
 
     if ($manifest->entrypoints->bi->assets) {
       foreach ($manifest->entrypoints->bi->assets->js as $js) {
-        wp_enqueue_script('aesrix_bi' . md5($js), plugins_url($js, __DIR__), false, null, true);
+        wp_enqueue_script('aesrix_bi' . md5($js), plugins_url($js, __DIR__), false, '1.0', true);
       }
     }
 
@@ -596,7 +596,7 @@ add_action('admin_enqueue_scripts', function ($hook) {
 
     $jwt = $options['storage'] === "external" ? 'window.env.REACT_APP_HEADER_JWT="true"' : '';
 
-    wp_register_script( 'aesrix_bi_window', '', array(), null );
+    wp_register_script( 'aesrix_bi_window', '', array(), '1.0', true );
 
     wp_enqueue_script('aesrix_bi_window');
 
@@ -615,6 +615,13 @@ add_action('admin_enqueue_scripts', function ($hook) {
   }
 });
 
+/**
+ * Custom escape function for Aesirx Analytics.
+ * Escapes HTML attributes in a string using a specified list of allowed HTML elements and attributes.
+ *
+ * @param string $string The input string to escape HTML attributes from.
+ * @return string The escaped HTML string.
+ */
 function aesirx_analytics_escape_html($string) {
   $allowed_html = array(
     'input' => array(
