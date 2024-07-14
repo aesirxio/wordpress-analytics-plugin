@@ -400,12 +400,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/NguyenBao10/aesirx-analytics-lib.git",
-                "reference": "3498c5bede1f9b288caa7300d5223e75dc4cbbe2"
+                "reference": "607dca94403187c2473ad89b9d8fe617283f834c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/NguyenBao10/aesirx-analytics-lib/zipball/3498c5bede1f9b288caa7300d5223e75dc4cbbe2",
-                "reference": "3498c5bede1f9b288caa7300d5223e75dc4cbbe2",
+                "url": "https://api.github.com/repos/NguyenBao10/aesirx-analytics-lib/zipball/607dca94403187c2473ad89b9d8fe617283f834c",
+                "reference": "607dca94403187c2473ad89b9d8fe617283f834c",
                 "shasum": ""
             },
             "require": {
@@ -428,7 +428,7 @@
             "support": {
                 "source": "https://github.com/NguyenBao10/aesirx-analytics-lib/tree/master"
             },
-            "time": "2024-07-11T10:27:08+00:00"
+            "time": "2024-07-14T07:16:27+00:00"
         },
         {
             "name": "psr/http-client",
