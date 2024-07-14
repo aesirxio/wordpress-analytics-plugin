@@ -24,12 +24,9 @@ Class AesirX_Analytics_Close_Visitor_Event extends AesirxAnalyticsMysqlHelper
         // Get the current date and time
         $now = gmdate('Y-m-d H:i:s');
 
-        // Prefix for the tables
-        $prefix = $wpdb->prefix;
-
         // Update the analytics events table
         $sql_update_event = $wpdb->prepare(
-            "UPDATE {$prefix}analytics_events SET end = %s WHERE uuid = %s AND visitor_uuid = %s",
+            "UPDATE {$wpdb->prefix}analytics_events SET end = %s WHERE uuid = %s AND visitor_uuid = %s",
             $now, $event_uuid, $visitor_uuid
         );
         $result_update_event = dbDelta($sql_update_event);
@@ -48,7 +45,7 @@ Class AesirX_Analytics_Close_Visitor_Event extends AesirxAnalyticsMysqlHelper
 
         // Update the analytics flows table
         $sql_update_flows = $wpdb->prepare(
-            "UPDATE {$prefix}analytics_flows SET end = %s WHERE uuid = %s",
+            "UPDATE {$wpdb->prefix}analytics_flows SET end = %s WHERE uuid = %s",
             $now, $visitor_event->flow_uuid
         );
         $result_update_flows = dbDelta($sql_update_flows);

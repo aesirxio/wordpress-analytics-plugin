@@ -10,11 +10,13 @@ Class AesirX_Analytics_Get_Visitor_Consent_List extends AesirxAnalyticsMysqlHelp
 
         $uuid = sanitize_text_field($params['uuid']);
 
-        $visitor = $wpdb->get_row(
+        // doing direct database calls to custom tables
+        $visitor = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare("SELECT * FROM {$wpdb->prefix}analytics_visitors WHERE uuid = %s", $uuid)
         );
 
-        $flows = $wpdb->get_results(
+        // doing direct database calls to custom tables
+        $flows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prepare("SELECT * FROM {$wpdb->prefix}analytics_flows WHERE visitor_uuid = %s ORDER BY id", $uuid)
         );
 
@@ -24,19 +26,35 @@ Class AesirX_Analytics_Get_Visitor_Consent_List extends AesirxAnalyticsMysqlHelp
         if (is_null($params['expired']) || !$params['expired']) {
             $exp = $wpdb->prepare(" AND (`vc`.`expiration` >= %s OR `vc`.`expiration` IS NULL)
                     AND IF (c.uuid IS NULL, true, c.expiration IS NULL)", gmdate('Y-m-d H:i:s'));
-        }
 
-        $consents = $wpdb->get_results(
-            $wpdb->prepare(
-                "SELECT vc.*, c.web3id, c.consent AS consent_from_consent, w.network, w.address,
-                c.expiration as consent_expiration, c.datetime as consent_datetime
-                FROM {$wpdb->prefix}analytics_visitor_consent AS vc
-                LEFT JOIN {$wpdb->prefix}analytics_consent AS c ON vc.consent_uuid = c.uuid
-                LEFT JOIN {$wpdb->prefix}analytics_wallet AS w ON c.wallet_uuid = w.uuid
-                WHERE vc.visitor_uuid = %s %s ORDER BY vc.datetime",
-                sanitize_text_field($params['uuid']), $exp
-            )
-        );
+            // doing direct database calls to custom tables
+            $consents = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->prepare(
+                    "SELECT vc.*, c.web3id, c.consent AS consent_from_consent, w.network, w.address,
+                    c.expiration as consent_expiration, c.datetime as consent_datetime
+                    FROM {$wpdb->prefix}analytics_visitor_consent AS vc
+                    LEFT JOIN {$wpdb->prefix}analytics_consent AS c ON vc.consent_uuid = c.uuid
+                    LEFT JOIN {$wpdb->prefix}analytics_wallet AS w ON c.wallet_uuid = w.uuid
+                    WHERE vc.visitor_uuid = %s ORDER BY vc.datetime 
+                    AND (`vc`.`expiration` >= %s OR `vc`.`expiration` IS NULL)
+                    AND IF (c.uuid IS NULL, true, c.expiration IS NULL)",
+                    sanitize_text_field($params['uuid']), gmdate('Y-m-d H:i:s')
+                )
+            );
+        } else {
+            // doing direct database calls to custom tables
+            $consents = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->prepare(
+                    "SELECT vc.*, c.web3id, c.consent AS consent_from_consent, w.network, w.address,
+                    c.expiration as consent_expiration, c.datetime as consent_datetime
+                    FROM {$wpdb->prefix}analytics_visitor_consent AS vc
+                    LEFT JOIN {$wpdb->prefix}analytics_consent AS c ON vc.consent_uuid = c.uuid
+                    LEFT JOIN {$wpdb->prefix}analytics_wallet AS w ON c.wallet_uuid = w.uuid
+                    WHERE vc.visitor_uuid = %s ORDER BY vc.datetime",
+                    sanitize_text_field($params['uuid'])
+                )
+            );
+        }
 
         if ($wpdb->last_error) {
             error_log("Query error: " . $wpdb->last_error);

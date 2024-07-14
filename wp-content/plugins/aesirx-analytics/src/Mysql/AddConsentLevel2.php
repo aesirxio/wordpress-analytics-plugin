@@ -71,7 +71,8 @@ Class AesirX_Analytics_Add_Consent_Level2 extends AesirxAnalyticsMysqlHelper
 
         try {
             // Fetch consents
-            $consents = $wpdb->get_results(
+            // doing direct database calls to custom tables
+            $consents = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prepare(
                     "SELECT consent.* 
                     FROM {$wpdb->prefix}analytics_consent AS consent 
@@ -86,7 +87,8 @@ Class AesirX_Analytics_Add_Consent_Level2 extends AesirxAnalyticsMysqlHelper
             );
 
             // Fetch visitors
-            $visitors = $wpdb->get_results(
+            // doing direct database calls to custom tables
+            $visitors = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prepare(
                     "SELECT visitor.*, visitor_consent.consent_uuid 
                     FROM {$wpdb->prefix}analytics_visitors AS visitor 
@@ -100,7 +102,8 @@ Class AesirX_Analytics_Add_Consent_Level2 extends AesirxAnalyticsMysqlHelper
             );
 
             // Fetch flows
-            $flows = $wpdb->get_results(
+            // doing direct database calls to custom tables
+            $flows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prepare(
                     "SELECT flows.* 
                     FROM {$wpdb->prefix}analytics_flows AS flows 

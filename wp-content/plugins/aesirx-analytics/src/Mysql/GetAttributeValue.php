@@ -51,7 +51,8 @@ Class AesirX_Analytics_Get_Attribute_Value extends AesirxAnalyticsMysqlHelper
                 return $e['name'];
             }, $list);
 
-            $secondArray = $wpdb->get_results(
+            // doing direct database calls to custom tables
+            $secondArray = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prepare(
                     "SELECT {$wpdb->prefix}analytics_event_attributes.name, {$wpdb->prefix}analytics_event_attributes.value, COUNT({$wpdb->prefix}analytics_event_attributes.id) as count,
                     coalesce(COUNT(DISTINCT ({$wpdb->prefix}analytics_events.visitor_uuid)), 0) as number_of_visitors,

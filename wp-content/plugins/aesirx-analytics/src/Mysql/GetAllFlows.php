@@ -16,7 +16,7 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
         $detail_page = false;
         parent::aesirx_analytics_add_filters($params, $where_clause, $bind);
 
-        // filters
+        // filters where clause for events
 
         $total_sql =
             "SELECT COUNT(DISTINCT #__analytics_flows.uuid) as total
@@ -100,30 +100,26 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
                         return $e->uuid;
                     }, $list);
 
-                    $event_sql =
-                        "SELECT * FROM {$wpdb->prefix}analytics_events WHERE " .
-                        sprintf("flow_uuid IN ('" . implode("', '", $bind) . "')");
+                    // doing direct database calls to custom tables
+                    // placeholders depends one number of $bind
+                    $events = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                        $wpdb->prepare(
+                            "SELECT * FROM {$wpdb->prefix}analytics_events WHERE flow_uuid IN (" . implode(', ', array_fill(0, count($bind), '%s')) . ")", 
+                            ...$bind
+                        )
+                    );
 
-                    if (!empty($where_clause_event)) {
-                        $event_sql .= "AND " . implode(" AND ", $where_clause_event);
-                    }
-
-                    // Used placeholders and $wpdb->prepare() in $event_sql
-                    // $event_sql is dynamic, depends on another condition
-                    $events = $wpdb->get_results($event_sql);
-
-                    $attribute_sql =
-                        "SELECT * FROM {$wpdb->prefix}analytics_event_attributes LEFT JOIN {$wpdb->prefix}analytics_events
-                        ON {$wpdb->prefix}analytics_events.uuid = {$wpdb->prefix}analytics_event_attributes.event_uuid WHERE " .
-                        sprintf("{$wpdb->prefix}analytics_events.flow_uuid IN ('" . implode("', '", $bind) . "')");
-
-                    if (!empty($where_clause_event)) {
-                        $attribute_sql .= "AND " . implode(" AND ", $where_clause_event);
-                    }
-
-                    // Used placeholders and $wpdb->prepare() in $attribute_sql
-                    // $attribute_sql is dynamic, depends on another condition
-                    $attributes = $wpdb->get_results($attribute_sql);
+                    // doing direct database calls to custom tables
+                    // placeholders depends one number of $bind
+                    $attributes = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                        $wpdb->prepare(
+                            "SELECT * FROM {$wpdb->prefix}analytics_event_attributes 
+                            LEFT JOIN {$wpdb->prefix}analytics_events
+                            ON {$wpdb->prefix}analytics_events.uuid = {$wpdb->prefix}analytics_event_attributes.event_uuid 
+                            WHERE {$wpdb->prefix}analytics_events.flow_uuid IN (" . implode(', ', array_fill(0, count($bind), '%s')) . ")",
+                            ...$bind
+                        )
+                    ); 
                     
                     $hash_attributes = [];
 

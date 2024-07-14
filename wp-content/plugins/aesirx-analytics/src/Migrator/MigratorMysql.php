@@ -22,7 +22,8 @@ class MigratorMysql {
     public static function aesirx_analytics_fetch_rows() {
         global $wpdb;
     
-        $results = $wpdb->get_results(
+        // doing direct database calls to custom tables
+        $results = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             "SELECT name FROM {$wpdb->prefix}analytics_migrations",
             ARRAY_A
         );
@@ -53,7 +54,8 @@ class MigratorMysql {
         );
         
         // Execute the insert
-        $wpdb->insert(
+        // doing direct database calls to custom tables
+        $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
             $wpdb->prefix . 'analytics_migrations',
             $data,
             array('%s', '%s') // Data types for 'app' and 'name'

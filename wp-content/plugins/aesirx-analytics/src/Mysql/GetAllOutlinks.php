@@ -84,7 +84,8 @@ Class AesirX_Analytics_Get_All_Outlinks extends AesirxAnalyticsMysqlHelper
                     continue;
                 }
 
-                $second = $wpdb->get_results(
+                // doing direct database calls to custom tables
+                $second = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                     $wpdb->prepare(
                         "SELECT 
                         {$wpdb->prefix}analytics_events.referer AS url, 

@@ -53,7 +53,8 @@ Class AesirX_Analytics_Get_Attribute_Value_Date extends AesirxAnalyticsMysqlHelp
                 return $e['name'];
             }, $list);
 
-            $secondArray = $wpdb->get_results(
+            // doing direct database calls to custom tables
+            $secondArray = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prepare(
                     "SELECT 
                     DATE_FORMAT( {$wpdb->prefix}analytics_events.start, '%%Y-%%m-%%d') as date,

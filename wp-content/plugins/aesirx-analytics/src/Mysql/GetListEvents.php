@@ -83,7 +83,8 @@ Class AesirX_Analytics_Get_List_Events extends AesirxAnalyticsMysqlHelper
             }, $list);
             
             // %s depends one number of $event_attribute_bind
-            $secondArray = $wpdb->get_results(
+            // doing direct database calls to custom tables
+            $secondArray = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prepare(
                     "SELECT * 
                     FROM {$wpdb->prefix}analytics_event_attributes 

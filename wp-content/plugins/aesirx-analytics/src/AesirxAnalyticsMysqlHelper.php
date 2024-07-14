@@ -18,18 +18,22 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
     
             $sql = str_replace("#__", $wpdb->prefix, $sql);
             $total_sql = str_replace("#__", $wpdb->prefix, $total_sql);
-    
-            // used placeholders in variable $sql and $bind
-            $sql = $wpdb->prepare($sql, $bind);
-            // used placeholders in variable $total_sql and $bind
-            $total_sql = $wpdb->prepare($total_sql, $bind);
-    
-            $total_elements = (int) $wpdb->get_var($total_sql);
+
+            // used placeholders and $wpdb->prepare() in variable $total_sql
+            // doing direct database calls to custom tables
+            $total_elements = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->prepare($total_sql, $bind) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+            );
+           
             $total_pages = ceil($total_elements / $pageSize);
     
             try {
                 // used placeholders and $wpdb->prepare() in variable $sql
-                $collection = $wpdb->get_results($sql, ARRAY_A);
+                // doing direct database calls to custom tables
+                $collection = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                    $wpdb->prepare($sql, $bind) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+                    , ARRAY_A
+                );
     
                 $list_response = [
                     'collection' => $collection,
@@ -299,7 +303,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
     
             // Query to fetch the visitor
             try {
-                $visitor = $wpdb->get_row(
+                // doing direct database calls to custom tables
+                $visitor = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                     $wpdb->prepare(
                         "SELECT * 
                         FROM {$wpdb->prefix}analytics_visitors
@@ -337,7 +342,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                     }
     
                     // Query to fetch the visitor flows
-                    $flows = $wpdb->get_results(
+                    // doing direct database calls to custom tables
+                    $flows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                         $wpdb->prepare("SELECT * FROM {$wpdb->prefix}analytics_flows WHERE visitor_uuid = %s ORDER BY id", sanitize_text_field($visitor->uuid))
                     );
     
@@ -369,7 +375,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
     
             try {
                 if (empty($visitor['geo'])) {
-                    $wpdb->insert(
+                    // doing direct database calls to custom tables
+                    $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
                         $wpdb->prefix . 'analytics_visitors',
                         [
                             'fingerprint'      => sanitize_text_field($visitor['fingerprint']),
@@ -388,7 +395,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                     );
                 } else {
                     $geo = $visitor['geo'];
-                    $wpdb->insert(
+                    // doing direct database calls to custom tables
+                    $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
                         $wpdb->prefix . 'analytics_visitors',
                         [
                             'fingerprint'      => sanitize_text_field($visitor['fingerprint']),
@@ -430,7 +438,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
     
             try {
                 // Insert event
-                $wpdb->insert(
+                // doing direct database calls to custom tables
+                $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
                     $wpdb->prefix . 'analytics_events',
                     [
                         'uuid'         => sanitize_text_field($visitor_event['uuid']),
@@ -454,7 +463,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                     $placeholders = [];
     
                     foreach ($visitor_event['attributes'] as $attribute) {
-                        $wpdb->insert(
+                        // doing direct database calls to custom tables
+                        $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
                             $wpdb->prefix . 'analytics_event_attributes',
                             array(
                                 'event_uuid' => $visitor_event->uuid,
@@ -481,7 +491,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             global $wpdb;
     
             try {
-                $wpdb->insert(
+                // doing direct database calls to custom tables
+                $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
                     $wpdb->prefix . 'analytics_flows',
                     [
                         'visitor_uuid'    => sanitize_text_field($visitor_uuid),
@@ -509,7 +520,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             $uuid_str = (string) $uuid;
     
             // need $wpdb->query() due to the complexity of the JSON manipulation required
-            $wpdb->query(
+            // doing direct database calls to custom tables
+            $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prepare(
                     "UPDATE {$wpdb->prefix}visitor
                     SET visitor_flows = JSON_SET(visitor_flows, CONCAT('$[', JSON_UNQUOTE(JSON_SEARCH(visitor_flows, 'one', %s)), '].multiple_events'), true)
@@ -600,7 +612,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         function aesirx_analytics_find_wallet($network, $address) {
             global $wpdb;
 
-            $wallet = $wpdb->get_row(
+            // doing direct database calls to custom tables
+            $wallet = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prepare(
                     "SELECT * FROM {$wpdb->prefix}analytics_wallet WHERE network = %s AND address = %s",
                     sanitize_text_field($network), sanitize_text_field($address)
@@ -618,7 +631,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         function aesirx_analytics_add_wallet($uuid, $network, $address, $nonce) {
             global $wpdb;
     
-            $wpdb->insert(
+            // doing direct database calls to custom tables
+            $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
                 $wpdb->prefix . 'analytics_wallet',
                 [
                     'uuid'     => sanitize_text_field($uuid),
@@ -640,7 +654,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         function aesirx_analytics_update_nonce($network, $address, $nonce) {
             global $wpdb;
 
-            $wpdb->update(
+            // doing direct database calls to custom tables
+            $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prefix . 'analytics_wallet',
                 array(
                     'nonce' => sanitize_text_field($nonce)
@@ -692,7 +707,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             $data_types = array_fill(0, count($data), '%s'); // Adjust the types as needed
             
             // Execute the insert
-            $wpdb->insert(
+            // doing direct database calls to custom tables
+            $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
                 $wpdb->prefix . 'analytics_consent',
                 $data,
                 $data_types
@@ -740,7 +756,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             }
             
             // Execute the insert
-            $wpdb->insert(
+            // doing direct database calls to custom tables
+            $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
                 $wpdb->prefix . 'analytics_visitor_consent',
                 $data,
                 $data_types
@@ -874,7 +891,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                 );
                 
                 // Execute the update
-                $wpdb->update(
+                // doing direct database calls to custom tables
+                $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                     $wpdb->prefix . 'analytics_consent',
                     $data,
                     $where,
@@ -898,13 +916,17 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
 
             try {
                 // Execute the queries
-                $visitor_result = $wpdb->get_row(
+                // doing direct database calls to custom tables
+                $visitor_result = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                     $wpdb->prepare(
                         "SELECT * FROM {$wpdb->prefix}analytics_visitors WHERE uuid = %s",
                         sanitize_text_field($uuid)
                     )
                 );
-                $flows_result = $wpdb->get_results(
+
+                // Execute the query
+                // doing direct database calls to custom tables
+                $flows_result = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                     $wpdb->prepare(
                         "SELECT * FROM {$wpdb->prefix}analytics_flows WHERE visitor_uuid = %s ORDER BY id",
                         sanitize_text_field($uuid)
@@ -966,34 +988,35 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
 
         function aesirx_analytics_find_event_by_uuid($event_uuid, $visitor_uuid = null) {
             global $wpdb;
-
-            // Prefix for the tables
-            $prefix = $wpdb->prefix;
-        
-            // Initial SQL query
-            $sql = "SELECT * FROM {$prefix}analytics_events WHERE uuid = %s";
-            $bind_values = [$event_uuid];
         
             // Add condition for visitor_uuid if provided
             if ($visitor_uuid !== null) {
-                $sql .= " AND visitor_uuid = %s";
-                $bind_values[] = $visitor_uuid;
+                // Prepare and execute the query
+                // doing direct database calls to custom tables
+                $event = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                    $wpdb->prepare("SELECT * FROM {$wpdb->prefix}analytics_events WHERE uuid = %s AND visitor_uuid = %s",
+                    $event_uuid, $visitor_uuid)
+                );
+            } else {
+                // Prepare and execute the query
+                // doing direct database calls to custom tables
+                $event = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                    $wpdb->prepare("SELECT * FROM {$wpdb->prefix}analytics_events WHERE uuid = %s", $event_uuid)
+                );
             }
-        
-            // Prepare and execute the query
-            $sql = $wpdb->prepare($sql, ...$bind_values);
-            $event = $wpdb->get_row($sql);
         
             if ($event === null) {
                 return null;
             }
         
             // Query for event attributes
-            $sql_attributes = $wpdb->prepare(
-                "SELECT * FROM {$prefix}analytics_event_attributes WHERE event_uuid = %s",
-                $event_uuid
+            // doing direct database calls to custom tables
+            $attributes = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->prepare(
+                    "SELECT * FROM {$wpdb->prefix}analytics_event_attributes WHERE event_uuid = %s",
+                    $event_uuid
+                )    
             );
-            $attributes = $wpdb->get_results($sql_attributes);
         
             // Construct the VisitorEventRaw object
             $visitor_event_raw = (object) [
@@ -1102,8 +1125,9 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             $allowed = [];
             $bind = [];
 
-            $sql       = $wpdb->prepare("SELECT distinct ip FROM {$wpdb->prefix}analytics_visitors WHERE geo_created_at IS NULL");
-            $total_sql = $wpdb->prepare("SELECT count(distinct ip) as total FROM {$wpdb->prefix}analytics_visitors WHERE geo_created_at IS NULL");
+            // It is not necessary to prepare a query which doesn't use variable replacement.
+            $sql       = "SELECT distinct ip FROM {$wpdb->prefix}analytics_visitors WHERE geo_created_at IS NULL";
+            $total_sql = "SELECT count(distinct ip) as total FROM {$wpdb->prefix}analytics_visitors WHERE geo_created_at IS NULL";
             
             $list_response = self::aesirx_analytics_get_list($sql, $total_sql, $params, $allowed, $bind);
             
@@ -1140,7 +1164,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             );
             
             // Execute the update
-            $result = $wpdb->update(
+            // doing direct database calls to custom tables
+            $result = $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prefix . 'analytics_visitors',
                 $data,
                 $where,
@@ -1166,7 +1191,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             );
             
             // Execute the update
-            $result = $wpdb->update(
+            // doing direct database calls to custom tables
+            $result = $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prefix . 'analytics_visitors',
                 $data,
                 $where,

@@ -229,7 +229,7 @@ function aesirx_analytics_initialize_function() {
             foreach ($sql as $each_query) {
                 // used placeholders and $wpdb->prepare() in variable $each_query
                 // need $wpdb->query() for ALTER TABLE
-                $wpdb->query($each_query);
+                $wpdb->query($each_query); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             }
         }       
     }
@@ -245,7 +245,9 @@ function aesirx_analytics_display_update_notice(  ) {
         if ($notice instanceof Throwable)
         {
             /* translators: %s: error message */
-            echo aesirx_analytics_escape_html('<div class="notice notice-error"><p>' . sprintf(esc_html__('Problem with Aesirx Analytics plugin install: %s', 'aesirx-analytics'), $notice->getMessage()) . '</p></div>');
+            // using custom function to escape HTML in error message
+            error_log($notice->getMessage());
+            echo aesirx_analytics_escape_html('<div class="notice notice-error"><p>' . esc_html__('Problem with Aesirx Analytics plugin install', 'aesirx-analytics') . '</p></div>');
         }
 
         delete_transient( 'aesirx_analytics_update_notice' );
