@@ -28,7 +28,7 @@ The human readable source code for the Aesirx Business Intelligence JavaScript f
 
 = Validation =
 
-We use http://api.aesirx.io for validating data on our server.
+We use http://aesirx.io and subdomains for validating data on our server.
 
 == Changelog ==
 
