@@ -9,7 +9,7 @@ Class AesirX_Analytics_Job_Geo extends AesirxAnalyticsMysqlHelper
         $now = gmdate('Y-m-d H:i:s');
         $options = get_option('aesirx_analytics_plugin_options');
         $config =[
-            'url_api_enrich' => 'https://dev01.aesirx.io/index.php?webserviceClient=site&webserviceVersion=1.0.0&option=aesir_analytics&api=hal&task=enrichVisitor',
+            'url_api_enrich' => 'https://api.aesirx.io/index.php?webserviceClient=site&webserviceVersion=1.0.0&option=aesir_analytics&api=hal&task=enrichVisitor',
             'license' => sanitize_text_field($options['license'])
         ];
 
@@ -38,7 +38,7 @@ Class AesirX_Analytics_Job_Geo extends AesirxAnalyticsMysqlHelper
         }
     
         $body = wp_remote_retrieve_body( $response );
-        $enrich = wp_json_decode( $body, true );
+        $enrich = json_decode( $body, true );
     
         if (isset($enrich['error'])) {
             error_log("API error: " . $enrich['error']['message']);
@@ -57,7 +57,7 @@ Class AesirX_Analytics_Job_Geo extends AesirxAnalyticsMysqlHelper
                     'city' => $result['city'],
                     'region' => $result['region'],
                     'isp' => $result['isp'],
-                    'created_at' => $now->format('Y-m-d H:i:s'),
+                    'created_at' => $now,
                 )
             );
         }
