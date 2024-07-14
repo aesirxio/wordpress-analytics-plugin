@@ -28,7 +28,8 @@ The human readable source code for the Aesirx Business Intelligence JavaScript f
 
 = Validation =
 
-We use http://dev01.aesirx.io for validating data on our server.
+We are using our server api.aesirx.io for retriving and updating geo data.
+We are using our server dev01.aesirx.io for validating wallet and JWT decoding.
 
 == Changelog ==
 
