@@ -190,8 +190,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         }
     
         function aesirx_analytics_add_filters($params, &$where_clause, &$bind) {
-            foreach ([$params['filter'], $params['filter_not']] as $filter_array) {
-                $is_not = $filter_array === $params['filter_not'];
+            foreach ([$params['filter'] ?? null, $params['filter_not'] ?? null] as $filter_array) {
+                $is_not = $filter_array === (isset($params['filter_not']) ? $params['filter_not'] : null);
                 if (empty($filter_array)) {
                     continue;
                 }
@@ -246,8 +246,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         }
     
         function aesirx_analytics_add_attribute_filters($params, &$where_clause, &$bind) {
-            foreach ([$params['filter'], $params['filter_not']] as $filter_array) {
-                $is_not = $filter_array === $params['filter_not'];
+            foreach ([$params['filter'] ?? null, $params['filter_not'] ?? null]as $filter_array) {
+                $is_not = $filter_array === (isset($params['filter_not']) ? $params['filter_not'] : null);
                 if (empty($filter_array)) {
                     continue;
                 }
@@ -537,8 +537,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         }
     
         function aesirx_analytics_add_consent_filters($params, &$where_clause, &$bind) {
-            foreach ([$params['filter'], $params['filter_not']] as $filter_array) {
-                $is_not = $filter_array === $params['filter_not'];
+            foreach ([$params['filter'] ?? null, $params['filter_not'] ?? null] as $filter_array) {
+                $is_not = $filter_array === (isset($params['filter_not']) ? $params['filter_not'] : null);
                 if (empty($filter_array)) {
                     continue;
                 }
