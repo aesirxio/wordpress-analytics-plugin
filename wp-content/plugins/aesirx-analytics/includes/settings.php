@@ -529,16 +529,17 @@ add_action('admin_menu', function () {
 
 add_action('admin_init', 'aesirx_analytics_redirect_config', 1);
 function aesirx_analytics_redirect_config() {
-  if (isset($_POST['aesirx_analytics_settings_nonce']) && !wp_verify_nonce($_POST['aesirx_analytics_settings_nonce'], 'aesirx_analytics_settings_save')) {
-    wp_die('Nonce verification failed');
-  }
-
-  if ( isset($_GET['page'])
-       && ($_GET['page'] == 'aesirx-bi-dashboard' || $_GET['page'] == 'aesirx-bi-visitors' || $_GET['page'] == 'aesirx-bi-behavior' || $_GET['page'] == 'aesirx-bi-utm-tracking' || $_GET['page'] == 'aesirx-bi-woocommerce' || $_GET['page'] == 'aesirx-bi-consents')
-       && !aesirx_analytics_config_is_ok()) {
-
-    wp_redirect('/wp-admin/options-general.php?page=aesirx-analytics-plugin');
-    die;
+  if (isset($_GET['page']) && strpos($_GET['page'], 'aesirx-bi') !== false) {
+    if (!isset($_GET['aesirx_analytics_nonce']) || !wp_verify_nonce($_GET['aesirx_analytics_nonce'], $_GET['page'])) {
+      wp_die('Nonce verification failed');
+    }
+  
+    if (($_GET['page'] == 'aesirx-bi-dashboard' || $_GET['page'] == 'aesirx-bi-visitors' || $_GET['page'] == 'aesirx-bi-behavior' || $_GET['page'] == 'aesirx-bi-utm-tracking' || $_GET['page'] == 'aesirx-bi-woocommerce' || $_GET['page'] == 'aesirx-bi-consents')
+         && !aesirx_analytics_config_is_ok()) {
+  
+      wp_redirect('/wp-admin/options-general.php?page=aesirx-analytics-plugin');
+      die;
+    }
   }
 }
 
@@ -649,3 +650,26 @@ function aesirx_analytics_escape_html($string) {
 
   return wp_kses($string, $allowed_html);
 }
+
+function aesirx_analytics_add_nonce_menu_item() {
+  global $submenu;
+
+  foreach ($submenu as $key => $value) {
+
+    if ($key === 'aesirx-bi-dashboard') {
+
+      // var_dump($key, $value);
+
+      foreach ($submenu[$key] as &$item) {
+
+        var_dump($item[2]);
+
+        $item[2] = add_query_arg('aesirx_analytics_nonce', wp_create_nonce($item[2]), admin_url('admin.php?page=' . $item[2]));
+
+        // var_dump($item);
+      }
+    }
+  }
+}
+
+add_action('admin_menu', 'aesirx_analytics_add_nonce_menu_item', 999);

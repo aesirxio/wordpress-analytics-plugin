@@ -44,10 +44,10 @@ class Woocommerce {
         add_action( 'woocommerce_removed_coupon', [ $this, 'onCouponUpdatedSafe' ], 99999, 0 );
     }
 
-    public function onCartUpdatedSafe( $val = null ) {
+    public function onCartUpdatedSafe() {
         $this->onCartUpdated();
 
-        return $val;
+        return null;
     }
 
     public function onCouponUpdatedSafe() {
