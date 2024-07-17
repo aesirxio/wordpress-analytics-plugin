@@ -607,7 +607,7 @@ add_action('admin_enqueue_scripts', function ($hook) {
 
     $jwt = $options['storage'] === "external" ? 'window.env.REACT_APP_HEADER_JWT="true"' : '';
 
-    wp_register_script( 'aesrix_bi_window', '', array(), '1.0', true );
+    wp_register_script( 'aesrix_bi_window', '', array(), '1.0', false );
 
     wp_enqueue_script('aesrix_bi_window');
 
