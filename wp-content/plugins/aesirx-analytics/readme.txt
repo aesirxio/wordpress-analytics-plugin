@@ -2,8 +2,8 @@
 Contributors: aesirx
 Tags: analytics
 Requires at least: 6.5
-Tested up to: 6.5.3
-Stable tag: 3.1.3
+Tested up to: 6.6
+Stable tag: 4.0.0
 Requires PHP: 8.1
 License: GPL 3.0
 
@@ -33,6 +33,15 @@ We are using our server dev01.aesirx.io for validating wallet and JWT decoding.
 
 == Changelog ==
 
+= 4.0.0 =
+
+* This Release is the first stable release for WordPress and will also be submitted for the official repository on WordPress.org.
+* Removed Rust CLI and changed to pure PHP version.
+* Added nonce to admin menu links.
+* Update BI app
+* Update AesirX Analytics
+* Update of AesirX Library
+
 = 3.1.3 =
 * Update BI app
 * Update AesirX Analytics
@@ -56,7 +65,7 @@ We are using our server dev01.aesirx.io for validating wallet and JWT decoding.
 = 3.1.0 =
 * Add option menu
 * Adjust menu
-* Adding requerd values in readme
+* Adding required values in readme
 * Bugfixes update of dependencies
 
 = 3.0.0 =
