@@ -190,8 +190,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         }
     
         function aesirx_analytics_add_filters($params, &$where_clause, &$bind) {
-            foreach ([$params['filter'], $params['filter_not']] as $filter_array) {
-                $is_not = $filter_array === $params['filter_not'];
+            foreach ([$params['filter'] ?? null, $params['filter_not'] ?? null] as $filter_array) {
+                $is_not = $filter_array === (isset($params['filter_not']) ? $params['filter_not'] : null);
                 if (empty($filter_array)) {
                     continue;
                 }
@@ -246,8 +246,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         }
     
         function aesirx_analytics_add_attribute_filters($params, &$where_clause, &$bind) {
-            foreach ([$params['filter'], $params['filter_not']] as $filter_array) {
-                $is_not = $filter_array === $params['filter_not'];
+            foreach ([$params['filter'] ?? null, $params['filter_not'] ?? null]as $filter_array) {
+                $is_not = $filter_array === (isset($params['filter_not']) ? $params['filter_not'] : null);
                 if (empty($filter_array)) {
                     continue;
                 }
@@ -537,8 +537,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         }
     
         function aesirx_analytics_add_consent_filters($params, &$where_clause, &$bind) {
-            foreach ([$params['filter'], $params['filter_not']] as $filter_array) {
-                $is_not = $filter_array === $params['filter_not'];
+            foreach ([$params['filter'] ?? null, $params['filter_not'] ?? null] as $filter_array) {
+                $is_not = $filter_array === (isset($params['filter_not']) ? $params['filter_not'] : null);
                 if (empty($filter_array)) {
                     continue;
                 }
@@ -1220,6 +1220,41 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             $data = json_decode($body, true);
 
             return $data;
+        }
+
+        function aesirx_analytics_fetch_open_graph_data($url) {
+            $response = wp_remote_get($url);
+        
+            if (is_wp_error($response)) {
+                error_log('Failed to fetch the page: ' . $response->get_error_message());
+                return null;
+            }
+        
+            $html = wp_remote_retrieve_body($response);
+        
+            if (empty($html)) {
+                error_log('Empty response body for URL: ' . $url);
+                return null;
+            }
+        
+            require_once ABSPATH . WPINC . '/class-simplepie.php';
+            $parser = new SimplePie();
+            $parser->set_raw_data($html);
+            $parser->init();
+        
+            $og_data = [];
+        
+            if ($title = $parser->get_title()) {
+                $og_data['og:title'] = $title;
+            }
+            if ($description = $parser->get_description()) {
+                $og_data['og:description'] = $description;
+            }
+            if ($image = $parser->get_image_url()) {
+                $og_data['og:image'] = $image;
+            }
+        
+            return $og_data;
         }
     }
 }

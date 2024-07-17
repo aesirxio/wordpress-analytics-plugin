@@ -16,6 +16,12 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
         $detail_page = false;
         parent::aesirx_analytics_add_filters($params, $where_clause, $bind);
 
+        if ( isset($params['flow_uuid']) && !empty($params['flow_uuid'])) {
+            $where_clause = ["#__analytics_flows.uuid = %s"];
+            $bind = [ sanitize_text_field($params['flow_uuid'])];
+            $detail_page = true;
+        }
+
         // filters where clause for events
 
         $total_sql =
@@ -93,11 +99,11 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
         $dirs = [];
 
         if (!empty($list)) {
-            if (isset($params['with']) && !empty($params['with'])) {
-                $with = $params['with'];
+            if (isset($params['request']['with']) && !empty($params['request']['with'])) {
+                $with = $params['request']['with'];
                 if (in_array("events", $with)) {
                     $bind = array_map(function($e) {
-                        return $e->uuid;
+                        return $e['uuid'];
                     }, $list);
 
                     // doing direct database calls to custom tables
@@ -141,6 +147,16 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
                         $og_image = null;
 
                         // OG
+                        if ($detail_page == true && !empty($second->url)) {
+                            // Try to fetch and parse the Open Graph data
+                            $og_data = parent::aesirx_analytics_fetch_open_graph_data($second->url);
+                        
+                            if (!empty($og_data)) {
+                                $og_title = isset($og_data['og:title']) ? $og_data['og:title'] : null;
+                                $og_description = isset($og_data['og:description']) ? $og_data['og:description'] : null;
+                                $og_image = isset($og_data['og:image']) ? $og_data['og:image'] : null;
+                            }
+                        }
 
                         $visitor_event = [
                             'uuid' => $second->uuid,
@@ -186,42 +202,76 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
 
                 $events = isset($hash_map[$item->uuid]) ? array_values($hash_map[$item->uuid]) : null;
 
-                $collection[] = [
-                    'uuid' => $item->uuid,
-                    'visitor_uuid' => $item->visitor_uuid,
-                    'ip' => $item->ip,
-                    'user_agent' => $item->user_agent,
-                    'device' => $item->device,
-                    'browser_name' => $item->browser_name,
-                    'browser_version' => $item->browser_version,
-                    'domain' => $item->domain,
-                    'lang' => $item->lang,
-                    'start' => $item->start,
-                    'end' => $item->end,
-                    'geo' => $geo,
-                    'events' => $events,
-                    'duration' => $item->duration,
-                    'action' => $item->action,
-                    'event' => $item->event,
-                    'conversion' => $item->conversion,
-                    'url' => $item->url,
-                    'ux_percent' => $item->ux_percent,
-                    'pageview' => $item->pageview,
-                    'sop_id' => $item->sop_id,
-                    'visit_actions' => $item->visit_actions,
-                    'event_actions' => $item->event_actions,
-                    'conversion_actions' => $item->conversion_actions,
-                ];
+                if ( $params[1] == 'flows') {
+                    $collection[] = [
+                        'uuid' => $item->uuid,
+                        'visitor_uuid' => $item->visitor_uuid,
+                        'ip' => $item->ip,
+                        'user_agent' => $item->user_agent,
+                        'device' => $item->device,
+                        'browser_name' => $item->browser_name,
+                        'browser_version' => $item->browser_version,
+                        'domain' => $item->domain,
+                        'lang' => $item->lang,
+                        'start' => $item->start,
+                        'end' => $item->end,
+                        'geo' => $geo,
+                        'events' => $events,
+                        'duration' => $item->duration,
+                        'action' => $item->action,
+                        'event' => $item->event,
+                        'conversion' => $item->conversion,
+                        'url' => $item->url,
+                        'ux_percent' => $item->ux_percent,
+                        'pageview' => $item->pageview,
+                        'sop_id' => $item->sop_id,
+                        'visit_actions' => $item->visit_actions,
+                        'event_actions' => $item->event_actions,
+                        'conversion_actions' => $item->conversion_actions,
+                    ];
+                }
+                elseif ( $params[1] == 'flow' ) {
+                    $collection = [
+                        'uuid' => $item->uuid,
+                        'visitor_uuid' => $item->visitor_uuid,
+                        'ip' => $item->ip,
+                        'user_agent' => $item->user_agent,
+                        'device' => $item->device,
+                        'browser_name' => $item->browser_name,
+                        'browser_version' => $item->browser_version,
+                        'domain' => $item->domain,
+                        'lang' => $item->lang,
+                        'start' => $item->start,
+                        'end' => $item->end,
+                        'geo' => $geo,
+                        'events' => $events,
+                        'duration' => $item->duration,
+                        'action' => $item->action,
+                        'event' => $item->event,
+                        'conversion' => $item->conversion,
+                        'url' => $item->url,
+                        'ux_percent' => $item->ux_percent,
+                        'pageview' => $item->pageview,
+                        'sop_id' => $item->sop_id,
+                        'visit_actions' => $item->visit_actions,
+                        'event_actions' => $item->event_actions,
+                        'conversion_actions' => $item->conversion_actions,
+                    ];
+                }
             }
         }
 
-
-        return [
-            'collection' => $collection,
-            'page' => $list_response['page'],
-            'page_size' => $list_response['page_size'],
-            'total_pages' => $list_response['total_pages'],
-            'total_elements' => $list_response['total_elements'],
-        ];
+        if ( $params[1] == 'flows') {
+            return [
+                'collection' => $collection,
+                'page' => $list_response['page'],
+                'page_size' => $list_response['page_size'],
+                'total_pages' => $list_response['total_pages'],
+                'total_elements' => $list_response['total_elements'],
+            ];
+        }
+        elseif ( $params[1] == 'flow' ) {
+            return $collection;
+        }
     }
 }
