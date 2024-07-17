@@ -26,7 +26,8 @@
     display: none !important;
   }
 
-  aside.sidebar, .item_collap {
+  aside.sidebar,
+  .item_collap {
     display: none !important;
   }
 }
@@ -43,4 +44,13 @@
 .notice,
 .updated {
   display: none;
+}
+
+body[class*='aesirx-bi'] .notice-bi {
+  display: block !important;
+}
+.notice-bi {
+  z-index: 99;
+  position: relative;
+  top: 80px;
 }

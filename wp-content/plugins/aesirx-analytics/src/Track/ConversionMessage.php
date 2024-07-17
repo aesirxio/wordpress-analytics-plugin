@@ -96,7 +96,7 @@ class ConversionMessage extends AbstractMessage {
             $data['event_name'] = $this->eventName;
         }
 
-        return json_encode($data);
+        return wp_json_encode($data);
     }
 
     public function asCliCommand(): array
@@ -109,7 +109,7 @@ class ConversionMessage extends AbstractMessage {
             $subtotal += $item['price'] * $item['quantity'];
             $item['price'] = $this->multiply($item['price']);
             $items[] = '--items';
-            $items[] = json_encode($item);
+            $items[] = wp_json_encode($item);
         }
 
         if ($this->order['order_id'])
