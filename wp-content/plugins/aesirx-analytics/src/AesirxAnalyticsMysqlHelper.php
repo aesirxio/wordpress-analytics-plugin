@@ -568,7 +568,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                             }
                             break;
                         case 'domain':
-                            $where_clause[] = 'visitors ' . ($is_not ? 'NOT ' : '') . 'IN (%s)';
+                            $where_clause[] = 'domain ' . ($is_not ? 'NOT ' : '') . 'IN (%s)';
                             $bind[] = implode(', ', $list);
                             break;
                         default:
