@@ -531,21 +531,24 @@ add_action('admin_init', 'aesirx_analytics_redirect_config', 1);
 function aesirx_analytics_redirect_config() {
   $current_url = home_url(add_query_arg(null, null));
   $parsed_url = wp_parse_url($current_url);
-  $query_params = wp_parse_args($parsed_url['query']);
-
-  $query_params = array_map('sanitize_text_field', $query_params);
-
-  if (isset($query_params['page']) && strpos($query_params['page'], 'aesirx-bi') !== false) {
-    if (!isset($query_params['aesirx_analytics_nonce']) || !wp_verify_nonce($query_params['aesirx_analytics_nonce'], 'aesirx_analytics_submenu')) {
-      wp_die('Nonce verification failed');
-    }
-
-    $checked_page = array('aesirx-bi-dashboard', 'aesirx-bi-visitors', 'aesirx-bi-behavior', 'aesirx-bi-utm-tracking', 'aesirx-bi-woocommerce', 'aesirx-bi-consents');
   
-    if (in_array($query_params['page'], $checked_page) && !aesirx_analytics_config_is_ok()) {
-  
-      wp_redirect('/wp-admin/options-general.php?page=aesirx-analytics-plugin');
-      die;
+  if (isset($parsed_url['query'])) {
+    $query_params = wp_parse_args($parsed_url['query']);
+
+    $query_params = array_map('sanitize_text_field', $query_params);
+
+    if (isset($query_params['page']) && strpos($query_params['page'], 'aesirx-bi') !== false) {
+      if (!isset($query_params['aesirx_analytics_nonce']) || !wp_verify_nonce($query_params['aesirx_analytics_nonce'], 'aesirx_analytics_submenu')) {
+        wp_die('Nonce verification failed');
+      }
+
+      $checked_page = array('aesirx-bi-dashboard', 'aesirx-bi-visitors', 'aesirx-bi-behavior', 'aesirx-bi-utm-tracking', 'aesirx-bi-woocommerce', 'aesirx-bi-consents');
+    
+      if (in_array($query_params['page'], $checked_page) && !aesirx_analytics_config_is_ok()) {
+    
+        wp_redirect('/wp-admin/options-general.php?page=aesirx-analytics-plugin');
+        die;
+      }
     }
   }
 }
