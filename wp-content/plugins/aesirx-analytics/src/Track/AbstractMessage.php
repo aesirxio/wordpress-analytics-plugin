@@ -13,7 +13,7 @@ abstract class AbstractMessage {
      * @return false|string The JSON-encoded string representing the object, or false on failure.
      */
     public function __serialize() {
-        return json_encode($this);
+        return wp_json_encode($this);
     }
 
     /**

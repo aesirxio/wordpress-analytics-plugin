@@ -16,7 +16,7 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
         $detail_page = false;
         parent::aesirx_analytics_add_filters($params, $where_clause, $bind);
 
-        // filters
+        // filters where clause for events
 
         $total_sql =
             "SELECT COUNT(DISTINCT #__analytics_flows.uuid) as total
@@ -28,9 +28,9 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
         $sql =
             "SELECT #__analytics_flows.*, ip, user_agent, device, browser_name, browser_name, browser_version, domain, lang, city, isp, country_name, country_code, geo_created_at, #__analytics_visitors.uuid AS visitor_uuid, 
             COUNT(DISTINCT #__analytics_events.uuid) AS action, 
-            CAST(SUM(CASE WHEN #__analytics_events.event_type = 'conversion' THEN 1 ELSE 0 END) as INT) AS conversion, 
-            CAST(SUM(CASE WHEN #__analytics_events.event_name = 'visit' THEN 1 ELSE 0 END) as INT) AS pageview, 
-            CAST(SUM(CASE WHEN #__analytics_events.event_name != 'visit' THEN 1 ELSE 0 END) as INT) AS event, 
+            CAST(SUM(CASE WHEN #__analytics_events.event_type = 'conversion' THEN 1 ELSE 0 END) as SIGNED) AS conversion, 
+            CAST(SUM(CASE WHEN #__analytics_events.event_name = 'visit' THEN 1 ELSE 0 END) as SIGNED) AS pageview, 
+            CAST(SUM(CASE WHEN #__analytics_events.event_name != 'visit' THEN 1 ELSE 0 END) as SIGNED) AS event, 
             MAX(CASE WHEN #__analytics_event_attributes.name = 'sop_id' THEN #__analytics_event_attributes.value ELSE NULL END) AS sop_id, 
             TIMESTAMPDIFF(SECOND, #__analytics_flows.start, #__analytics_flows.end) AS duration, 
             #__analytics_events.url AS url, 
@@ -100,30 +100,27 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
                         return $e->uuid;
                     }, $list);
 
-                    $sql =
-                        "SELECT * FROM #__analytics_events WHERE " .
-                        sprintf("flow_uuid IN ('" . implode("', '", $bind) . "')");
+                    // doing direct database calls to custom tables
+                    // placeholders depends one number of $bind
+                    $events = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                        $wpdb->prepare(
+                            "SELECT * FROM {$wpdb->prefix}analytics_events WHERE flow_uuid IN (" . implode(', ', array_fill(0, count($bind), '%s')) . ")", 
+                            ...$bind
+                        )
+                    );
 
-                    if (!empty($where_clause_event)) {
-                        $sql .= "AND " . implode(" AND ", $where_clause_event);
-                    }
-
-                    $sql = str_replace("#__", $wpdb->prefix, $sql);
-
-                    $events = $wpdb->get_results($sql);
-
-                    $sql =
-                        "SELECT * FROM #__analytics_event_attributes LEFT JOIN #__analytics_events
-                        ON #__analytics_events.uuid = #__analytics_event_attributes.event_uuid WHERE " .
-                        sprintf("#__analytics_events.flow_uuid IN ('" . implode("', '", $bind) . "')");
-
-                    if (!empty($where_clause_event)) {
-                        $sql .= "AND " . implode(" AND ", $where_clause_event);
-                    }
-
-                    $sql = str_replace("#__", $wpdb->prefix, $sql);
-
-                    $attributes = $wpdb->get_results($sql);
+                    // doing direct database calls to custom tables
+                    // placeholders depends one number of $bind
+                    $attributes = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                        $wpdb->prepare(
+                            "SELECT * FROM {$wpdb->prefix}analytics_event_attributes 
+                            LEFT JOIN {$wpdb->prefix}analytics_events
+                            ON {$wpdb->prefix}analytics_events.uuid = {$wpdb->prefix}analytics_event_attributes.event_uuid 
+                            WHERE {$wpdb->prefix}analytics_events.flow_uuid IN (" . implode(', ', array_fill(0, count($bind), '%s')) . ")",
+                            ...$bind
+                        )
+                    ); 
+                    
                     $hash_attributes = [];
 
                     foreach ($attributes as $second) {

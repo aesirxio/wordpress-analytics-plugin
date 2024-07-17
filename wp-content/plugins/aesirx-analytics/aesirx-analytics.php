@@ -152,27 +152,12 @@ function aesirx_analytics_url_handler()
         {
             $data = CliFactory::getCli()->processAnalytics($command);
         }
-        catch (Throwable $e)
+        catch (Exception $e)
         {
-            $code = 500;
-
-            if ($e instanceof ExceptionWithErrorType)
-            {
-                switch ($e->getErrorType())
-                {
-                    case "NotFoundError":
-                        $code = 404;
-                        break;
-                    case "ValidationError":
-                        $code = 400;
-                        break;
-                    case "Rejected":
-                        $code = 406;
-                        break;
-                }
-            }
-
-            throw new ExceptionWithResponseCode($e->getMessage(), $code, $e->getCode(), $e);
+            error_log($e->getMessage());
+            $data = wp_json_encode([
+                'error' => $e->getMessage()
+            ]);
         }
 
         if (!headers_sent()) {
@@ -195,7 +180,7 @@ function aesirx_analytics_url_handler()
 
                 $_SESSION['analytics_flow_uuid'] = $flow;
 
-                return json_encode(true);
+                return wp_json_encode(true);
             }))
                 ->setWhere(['flow' => '[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}'])
                 ->setRequestMethods([Request::REQUEST_TYPE_POST])
@@ -233,9 +218,6 @@ function aesirx_analytics_initialize_function() {
     MigratorMysql::aesirx_analytics_create_migrator_table_query();
     $migration_list = array_column(MigratorMysql::aesirx_analytics_fetch_rows(), 'name');
 
-    // Include upgrade.php to use dbDelta()
-    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-
     $files = glob(plugin_dir_path( __FILE__ ) . 'src/Migration/*.php');
     
     foreach ($files as $file) {
@@ -245,7 +227,9 @@ function aesirx_analytics_initialize_function() {
         if(!in_array($file_name, $migration_list)) {
             MigratorMysql::aesirx_analytics_add_migration_query($file_name);
             foreach ($sql as $each_query) {
-                $wpdb->query($each_query);
+                // used placeholders and $wpdb->prepare() in variable $each_query
+                // need $wpdb->query() for ALTER TABLE
+                $wpdb->query($each_query); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             }
         }       
     }
@@ -261,7 +245,9 @@ function aesirx_analytics_display_update_notice(  ) {
         if ($notice instanceof Throwable)
         {
             /* translators: %s: error message */
-            echo aesirx_analytics_escape_html('<div class="notice notice-error"><p>' . sprintf(esc_html__('Problem with Aesirx Analytics plugin install: %s', 'aesirx-analytics'), $notice->getMessage()) . '</p></div>');
+            // using custom function to escape HTML in error message
+            error_log($notice->getMessage());
+            echo aesirx_analytics_escape_html('<div class="notice notice-error"><p>' . esc_html__('Problem with Aesirx Analytics plugin install', 'aesirx-analytics') . '</p></div>');
         }
 
         delete_transient( 'aesirx_analytics_update_notice' );
@@ -279,31 +265,4 @@ add_action('admin_init', function () {
             exit();
         }
     }
-
-    add_action('load-options.php', function () {
-        if (!array_key_exists('submit', $_REQUEST)
-            || $_REQUEST['submit'] !== 'download_analytics_cli'
-            || !array_key_exists('option_page', $_REQUEST)
-            || $_REQUEST['option_page'] !== 'aesirx_analytics_plugin_options') {
-            return;
-        }
-
-        try {
-            add_settings_error(
-                'aesirx_analytics_plugin_options',
-                'download',
-                esc_html__('Library successfully downloaded.', 'aesirx-analytics'),
-                'info'
-            );
-        }
-        catch (Throwable $e)
-        {
-            add_settings_error(
-                'aesirx_analytics_plugin_options',
-                'download',
-                /* translators: %s: error message */
-                sprintf(esc_html__('Error: %s', 'aesirx-analytics'), $e->getMessage())
-            );
-        }
-    });
 });

@@ -16,17 +16,17 @@ Class AesirX_Analytics_Get_Attribute_Value extends AesirxAnalyticsMysqlHelper
         parent::aesirx_analytics_add_attribute_filters($params, $where_clause, $bind);
 
         $total_sql =
-            "SELECT COUNT(DISTINCT #__analytics_event_attributes.name) as total
-            from `#__analytics_event_attributes`
-            left join `#__analytics_events` on #__analytics_event_attributes.event_uuid = #__analytics_events.uuid
-            left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
+            "SELECT COUNT(DISTINCT {$wpdb->prefix}analytics_event_attributes.name) as total
+            from {$wpdb->prefix}analytics_event_attributes
+            left join {$wpdb->prefix}analytics_events on {$wpdb->prefix}analytics_event_attributes.event_uuid = {$wpdb->prefix}analytics_events.uuid
+            left join {$wpdb->prefix}analytics_visitors on {$wpdb->prefix}analytics_visitors.uuid = {$wpdb->prefix}analytics_events.visitor_uuid
             WHERE " . implode(" AND ", $where_clause);
 
         $sql =
-            "SELECT DISTINCT #__analytics_event_attributes.name
-            from #__analytics_event_attributes
-            left join #__analytics_events on #__analytics_event_attributes.event_uuid = #__analytics_events.uuid
-            left join #__analytics_visitors on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
+            "SELECT DISTINCT {$wpdb->prefix}analytics_event_attributes.name
+            from {$wpdb->prefix}analytics_event_attributes
+            left join {$wpdb->prefix}analytics_events on {$wpdb->prefix}analytics_event_attributes.event_uuid = {$wpdb->prefix}analytics_events.uuid
+            left join {$wpdb->prefix}analytics_visitors on {$wpdb->prefix}analytics_visitors.uuid = {$wpdb->prefix}analytics_events.visitor_uuid
             WHERE " . implode(" AND ", $where_clause);
 
         $sort = self::aesirx_analytics_add_sort($params, ["name"], "name");
@@ -51,29 +51,26 @@ Class AesirX_Analytics_Get_Attribute_Value extends AesirxAnalyticsMysqlHelper
                 return $e['name'];
             }, $list);
 
-            $where_clause = [
-                "#__analytics_event_attributes.name IN ('" . implode("', '", $names) . "')",
-            ];
-
-            $sql =
-                "SELECT #__analytics_event_attributes.name, #__analytics_event_attributes.value, COUNT(#__analytics_event_attributes.id) as count,
-                coalesce(COUNT(DISTINCT (#__analytics_events.visitor_uuid)), 0) as number_of_visitors,
-                coalesce(COUNT(#__analytics_events.visitor_uuid), 0) as total_number_of_visitors,
-                COUNT(#__analytics_events.uuid) as number_of_page_views,
-                COUNT(DISTINCT (#__analytics_events.url)) AS number_of_unique_page_views,
-                coalesce(SUM(TIMESTAMPDIFF(SECOND, #__analytics_events.start, #__analytics_events.end)) / count(distinct #__analytics_visitors.uuid), 0) DIV 1 as average_session_duration,
-                coalesce((COUNT(#__analytics_events.uuid) / COUNT(DISTINCT (#__analytics_events.flow_uuid))), 0) DIV 1 as average_number_of_pages_per_session,
-                coalesce((count(DISTINCT CASE WHEN #__analytics_flows.multiple_events = 0 THEN #__analytics_flows.uuid END) * 100) / count(DISTINCT (#__analytics_flows.uuid)), 0) DIV 1 as bounce_rate
-                from `#__analytics_event_attributes`
-                left join `#__analytics_events` on #__analytics_event_attributes.event_uuid = #__analytics_events.uuid
-                left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_events.visitor_uuid
-                left join `#__analytics_flows` on #__analytics_flows.uuid = #__analytics_events.flow_uuid
-                WHERE " . implode(" AND ", $where_clause) .
-                " GROUP BY #__analytics_event_attributes.name, #__analytics_event_attributes.value";
-
-            $sql = str_replace("#__", $wpdb->prefix, $sql);
-
-            $secondArray = $wpdb->get_results($sql);
+            // doing direct database calls to custom tables
+            $secondArray = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->prepare(
+                    "SELECT {$wpdb->prefix}analytics_event_attributes.name, {$wpdb->prefix}analytics_event_attributes.value, COUNT({$wpdb->prefix}analytics_event_attributes.id) as count,
+                    coalesce(COUNT(DISTINCT ({$wpdb->prefix}analytics_events.visitor_uuid)), 0) as number_of_visitors,
+                    coalesce(COUNT({$wpdb->prefix}analytics_events.visitor_uuid), 0) as total_number_of_visitors,
+                    COUNT({$wpdb->prefix}analytics_events.uuid) as number_of_page_views,
+                    COUNT(DISTINCT ({$wpdb->prefix}analytics_events.url)) AS number_of_unique_page_views,
+                    coalesce(SUM(TIMESTAMPDIFF(SECOND, {$wpdb->prefix}analytics_events.start, {$wpdb->prefix}analytics_events.end)) / count(distinct {$wpdb->prefix}analytics_visitors.uuid), 0) DIV 1 as average_session_duration,
+                    coalesce((COUNT({$wpdb->prefix}analytics_events.uuid) / COUNT(DISTINCT ({$wpdb->prefix}analytics_events.flow_uuid))), 0) DIV 1 as average_number_of_pages_per_session,
+                    coalesce((count(DISTINCT CASE WHEN {$wpdb->prefix}analytics_flows.multiple_events = 0 THEN {$wpdb->prefix}analytics_flows.uuid END) * 100) / count(DISTINCT ({$wpdb->prefix}analytics_flows.uuid)), 0) DIV 1 as bounce_rate
+                    from {$wpdb->prefix}analytics_event_attributes
+                    left join {$wpdb->prefix}analytics_events on {$wpdb->prefix}analytics_event_attributes.event_uuid = {$wpdb->prefix}analytics_events.uuid
+                    left join {$wpdb->prefix}analytics_visitors on {$wpdb->prefix}analytics_visitors.uuid = {$wpdb->prefix}analytics_events.visitor_uuid
+                    left join {$wpdb->prefix}analytics_flows` on {$wpdb->prefix}analytics_flows.uuid = {$wpdb->prefix}analytics_events.flow_uuid
+                    WHERE {$wpdb->prefix}analytics_event_attributes.name IN (%s)" .
+                    " GROUP BY {$wpdb->prefix}analytics_event_attributes.name, {$wpdb->prefix}analytics_event_attributes.value",
+                    "'" . implode("', '", $names) . "'"
+                )
+            );
 
             $hash_map = [];
 

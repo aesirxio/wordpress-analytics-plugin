@@ -89,11 +89,11 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
             $uuid = $found_consent[(int)$consent] ?? null;
             if (!$uuid) {
                 $uuid = wp_generate_uuid4();
-                parent::aesirx_analytics_add_consent($uuid, (int)$consent, date('Y-m-d H:i:s'), $web3id, $wallet->uuid);
+                parent::aesirx_analytics_add_consent($uuid, (int)$consent, gmdate('Y-m-d H:i:s'), $web3id, $wallet->uuid);
             }
 
             // Add visitor consent record
-            parent::aesirx_analytics_add_visitor_consent($params['visitor_uuid'], $uuid, null, date('Y-m-d H:i:s'));
+            parent::aesirx_analytics_add_visitor_consent($params['visitor_uuid'], $uuid, null, gmdate('Y-m-d H:i:s'));
         }
 
         // Update nonce
@@ -109,59 +109,54 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
         $wallet = sanitize_text_field($wallet);
         $domain = sanitize_text_field($domain);
 
-        $table_consent = $wpdb->prefix . 'analytics_consent';
-        $table_visitor_consent = $wpdb->prefix . 'analytics_visitor_consent';
-        $table_visitors = $wpdb->prefix . 'analytics_visitors';
-        $table_wallet = $wpdb->prefix . 'analytics_wallet';
-        $table_flows = $wpdb->prefix . 'analytics_flows';
-
         // Prepare SQL conditions based on input parameters
-        $domain_condition = $domain ? "AND visitor.domain = %s" : "";
+        $domain_condition = $domain ? $wpdb->prepare(" AND visitor.domain = %s", $domain) : "";
         $expired_condition = !$expired ? "AND consent.expiration IS NULL" : "";
-        $web3id_condition = $web3id ? "AND consent.web3id = %s" : "AND consent.web3id IS NULL";
+        $web3id_condition = $web3id ? $wpdb->prepare(" AND consent.web3id = %s", $web3id) : "AND consent.web3id IS NULL";
 
         try {
-            // SQL query to fetch consents
-            $consent_sql = "
-            SELECT consent.*, wallet.address 
-            FROM {$table_consent} AS consent
-            LEFT JOIN {$table_wallet} AS wallet ON wallet.uuid = consent.wallet_uuid
-            LEFT JOIN {$table_visitor_consent} AS visitor_consent ON consent.uuid = visitor_consent.consent_uuid
-            LEFT JOIN {$table_visitors} AS visitor ON visitor_consent.visitor_uuid = visitor.uuid
-            WHERE wallet.address = %s $expired_condition $web3id_condition $domain_condition
-            GROUP BY consent.uuid";
 
-            // Prepare and execute the consent query
-            $consent_query = $wpdb->prepare($consent_sql, $wallet, $web3id, $domain);
-            $consents = $wpdb->get_results($consent_query);
+            // doing direct database calls to custom tables
+            $consents = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->prepare(
+                    "SELECT consent.*, wallet.address 
+                    FROM $wpdb->prefix . 'analytics_consent' AS consent
+                    LEFT JOIN {$wpdb->prefix}analytics_wallet AS wallet ON wallet.uuid = consent.wallet_uuid
+                    LEFT JOIN {$wpdb->prefix}analytics_visitor_consent AS visitor_consent ON consent.uuid = visitor_consent.consent_uuid
+                    LEFT JOIN {$wpdb->prefix}analytics_visitors AS visitor ON visitor_consent.visitor_uuid = visitor.uuid
+                    WHERE wallet.address = %s %s %s %s
+                    GROUP BY consent.uuid", 
+                    $wallet, $expired_condition, $web3id_condition, $domain_condition
+                )
+            );
 
-            // SQL query to fetch visitors
-            $visitor_sql = "
-                SELECT visitor.*, visitor_consent.consent_uuid
-                FROM {$table_visitors} AS visitor
-                LEFT JOIN {$table_visitor_consent} AS visitor_consent ON visitor_consent.visitor_uuid = visitor.uuid
-                LEFT JOIN {$table_consent} AS consent ON consent.uuid = visitor_consent.consent_uuid
-                LEFT JOIN {$table_wallet} AS wallet ON wallet.uuid = consent.wallet_uuid
-                WHERE wallet.address = %s $expired_condition $web3id_condition $domain_condition";
+            // doing direct database calls to custom tables
+            $visitors = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->prepare(
+                    "SELECT visitor.*, visitor_consent.consent_uuid
+                    FROM $wpdb->prefix . 'analytics_visitors' AS visitor
+                    LEFT JOIN {$wpdb->prefix}analytics_visitor_consent AS visitor_consent ON visitor_consent.visitor_uuid = visitor.uuid
+                    LEFT JOIN {$wpdb->prefix}analytics_consent AS consent ON consent.uuid = visitor_consent.consent_uuid
+                    LEFT JOIN {$wpdb->prefix}analytics_wallet AS wallet ON wallet.uuid = consent.wallet_uuid
+                    WHERE wallet.address = %s %s %s %s",
+                    $wallet, $expired_condition, $web3id_condition, $domain_condition
+                )
+            );
 
-            // Prepare and execute the visitor query
-            $visitor_query = $wpdb->prepare($visitor_sql, $wallet, $web3id, $domain);
-            $visitors = $wpdb->get_results($visitor_query);
-
-            // SQL query to fetch flows
-            $flow_sql = "
-                SELECT flows.*
-                FROM {$table_flows} AS flows
-                LEFT JOIN {$table_visitors} AS visitor ON visitor.uuid = flows.visitor_uuid
-                LEFT JOIN {$table_visitor_consent} AS visitor_consent ON visitor_consent.visitor_uuid = visitor.uuid
-                LEFT JOIN {$table_consent} AS consent ON consent.uuid = visitor_consent.consent_uuid
-                LEFT JOIN {$table_wallet} AS wallet ON wallet.uuid = consent.wallet_uuid
-                WHERE wallet.address = %s $expired_condition $web3id_condition $domain_condition
-                ORDER BY flows.id";
-
-            // Prepare and execute the flow query
-            $flow_query = $wpdb->prepare($flow_sql, $wallet, $web3id, $domain);
-            $flows = $wpdb->get_results($flow_query);
+            // doing direct database calls to custom tables
+            $flows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->prepare(
+                    "SELECT flows.*
+                    FROM $wpdb->prefix . 'analytics_flows' AS flows
+                    LEFT JOIN {$wpdb->prefix}analytics_visitors AS visitor ON visitor.uuid = flows.visitor_uuid
+                    LEFT JOIN {$wpdb->prefix}analytics_visitor_consent AS visitor_consent ON visitor_consent.visitor_uuid = visitor.uuid
+                    LEFT JOIN {$wpdb->prefix}analytics_consent AS consent ON consent.uuid = visitor_consent.consent_uuid
+                    LEFT JOIN {$wpdb->prefix}analytics_wallet AS wallet ON wallet.uuid = consent.wallet_uuid
+                    WHERE wallet.address = %s %s %s %s
+                    ORDER BY flows.id",
+                    $wallet, $expired_condition, $web3id_condition, $domain_condition
+                )
+            );
 
             return parent::aesirx_analytics_list_consent_common($consents, $visitors, $flows);
         } catch (Exception $e) {
