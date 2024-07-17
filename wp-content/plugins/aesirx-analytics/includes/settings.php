@@ -2,8 +2,6 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-use AesirxAnalytics\CliFactory;
-
 add_action('admin_init', function () {
   register_setting('aesirx_analytics_plugin_options', 'aesirx_analytics_plugin_options', function (
     $value
@@ -13,11 +11,11 @@ add_action('admin_init', function () {
 
     if ($input['storage'] == 'internal') {
       if (empty($input['license'])) {
-        $valid = false;
         add_settings_error(
           'aesirx_analytics_plugin_options',
           'license',
-          esc_html__('License is empty.', 'aesirx-analytics')
+          esc_html__('Please register your license at Signup.aesirx.io to enable the external first-party server.', 'aesirx-analytics'),
+          'warning'
         );
       }
     } elseif ($input['storage'] == 'external') {
@@ -58,6 +56,19 @@ add_action('admin_init', function () {
     'aesirx_analytics_plugin'
   );
 
+  function add_warning_missing_license() {
+    $options = get_option('aesirx_analytics_plugin_options');
+
+    if (empty($options['license'])) {
+      ?>
+        <div class="notice-warning notice notice-bi" style="display: none;">
+            <p><?php echo esc_html__( 'Please register your license at signup.aesirx.io to enable decentralized consent functionality.', 'aesirx-analytics' ); ?></p>
+        </div>
+      <?php
+    }
+  }
+  add_action( 'admin_notices', 'add_warning_missing_license' );
+
   add_settings_field(
     'aesirx_analytics_storage',
     esc_html__('1st party server', 'aesirx-analytics'),
@@ -65,6 +76,7 @@ add_action('admin_init', function () {
       $options = get_option('aesirx_analytics_plugin_options', []);
       $checked = 'checked="checked"';
       $storage = $options['storage'] ?? 'internal';
+      // using custom function to escape HTML in label
       echo aesirx_analytics_escape_html('
     <label>' . esc_html__('Internal', 'aesirx-analytics') . ' <input type="radio" class="analytic-storage-class" name="aesirx_analytics_plugin_options[storage]" ' .
         ($storage == 'internal' ? $checked : '') .
@@ -82,21 +94,23 @@ add_action('admin_init', function () {
           jQuery("#aesirx_analytics_clientid").parents("tr").hide();
           jQuery("#aesirx_analytics_secret").parents("tr").hide();
           jQuery("#aesirx_analytics_license").parents("tr").show();
+          jQuery("#aesirx_analytics_geo_cron_time").parents("tr").show();
+          jQuery("#aesirx_analytics-enable_cronjob").parents("tr").show();
           donwload.parents("tr").show();
         } else {
           jQuery("#aesirx_analytics_domain").parents("tr").show();
           jQuery("#aesirx_analytics_license").parents("tr").hide();
           jQuery("#aesirx_analytics_clientid").parents("tr").show();
           jQuery("#aesirx_analytics_secret").parents("tr").show();
+          jQuery("#aesirx_analytics_geo_cron_time").parents("tr").hide();
+          jQuery("#aesirx_analytics-enable_cronjob").parents("tr").hide();
           donwload.parents("tr").hide();
         }
       }
         jQuery("input.analytic-storage-class").click(function() {
         switch_radio(jQuery(this).val())
         });
-      switch_radio("' .
-            $storage .
-            '");
+      switch_radio("' . esc_html($storage) . '");
     });
     </script>';
 
@@ -106,7 +120,7 @@ add_action('admin_init', function () {
 
       if ($manifest->entrypoints->plugin->assets) {
         foreach ($manifest->entrypoints->plugin->assets->js as $js) {
-          wp_enqueue_script('aesrix_bi' . md5($js), plugins_url($js, __DIR__), false, null, true);
+          wp_enqueue_script('aesrix_bi' . md5($js), plugins_url($js, __DIR__), false, '1.0', true);
         }
       }
     },
@@ -119,54 +133,19 @@ add_action('admin_init', function () {
     __('domain <i>(Use next format: http://example.com:1000/)</i>', 'aesirx-analytics'),
     function () {
       $options = get_option('aesirx_analytics_plugin_options', []);
+      // using custom function to escape HTML
       echo aesirx_analytics_escape_html("<input id='aesirx_analytics_domain' name='aesirx_analytics_plugin_options[domain]' type='text' value='" .
         esc_attr($options['domain'] ?? '') .
         "' />"
            /* translators: %s: URL to aesir.io */
            /* translators: %s: URL to aesir.io */
            . sprintf(__("<p class= 'description'>
-		    You can setup 1st party server at <a target='_blank' href='%s'>%s</a>.</p>", 'aesirx-analytics'), 'https://github.com/aesirxio/analytics-1stparty', 'https://github.com/aesirxio/analytics-1stparty')
+		    You can setup 1st party server at <a target='_blank' href='%1\$s'>%2\$s</a>.</p>", 'aesirx-analytics'), 'https://github.com/aesirxio/analytics-1stparty', 'https://github.com/aesirxio/analytics-1stparty')
       );
     },
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
   );
-
-  if (!CliFactory::getCli()->analyticsCliExists()) {
-    add_settings_field(
-        'aesirx_analytics_download',
-        esc_html__( 'Download', 'aesirx-analytics' ),
-        function () {
-          try {
-              CliFactory::getCli()->getSupportedArch();
-
-            echo aesirx_analytics_escape_html('<button name="submit" id="aesirx_analytics_download" class="button button-primary" type="submit" value="download_analytics_cli">' . esc_html__(
-                    'Click to download CLI library! This plugin can\'t work without the library!', 'aesirx-analytics'
-                ) . '</button>');
-          }
-          catch ( Throwable $e ) {
-            echo wp_kses_post('<strong style="color: red">' . sprintf(esc_html__( 'You can\'t use internal server. Error: %s', 'aesirx-analytics' ) , $e->getMessage()) . '</strong>');
-          }
-        },
-        'aesirx_analytics_plugin',
-        'aesirx_analytics_settings'
-    );
-  } else {
-      add_settings_field(
-          'aesirx_analytics_download',
-          __( 'CLI library check', 'aesirx-analytics' ),
-          function () {
-              try {
-                  CliFactory::getCli()->processAnalytics(['--version']);
-				  echo wp_kses_post('<strong style="color: green" id="aesirx_analytics_download">' . esc_html__( 'Passed', 'aesirx-analytics' ) . '</strong>');
-              } catch (Throwable $e) {
-                  echo wp_kses_post('<strong style="color: red" id="aesirx_analytics_download">' . sprintf(esc_html__( 'You can\'t use internal server. Error: $s', 'aesirx-analytics' ), $e->getMessage()) . '</strong>');
-			  }
-          },
-          'aesirx_analytics_plugin',
-          'aesirx_analytics_settings'
-      );
-  }
 
   add_settings_field(
     'aesirx_analytics_consent',
@@ -175,6 +154,7 @@ add_action('admin_init', function () {
       $options = get_option('aesirx_analytics_plugin_options', []);
       $checked = 'checked="checked"';
       $storage = $options['consent'] ?? 'true';
+      // using custom function to escape HTML
       echo aesirx_analytics_escape_html('
         <label>' . esc_html__('Yes', 'aesirx-analytics') . ' <input type="radio" class="analytic-consent-class" name="aesirx_analytics_plugin_options[consent]" ' .
             ($storage == 'true' ? $checked : '') .
@@ -205,6 +185,7 @@ add_action('admin_init', function () {
     esc_html__('Client secret', 'aesirx-analytics'),
     function () {
       $options = get_option('aesirx_analytics_plugin_options', []);
+      // using custom function to escape HTML
       echo aesirx_analytics_escape_html("<input id='aesirx_analytics_secret' name='aesirx_analytics_plugin_options[secret]' type='text' value='" .
         esc_attr($options['secret'] ?? '') .
         "' />");
@@ -218,10 +199,46 @@ add_action('admin_init', function () {
     esc_html__('License', 'aesirx-analytics'),
     function () {
       $options = get_option('aesirx_analytics_plugin_options', []);
+      // using custom function to escape HTML
       echo aesirx_analytics_escape_html("<input id='aesirx_analytics_license' name='aesirx_analytics_plugin_options[license]' type='text' value='" .
         esc_attr($options['license'] ?? '') .
         "' /> <p class= 'description'>
         Register to AesirX and get your client id, client secret and license here: <a target='_blank' href='https://web3id.aesirx.io'>https://web3id.aesirx.io</a>.</p>");
+    },
+    'aesirx_analytics_plugin',
+    'aesirx_analytics_settings'
+  );
+
+  add_settings_field(
+    'aesirx_analytics_geo_cron_time',
+    esc_html__('Geo cron time', 'aesirx-analytics'),
+    function () {
+      $options = get_option('aesirx_analytics_plugin_options', []);
+      // using custom function to escape HTML
+      echo aesirx_analytics_escape_html("<input id='aesirx_analytics_geo_cron_time' name='aesirx_analytics_plugin_options[geo_cron_time]' type='text' value='" .
+        esc_attr($options['geo_cron_time'] ?? '') .
+        "' />");
+    },
+    'aesirx_analytics_plugin',
+    'aesirx_analytics_settings'
+  );
+
+  add_settings_field(
+    'aesirx_analytics_enable_cronjob',
+    esc_html__('Enable cronjob', 'aesirx-analytics'),
+    function () {
+
+        $options = get_option('aesirx_analytics_plugin_options', []);
+        $checked = 'checked="checked"';
+        $storage = $options['enable_cronjob'] ?? 'true';
+        // using custom function to escape HTML
+        echo aesirx_analytics_escape_html('
+        <label>' . esc_html__('Yes', 'aesirx-analytics') . ' <input type="radio" id="aesirx_analytics-enable_cronjob" name="aesirx_analytics_plugin_options[enable_cronjob]" ' .
+             ($storage == 'true' ? $checked : '') .
+             ' value="true"  /></label>
+        <label>' . esc_html__('No', 'aesirx-analytics') . ' <input type="radio" id="aesirx_analytics-enable_cronjob" name="aesirx_analytics_plugin_options[enable_cronjob]" ' .
+             ($storage == 'false' ? $checked : '') .
+             ' value="false" /></label>');
     },
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
@@ -235,6 +252,7 @@ add_action('admin_init', function () {
         $options = get_option('aesirx_analytics_plugin_options', []);
         $checked = 'checked="checked"';
         $storage = $options['track_ecommerce'] ?? 'true';
+        // using custom function to escape HTML
         echo aesirx_analytics_escape_html('
         <label>' . esc_html__('Yes', 'aesirx-analytics') . ' <input type="radio" class="analytic-track_ecommerce-class" name="aesirx_analytics_plugin_options[track_ecommerce]" ' .
              ($storage == 'true' ? $checked : '') .
@@ -251,6 +269,7 @@ add_action('admin_init', function () {
     'aesirx_analytics_info',
     '',
     function () {
+      // using custom function to escape HTML
       echo aesirx_analytics_escape_html('<div class="aesirx_analytics_info"><div class="wrap">Sign up for a
       <h3>FREE License</h3><p>at the AesirX Shield of Privacy dApp</p><div>
       <a target="_blank" href="https://dapp.shield.aesirx.io?utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics">Get Free License</a></div>');
@@ -270,15 +289,14 @@ add_action('admin_menu', function () {
       ?>
 			<form action="options.php" method="post">
 				<?php
-    settings_fields('aesirx_analytics_plugin_options');
-    do_settings_sections('aesirx_analytics_plugin');
-    ?>
-				<input name="submit" class="button button-primary" type="submit" value="<?php esc_attr_e(
-      'Save', 'aesirx-analytics'
-    ); ?>"/>
+          settings_fields('aesirx_analytics_plugin_options');
+          do_settings_sections('aesirx_analytics_plugin');
+          wp_nonce_field('aesirx_analytics_settings_save', 'aesirx_analytics_settings_nonce');
+        ?>
+				<input name="submit" class="button button-primary" type="submit" value="<?php esc_attr_e('Save', 'aesirx-analytics'); ?>"/>
 			</form>
 			<?php
-      do_settings_sections('aesirx_analytics_info');
+        do_settings_sections('aesirx_analytics_info');
     }
   );
 
@@ -511,11 +529,27 @@ add_action('admin_menu', function () {
 
 add_action('admin_init', 'aesirx_analytics_redirect_config', 1);
 function aesirx_analytics_redirect_config() {
-  if ( isset($_GET['page'])
-       && ($_GET['page'] == 'aesirx-bi-dashboard' || $_GET['page'] == 'aesirx-bi-visitors' || $_GET['page'] == 'aesirx-bi-behavior' || $_GET['page'] == 'aesirx-bi-utm-tracking' || $_GET['page'] == 'aesirx-bi-woocommerce' || $_GET['page'] == 'aesirx-bi-consents')
-       && !aesirx_analytics_config_is_ok()) {
-    wp_redirect('/wp-admin/options-general.php?page=aesirx-analytics-plugin');
-    die;
+  $current_url = home_url(add_query_arg(null, null));
+  $parsed_url = wp_parse_url($current_url);
+  
+  if (isset($parsed_url['query'])) {
+    $query_params = wp_parse_args($parsed_url['query']);
+
+    $query_params = array_map('sanitize_text_field', $query_params);
+
+    if (isset($query_params['page']) && strpos($query_params['page'], 'aesirx-bi') !== false) {
+      if (!isset($query_params['aesirx_analytics_nonce']) || !wp_verify_nonce($query_params['aesirx_analytics_nonce'], 'aesirx_analytics_submenu')) {
+        wp_die('Nonce verification failed');
+      }
+
+      $checked_page = array('aesirx-bi-dashboard', 'aesirx-bi-visitors', 'aesirx-bi-behavior', 'aesirx-bi-utm-tracking', 'aesirx-bi-woocommerce', 'aesirx-bi-consents');
+    
+      if (in_array($query_params['page'], $checked_page) && !aesirx_analytics_config_is_ok()) {
+    
+        wp_redirect('/wp-admin/options-general.php?page=aesirx-analytics-plugin');
+        die;
+      }
+    }
   }
 }
 
@@ -564,7 +598,7 @@ add_action('admin_enqueue_scripts', function ($hook) {
 
     if ($manifest->entrypoints->bi->assets) {
       foreach ($manifest->entrypoints->bi->assets->js as $js) {
-        wp_enqueue_script('aesrix_bi' . md5($js), plugins_url($js, __DIR__), false, null, true);
+        wp_enqueue_script('aesrix_bi' . md5($js), plugins_url($js, __DIR__), false, '1.0', true);
       }
     }
 
@@ -573,25 +607,32 @@ add_action('admin_enqueue_scripts', function ($hook) {
 
     $jwt = $options['storage'] === "external" ? 'window.env.REACT_APP_HEADER_JWT="true"' : '';
 
-    wp_register_script( 'aesrix_bi_window', '', array(), null );
+    wp_register_script( 'aesrix_bi_window', '', array(), '1.0', true );
 
     wp_enqueue_script('aesrix_bi_window');
 
     wp_add_inline_script(
       'aesrix_bi_window',
       'window.env = {};
-		  window.aesirxClientID = "' .  $clientId . '";
-		  window.aesirxClientSecret = "' . $clientSecret . '";
-		  window.env.REACT_APP_ENDPOINT_URL = "' . $endpoint . '";
-		  window.env.REACT_APP_DATA_STREAM = JSON.stringify(' . json_encode($streams) . ');
-		  window.env.PUBLIC_URL= "' . plugin_dir_url(__DIR__) . '";
-      window.env.STORAGE= "' . $options['storage'] . '";
-      window.env.REACT_APP_WOOCOMMERCE_MENU= "' . $options['track_ecommerce'] . '";
-      ' . $jwt,
+		  window.aesirxClientID = "' . esc_html($clientId) . '";
+		  window.aesirxClientSecret = "' . esc_html($clientSecret) . '";
+		  window.env.REACT_APP_ENDPOINT_URL = "' . esc_url($endpoint) . '";
+		  window.env.REACT_APP_DATA_STREAM = JSON.stringify(' . wp_json_encode($streams) . ');
+		  window.env.PUBLIC_URL= "' . esc_url(plugin_dir_url(__DIR__)) . '";
+      window.env.STORAGE= "' . esc_html($options['storage']) . '";
+      window.env.REACT_APP_WOOCOMMERCE_MENU= "' . esc_html($options['track_ecommerce']) . '";
+      ' . esc_html($jwt),
     );
   }
 });
 
+/**
+ * Custom escape function for Aesirx Analytics.
+ * Escapes HTML attributes in a string using a specified list of allowed HTML elements and attributes.
+ *
+ * @param string $string The input string to escape HTML attributes from.
+ * @return string The escaped HTML string.
+ */
 function aesirx_analytics_escape_html($string) {
   $allowed_html = array(
     'input' => array(
@@ -619,3 +660,30 @@ function aesirx_analytics_escape_html($string) {
 
   return wp_kses($string, $allowed_html);
 }
+
+function aesirx_analytics_add_nonce_menu_item() {
+  ?>
+  <script type="text/javascript">
+  jQuery(document).ready(function($) {
+    $('#adminmenu .toplevel_page_aesirx-bi-dashboard a').attr('href', function() {
+      return aesirx_analytics_add_nonce_url($(this));
+    });
+
+    $('#adminmenu .toplevel_page_aesirx-bi-dashboard ul li').each(function() {
+      const link = $(this).find('a');
+      if (link.length) {
+        link.attr('href', aesirx_analytics_add_nonce_url(link));
+      }
+    });
+
+    function aesirx_analytics_add_nonce_url(url) {
+      const originalHref = url.attr('href');
+      const page = originalHref.match(/[?&]page=([^&]*)/);
+      var nonce = '<?php echo wp_create_nonce("aesirx_analytics_submenu"); ?>';
+      return originalHref + '&aesirx_analytics_nonce=' + nonce;
+    }
+  });
+  </script>
+  <?php
+}
+add_action('admin_footer', 'aesirx_analytics_add_nonce_menu_item');

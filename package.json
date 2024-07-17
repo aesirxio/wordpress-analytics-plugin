@@ -36,16 +36,16 @@
     "webpack-stream": "^7.0.0"
   },
   "dependencies": {
-    "aesirx-analytics": "^2.2.11",
-    "aesirx-bi-app": "^2.0.12",
+    "aesirx-analytics": "^2.2.12",
+    "aesirx-bi-app": "^2.0.13",
     "react": "^18.2.0",
     "react-dom": "^18.3.1",
     "react-spinners": "^0.13.8"
   },
   "resolutions": {
-    "aesirx-lib": "^2.0.9",
-    "aesirx-sso": "^1.4.11",
-    "aesirx-uikit": "^1.2.6",
+    "aesirx-lib": "^2.0.10",
+    "aesirx-sso": "^1.4.12",
+    "aesirx-uikit": "^1.2.7",
     "react": "^18",
     "react-dom": "^18",
     "tough-cookie": "^4",
