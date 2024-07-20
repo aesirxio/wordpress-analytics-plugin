@@ -3,7 +3,7 @@ Contributors: aesirx
 Tags: analytics
 Requires at least: 6.5
 Tested up to: 6.6
-Stable tag: 4.0.0
+Stable tag: 4.0.1
 Requires PHP: 8.1
 License: GPL 3.0
 
@@ -36,6 +36,10 @@ We are using our server dev01.aesirx.io for validating wallet and JWT decoding.
 The Terms of service can be found here https://aesirx.io/terms-conditions and the Privacy policy is here https://aesirx.io/privacy-policy.
 
 == Changelog ==
+
+= 4.0.1 =
+
+* update readme
 
 = 4.0.0 =
 
