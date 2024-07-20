@@ -56,7 +56,7 @@ add_action('admin_init', function () {
     'aesirx_analytics_plugin'
   );
 
-  function add_warning_missing_license() {
+  function aesirx_analytics_warning_missing_license() {
     $options = get_option('aesirx_analytics_plugin_options');
 
     if (empty($options['license'])) {
@@ -67,7 +67,7 @@ add_action('admin_init', function () {
       <?php
     }
   }
-  add_action( 'admin_notices', 'add_warning_missing_license' );
+  add_action( 'admin_notices', 'aesirx_analytics_warning_missing_license' );
 
   add_settings_field(
     'aesirx_analytics_storage',
