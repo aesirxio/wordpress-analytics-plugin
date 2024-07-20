@@ -20,6 +20,9 @@ The Terms of service can be found here https://walletconnect.com/terms and the P
 We use https://www.concordium.com/ to connect the your wallet with our consent form.
 The Privacy policy can be found here https://www.concordium.com/privacy-policy.
 
+We use https://friendlycaptcha.com/ to make a captcha verification on our form.
+The Terms of service can be found here https://friendlycaptcha.com/legal/terms and Privacy policy can be found here https://friendlycaptcha.com/privacy.
+
 = Source code for compressed content =
 
 We use the Analytics and the Business Intelligence to store and manage analytics data from your site and dispaly the relevant data.
@@ -30,6 +33,7 @@ The human readable source code for the Aesirx Business Intelligence JavaScript f
 
 We are using our server api.aesirx.io for retriving and updating geo data.
 We are using our server dev01.aesirx.io for validating wallet and JWT decoding.
+The Terms of service can be found here https://aesirx.io/terms-conditions and the Privacy policy is here https://aesirx.io/privacy-policy.
 
 == Changelog ==
 
