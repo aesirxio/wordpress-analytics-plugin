@@ -10,13 +10,11 @@ License: GPL 3.0
 Enhance website tracking with AesirX Analytics WordPress plugin, integrating first-party analytics and consent for GDPR/ePrivacy compliance.
 
 == Description ==
-AesirX Analytics provides privacy-focused analytics for WordPress, offering seamless integration of consent management and first-party analytics. 
-AesirX Analytics WordPress plugin enables you to gain valuable insights into your website's performance while ensuring user privacy and compliance with GDPR, CCPA, 
-ePrivacy Directive and other data protection regulations. 
-Whether you’re looking to understand user behavior, optimize content, or enhance your website’s performance, AesirX Analytics offers an intuitive interface and robust 
-features to help you make informed decisions while ensuring regulatory compliance.
-AesirX Analytics' mission is to deliver powerful analytics while prioritizing user privacy and consent. 
-With AesirX Analytics, you can ensure that your analytics practices align with global privacy standards, and your customers can maintain ownership of their data.
+AesirX Analytics provides privacy-focused analytics for WordPress, offering seamless integration of consent management and first-party analytics. AesirX Analytics WordPress plugin enables you to gain valuable insights into your website's performance while ensuring user privacy and compliance with GDPR, CCPA, ePrivacy Directive and other data protection regulations. 
+
+Whether you’re looking to understand user behavior, optimize content, or enhance your website’s performance, AesirX Analytics offers an intuitive interface and robust features to help you make informed decisions while ensuring regulatory compliance.
+
+AesirX Analytics' mission is to deliver powerful analytics while prioritizing user privacy and consent. With AesirX Analytics, you can ensure that your analytics practices align with global privacy standards, and your customers can maintain ownership of their data.
 
 = How AesirX Analytics for WordPress Solves Problems: =
 
