@@ -46,6 +46,10 @@
   display: none;
 }
 
+#wpbody .update-nag {
+  display: none;
+}
+
 body[class*='aesirx-bi'] .notice-bi {
   display: block !important;
 }
