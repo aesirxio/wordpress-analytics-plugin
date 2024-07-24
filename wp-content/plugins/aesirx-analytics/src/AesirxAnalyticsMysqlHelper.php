@@ -190,6 +190,33 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         }
     
         function aesirx_analytics_add_filters($params, &$where_clause, &$bind) {
+            foreach($params['fields'] as $key => $vals) {
+                $list = is_array($vals) ? $vals : [$vals];
+
+                switch ($key) {
+                    case 'start':
+                        try {
+                            $date = gmdate("Y-m-d", strtotime($list[0]));
+                            $where_clause[] = "#__analytics_events." . $key . " >= %s";
+                            $bind[] = $date;
+                        } catch (Exception $e) {
+                            error_log('Validation error: ' . $e->getMessage());
+                            return new WP_Error('validation_error', esc_html__('"start" filter is not correct', 'aesirx-analytics'), ['status' => 400]);
+                        }
+                        break;
+                    case 'end':
+                        try {
+                            $date = gmdate("Y-m-d", strtotime($list[0] . ' +1 day'));
+                            $where_clause[] = "#__analytics_events." . $key . " < %s";
+                            $bind[] = $date;
+                        } catch (Exception $e) {
+                            error_log('Validation error: ' . $e->getMessage());
+                            return new WP_Error('validation_error', esc_html__('"end" filter is not correct', 'aesirx-analytics'), ['status' => 400]);
+                        }
+                        break;
+                }
+            }
+            
             foreach ([$params['filter'] ?? null, $params['filter_not'] ?? null] as $filter_array) {
                 $is_not = $filter_array === (isset($params['filter_not']) ? $params['filter_not'] : null);
                 if (empty($filter_array)) {
