@@ -74,7 +74,7 @@ module.exports = {
   ],
 
   output: {
-    filename: 'assets/bi/js/[contenthash].js',
+    filename: 'assets/bi/vendor/[contenthash].js',
     clean: true,
   },
 

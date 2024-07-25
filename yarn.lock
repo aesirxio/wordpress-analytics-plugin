@@ -2377,17 +2377,17 @@ aes-js@^3.1.2:
   resolved "https://registry.yarnpkg.com/aes-js/-/aes-js-3.1.2.tgz#db9aabde85d5caabbfc0d4f2a4446960f627146a"
   integrity sha512-e5pEa2kBnBOgR4Y/p20pskXI74UEz7de8ZGVo58asOtvSVG5YAbJeELPZxOmt+Bnz3rX753YKhfIn4X4l1PPRQ==
 
-aesirx-analytics@^2.2.12:
-  version "2.2.12"
-  resolved "https://registry.yarnpkg.com/aesirx-analytics/-/aesirx-analytics-2.2.12.tgz#0a8748022b21423eb90b49e0bcbbc27d8f2b716c"
-  integrity sha512-/M89cIx+AR4Q1YQMXbHwoWd3OPrmRQ2rzwx9aDIaGTX2huXsPx9W56PgS5aGKDZMhAwKZgraS4VY2scMhGQTAg==
+aesirx-analytics@^2.2.13:
+  version "2.2.13"
+  resolved "https://registry.yarnpkg.com/aesirx-analytics/-/aesirx-analytics-2.2.13.tgz#4a6bd04be25554512498739bf954d441c6bf0de1"
+  integrity sha512-+1LcUMGj9UuajZRjEcKDegrkmcbSa270sLWSpXBTz6l6vmmunJu/94BZA4+YxfrjprPneQpfNuid7Q4cI65Xqw==
   dependencies:
     "@concordium/browser-wallet-api-helpers" "^3.0.0"
     "@concordium/react-components" "^0.4.0-rc.7"
     "@concordium/web-sdk" "^7.0.4-rc.3"
     "@web3modal/ethereum" "^2.7.0"
     "@web3modal/react" "^2.7.0"
-    aesirx-sso "^1.4.12"
+    aesirx-sso "^1.4.13"
     axios "^1.6.0"
     bootstrap "^5.3.2"
     bowser "^2.11.0"
@@ -2406,10 +2406,10 @@ aesirx-analytics@^2.2.12:
     react-toastify "^9.1.3"
     wagmi "^1.3.2"
 
-aesirx-bi-app@^2.0.13:
-  version "2.0.13"
-  resolved "https://registry.yarnpkg.com/aesirx-bi-app/-/aesirx-bi-app-2.0.13.tgz#02e3d4d51731c01220975b7a9d2e21bcbf1de302"
-  integrity sha512-q5uSjw1IkIA2CqU9Ta8hW7rNRgHAyol8Vi8p0vF7W0sFO9XwoDzELj50lpCBqQmB/IiTX7bD+JcXWBEJd3Nr7A==
+aesirx-bi-app@^2.0.14:
+  version "2.0.14"
+  resolved "https://registry.yarnpkg.com/aesirx-bi-app/-/aesirx-bi-app-2.0.14.tgz#fdcd05056a076425fa5793787e9b0f9fd89bf957"
+  integrity sha512-vsmJt36DbTd1aVW274PtPfxGvpeH9RBBjn7qv7obqVxniFOx3bU29Rm5heO7ll1YDrRXGAf6O2RfWLf+saU6/A==
   dependencies:
     "@fortawesome/fontawesome-svg-core" "^6.4.0"
     "@fortawesome/free-solid-svg-icons" "^6.4.0"
@@ -2420,7 +2420,7 @@ aesirx-bi-app@^2.0.13:
     axios "^1.4.0"
     d3-fetch "^3.0.1"
     d3-scale "^4.0.2"
-    flag-icons "^7.2.1"
+    flag-icons "^7.2.3"
     mobx "^6.0.4"
     mobx-react "^7.0.5"
     moment "^2.29.4"
@@ -2469,10 +2469,10 @@ aesirx-dam-app@^1.5.0:
     simple-react-validator "^1.6.2"
     web-vitals "^3.3.1"
 
-aesirx-lib@*, aesirx-lib@^1.11.1, aesirx-lib@^2.0.10:
-  version "2.0.10"
-  resolved "https://registry.yarnpkg.com/aesirx-lib/-/aesirx-lib-2.0.10.tgz#5bc29baa0e55726ef81b36880c6bd40c23b319fb"
-  integrity sha512-wQV6prcImn2shnYV+l/T+pnQk3smsR1DJhPu5XBNj5U6trqYGxxpCzAaeB4vZGhsXE1di22VSSdpSh3kcm9nkA==
+aesirx-lib@*, aesirx-lib@^1.11.1, aesirx-lib@^2.0.11:
+  version "2.0.11"
+  resolved "https://registry.yarnpkg.com/aesirx-lib/-/aesirx-lib-2.0.11.tgz#242e737510569ba23e2f93685a88af551c0ba55e"
+  integrity sha512-HLYRiZt+vxffccJZXKyfXSliFr4W7XB0KquU6rplJA2DSVXTcOF6DHACI1HWg7kByNS65heb4+eKDPMhMXo6nw==
   dependencies:
     axios "^1.6.0"
     axios-auth-refresh "^3.3.6"
@@ -2483,10 +2483,10 @@ aesirx-lib@*, aesirx-lib@^1.11.1, aesirx-lib@^2.0.10:
     query-string "7"
     react-secure-storage "^1.3.2"
 
-aesirx-sso@*, aesirx-sso@^1.4.12:
-  version "1.4.12"
-  resolved "https://registry.yarnpkg.com/aesirx-sso/-/aesirx-sso-1.4.12.tgz#fa62b830b12d09064aa85b82cea898e93a1e5d8a"
-  integrity sha512-u65C2iOn3oIuvhdhe7/Rvtt97ZEPYet0UECQQSKkhN2Zd+foYMce4HDZ1xN80hnaoXsnwx/ra7FSD9gswZMGqw==
+aesirx-sso@*, aesirx-sso@^1.4.13:
+  version "1.4.13"
+  resolved "https://registry.yarnpkg.com/aesirx-sso/-/aesirx-sso-1.4.13.tgz#63a3dfcf55b6a837b4e71c567d45758da486d5fb"
+  integrity sha512-CEKAUyKJfFyOi+AN3mLR/0YbFNVM/GmQKHoH74IP+FV5gA2A5/bpF7vm1OotTu5DSZehm/Vocqx020rBOIe9zA==
   dependencies:
     "@concordium/browser-wallet-api-helpers" "^3.0.0"
     "@concordium/react-components" "^0.4.0-rc.7"
@@ -2498,12 +2498,12 @@ aesirx-sso@*, aesirx-sso@^1.4.12:
     "@wagmi/core" "^1.3.8"
     "@web3modal/ethereum" "^2.7.0"
     "@web3modal/react" "^2.7.0"
-    aesirx-lib "^2.0.10"
+    aesirx-lib "^2.0.11"
     axios "^1.6.0"
-    bootstrap "^5.3.0"
+    bootstrap "^5.3.3"
     bowser "^2.11.0"
     cross-env "^7.0.3"
-    dotenv "^16.0.3"
+    dotenv "^16.4.5"
     ethers "^6.7.1"
     formik "^2.4.4"
     friendly-challenge "^0.9.13"
@@ -2523,10 +2523,10 @@ aesirx-sso@*, aesirx-sso@^1.4.12:
     wagmi "^1.3.2"
     yup "^1.3.2"
 
-aesirx-uikit@*, aesirx-uikit@^1.1.5, aesirx-uikit@^1.2.7:
-  version "1.2.7"
-  resolved "https://registry.yarnpkg.com/aesirx-uikit/-/aesirx-uikit-1.2.7.tgz#d7e5e5a622c14994bbe234c0548a07622e46f7f4"
-  integrity sha512-lriAbxc8o+TYpQQ148SFFteuWNs6HoAcVOmz5Z/JsPbSbKXktHu2FEoGV7asfT9Wql3IS9cJ0DUkQRzZfQZGzQ==
+aesirx-uikit@*, aesirx-uikit@^1.1.5, aesirx-uikit@^1.2.8:
+  version "1.2.8"
+  resolved "https://registry.yarnpkg.com/aesirx-uikit/-/aesirx-uikit-1.2.8.tgz#f85bf933b19826b2c4f13e146ee4ce391ad91643"
+  integrity sha512-bb4ViVyKGcg3O90i26tluahmElN0fsUhpPFP+DvJIHPKtrww7jkrFI5CkP+WLakORL7Contgfh/0lZqQ/l5t8w==
   dependencies:
     "@ckeditor/ckeditor5-build-classic" "^38.0.1"
     "@ckeditor/ckeditor5-core" "^38.0.1"
@@ -2541,8 +2541,8 @@ aesirx-uikit@*, aesirx-uikit@^1.1.5, aesirx-uikit@^1.2.7:
     "@fortawesome/react-fontawesome" "^0.2.0"
     "@types/react-color" "^3.0.6"
     aesirx-dam-app "^1.5.0"
-    aesirx-lib "^2.0.10"
-    aesirx-sso "^1.4.12"
+    aesirx-lib "^2.0.11"
+    aesirx-sso "^1.4.13"
     bootstrap "^5.3.1"
     dayjs "^1.11.10"
     i18next "^22.4.15"
@@ -3046,7 +3046,7 @@ boolbase@^1.0.0:
   resolved "https://registry.yarnpkg.com/boolbase/-/boolbase-1.0.0.tgz#68dff5fbe60c51eb37725ea9e3ed310dcc1e776e"
   integrity sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==
 
-bootstrap@^5.3.0, bootstrap@^5.3.1, bootstrap@^5.3.2:
+bootstrap@^5.3.1, bootstrap@^5.3.2, bootstrap@^5.3.3:
   version "5.3.3"
   resolved "https://registry.yarnpkg.com/bootstrap/-/bootstrap-5.3.3.tgz#de35e1a765c897ac940021900fcbb831602bac38"
   integrity sha512-8HLCdWgyoMguSO9o+aH+iuZ+aht+mzW0u3HIMzVu7Srrpv7EBBxTnrFlSCskwdY1+EOFQSm7uMJhNQHkdPcmjg==
@@ -4164,7 +4164,7 @@ domexception@^2.0.1:
   dependencies:
     webidl-conversions "^5.0.0"
 
-dotenv@^16.0.3, dotenv@^16.3.1:
+dotenv@^16.3.1, dotenv@^16.4.5:
   version "16.4.5"
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-16.4.5.tgz#cdd3b3b604cb327e286b4762e13502f717cb099f"
   integrity sha512-ZmdL2rui+eB2YwhsWzjInR8LldtZHGDoQ1ugH85ppHKwpUHL7j7rN0Ti9NCnGiQbhaZ11FpR+7ao1dNsmduNUg==
@@ -4763,10 +4763,10 @@ fined@^1.0.1:
     object.pick "^1.2.0"
     parse-filepath "^1.0.1"
 
-flag-icons@^7.2.1:
-  version "7.2.1"
-  resolved "https://registry.yarnpkg.com/flag-icons/-/flag-icons-7.2.1.tgz#b60cbc4b19348874f58545816f30fd7ee837e8ba"
-  integrity sha512-EaU4XZmFt1BOilz9nMmJKjma5pOaNjzL7somOhadrrilollh4xj6aaXI2M1sd00VUfVWN0E25Q6xaW3SNt0k/Q==
+flag-icons@^7.2.3:
+  version "7.2.3"
+  resolved "https://registry.yarnpkg.com/flag-icons/-/flag-icons-7.2.3.tgz#b67f379fa0ef28c4e605319a78035131bdd8ced7"
+  integrity sha512-X2gUdteNuqdNqob2KKTJTS+ZCvyWeLCtDz9Ty8uJP17Y4o82Y+U/Vd4JNrdwTAjagYsRznOn9DZ+E/Q52qbmqg==
 
 flagged-respawn@^1.0.0:
   version "1.0.1"
