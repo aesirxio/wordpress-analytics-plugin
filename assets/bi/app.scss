@@ -30,6 +30,12 @@
   .item_collap {
     display: none !important;
   }
+  &.aesirxui .main_content.pd-t-80 {
+    padding-top: 60px;
+  }
+  &.aesirxui .content_header.h-80 {
+    height: 60px;
+  }
 }
 
 #wpfooter {
