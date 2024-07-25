@@ -53,6 +53,13 @@ module.exports = {
         onEnd: {
           copy: [
             {
+              source: path.resolve(__dirname, `./assets/images`),
+              destination: path.resolve(
+                __dirname,
+                `${dist}/plugins/aesirx-analytics/assets/images-plugin`
+              ),
+            },
+            {
               source: path.resolve(__dirname, './node_modules/aesirx-bi-app/public/assets/images/'),
               destination: path.resolve(
                 __dirname,
