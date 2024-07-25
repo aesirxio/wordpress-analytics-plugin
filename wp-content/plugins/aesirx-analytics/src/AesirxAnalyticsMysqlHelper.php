@@ -547,7 +547,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                     switch ($key) {
                         case 'start':
                             try {
-                                $where_clause[] = "UNIX_TIMESTAMP(#__analytics_visitor_consent.datetime) >= %d";
+                                $where_clause[] = "UNIX_TIMESTAMP(visitor_consent.datetime) >= %d";
                                 $bind[] = strtotime($list[0]);
                             } catch (Exception $e) {
                                 error_log('Validation error: ' . $e->getMessage());
@@ -556,7 +556,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                             break;
                         case 'end':
                             try {
-                                $where_clause[] = "UNIX_TIMESTAMP(#__analytics_visitor_consent.datetime) < %d";
+                                $where_clause[] = "UNIX_TIMESTAMP(visitor_consent.datetime) < %d";
                                 $bind[] = strtotime($list[0] . ' +1 day');
                             } catch (Exception $e) {
                                 error_log('Validation error: ' . $e->getMessage());
