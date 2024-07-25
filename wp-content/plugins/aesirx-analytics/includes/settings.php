@@ -308,7 +308,7 @@ add_action('admin_menu', function () {
     function () {
       ?><div id="biapp" class="aesirxui"></div><?php
     },
-    plugins_url( 'aesirx-analytics/assets/images/AesirX_BI_icon.png'),
+    plugins_url( 'aesirx-analytics/assets/images-plugin/AesirX_BI_icon.png'),
     3
   );
   add_submenu_page(
