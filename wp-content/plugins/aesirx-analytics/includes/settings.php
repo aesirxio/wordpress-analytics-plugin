@@ -59,7 +59,7 @@ add_action('admin_init', function () {
   function aesirx_analytics_warning_missing_license() {
     $options = get_option('aesirx_analytics_plugin_options');
 
-    if (empty($options['license'])) {
+    if (empty($options['license']) && $options['storage'] === "internal") {
       ?>
         <div class="notice-warning notice notice-bi" style="display: none;">
             <p><?php echo esc_html__( 'Please register your license at signup.aesirx.io to enable decentralized consent functionality.', 'aesirx-analytics' ); ?></p>
@@ -621,7 +621,7 @@ add_action('admin_enqueue_scripts', function ($hook) {
 		  window.env.PUBLIC_URL= "' . esc_url(plugin_dir_url(__DIR__)) . '";
       window.env.STORAGE= "' . esc_html($options['storage']) . '";
       window.env.REACT_APP_WOOCOMMERCE_MENU= "' . esc_html($options['track_ecommerce']) . '";
-      ' . esc_html($jwt),
+      ' . htmlspecialchars($jwt, ENT_NOQUOTES),
     );
   }
 });
