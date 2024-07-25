@@ -36,8 +36,8 @@
     "webpack-stream": "^7.0.0"
   },
   "dependencies": {
-    "aesirx-analytics": "^2.2.13",
-    "aesirx-bi-app": "^2.0.14",
+    "aesirx-analytics": "^2.2.14",
+    "aesirx-bi-app": "^2.0.15",
     "react": "^18.2.0",
     "react-dom": "^18.3.1",
     "react-spinners": "^0.13.8"
