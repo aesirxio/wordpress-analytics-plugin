@@ -202,9 +202,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                     switch ($key) {
                         case 'start':
                             try {
-                                $date = gmdate("Y-m-d", strtotime($list[0]));
-                                $where_clause[] = "#__analytics_events." . $key . " >= %s";
-                                $bind[] = $date;
+                                $where_clause[] = "UNIX_TIMESTAMP(#__analytics_events." . $key . ") >= %d";
+                                $bind[] = strtotime($list[0]);
                             } catch (Exception $e) {
                                 error_log('Validation error: ' . $e->getMessage());
                                 return new WP_Error('validation_error', esc_html__('"start" filter is not correct', 'aesirx-analytics'), ['status' => 400]);
@@ -212,9 +211,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                             break;
                         case 'end':
                             try {
-                                $date = gmdate("Y-m-d", strtotime($list[0] . ' +1 day'));
-                                $where_clause[] = "#__analytics_events." . $key . " < %s";
-                                $bind[] = $date;
+                                $where_clause[] = "UNIX_TIMESTAMP(#__analytics_events." . $key . ") < %d";
+                                $bind[] = strtotime($list[0] . ' +1 day');
                             } catch (Exception $e) {
                                 error_log('Validation error: ' . $e->getMessage());
                                 return new WP_Error('validation_error', esc_html__('"end" filter is not correct', 'aesirx-analytics'), ['status' => 400]);
@@ -549,9 +547,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                     switch ($key) {
                         case 'start':
                             try {
-                                $date = gmdate("Y-m-d", strtotime($list[0]));
-                                $where_clause[] = "#__analytics_visitor_consent.datetime >= %s";
-                                $bind[] = $date;
+                                $where_clause[] = "UNIX_TIMESTAMP(#__analytics_visitor_consent.datetime) >= %d";
+                                $bind[] = strtotime($list[0]);
                             } catch (Exception $e) {
                                 error_log('Validation error: ' . $e->getMessage());
                                 return new WP_Error('validation_error', esc_html__('"start" filter is not correct', 'aesirx-analytics'), ['status' => 400]);
@@ -559,9 +556,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                             break;
                         case 'end':
                             try {
-                                $date = gmdate("Y-m-d", strtotime($list[0] . ' +1 day'));
-                                $where_clause[] = "#__analytics_visitor_consent.datetime < %s";
-                                $bind[] = $date;
+                                $where_clause[] = "UNIX_TIMESTAMP(#__analytics_visitor_consent.datetime) < %d";
+                                $bind[] = strtotime($list[0] . ' +1 day');
                             } catch (Exception $e) {
                                 error_log('Validation error: ' . $e->getMessage());
                                 return new WP_Error('validation_error', esc_html__('"end" filter is not correct', 'aesirx-analytics'), ['status' => 400]);
@@ -585,9 +581,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                 switch ($key) {
                     case 'start':
                         try {
-                            $date = gmdate("Y-m-d", strtotime($list[0]));
-                            $where_clause[] = "#__analytics_flows." . $key . " >= %s";
-                            $bind[] = $date;
+                            $where_clause[] = "UNIX_TIMESTAMP(#__analytics_flows." . $key . ") >= %d";
+                            $bind[] = strtotime($list[0]);
                         } catch (Exception $e) {
                             error_log('Validation error: ' . $e->getMessage());
                             return new WP_Error('validation_error', esc_html__('"start" filter is not correct', 'aesirx-analytics'), ['status' => 400]);
@@ -595,9 +590,8 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                         break;
                     case 'end':
                         try {
-                            $date = gmdate("Y-m-d", strtotime($list[0] . ' +1 day'));
-                            $where_clause[] = "#__analytics_flows." . $key . " < %s";
-                            $bind[] = $date;
+                            $where_clause[] = "UNIX_TIMESTAMP(#__analytics_flows." . $key . ") < %d";
+                            $bind[] = strtotime($list[0] . ' +1 day');
                         } catch (Exception $e) {
                             error_log('Validation error: ' . $e->getMessage());
                             return new WP_Error('validation_error', esc_html__('"end" filter is not correct', 'aesirx-analytics'), ['status' => 400]);
