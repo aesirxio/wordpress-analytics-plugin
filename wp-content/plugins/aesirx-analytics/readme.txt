@@ -1,15 +1,16 @@
 === AesirX Analytics ===
-Contributors: aesirx
+Contributors: aesirx,vikingtechguy,nixa999,nguyenbao10,vietnguyen1406,devphutran,nguyencaohoai
 Tags: analytics
 Requires at least: 6.5
 Tested up to: 6.6
-Stable tag: 4.0.1
+Stable tag: 4.0.2
 Requires PHP: 8.1
 License: GPL 3.0
 
 Enhance website tracking with AesirX Analytics WordPress plugin, integrating first-party analytics and consent for GDPR/ePrivacy compliance.
 
 == Description ==
+
 AesirX Analytics provides privacy-focused analytics for WordPress, offering seamless integration of consent management and first-party analytics. AesirX Analytics WordPress plugin enables you to gain valuable insights into your website's performance while ensuring user privacy and compliance with GDPR, CCPA, ePrivacy Directive and other data protection regulations. 
 
 Whether you’re looking to understand user behavior, optimize content, or enhance your website’s performance, AesirX Analytics offers an intuitive interface and robust features to help you make informed decisions while ensuring regulatory compliance.
@@ -64,9 +65,19 @@ The Terms of service can be found here https://aesirx.io/terms-conditions and th
 
 == Changelog ==
 
+= 4.0.2 =
+
+* Update language file
+* Update logo
+* Fix filter by date
+* Fix external mode
+* Update BI app
+* Update AesirX Analytics
+* Update of AesirX Library
+
 = 4.0.1 =
 
-* update readme
+* Update readme
 
 = 4.0.0 =
 
@@ -118,3 +129,12 @@ The Terms of service can be found here https://aesirx.io/terms-conditions and th
 * UTM, Event Generator
 * Export PDF Views
 * Top Page View
+
+== Screenshots ==
+1. Acquisition - See how visitors find and engage with the website.
+2. Behavior - Understand how people interact with the site.
+3. Tracking - Measure the performance of marketing campaigns.
+4. User Experience - Detailed analytics on customer journeys.
+5. Visitor - Gain insights into audience demographics and behaviors.
+6. Woo - Gain insights into e-commerce performance 1.
+7. Woo - Gain insights into e-commerce performance 2.
