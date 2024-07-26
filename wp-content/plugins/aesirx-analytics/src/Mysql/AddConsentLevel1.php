@@ -37,16 +37,16 @@ Class AesirX_Analytics_Add_Consent_Level1 extends AesirxAnalyticsMysqlHelper
         $consents = $class->aesirx_analytics_mysql_execute($params);
 
         // Iterate over each retrieved consent
-        foreach ($consents as $consent) {
+        foreach ($consents['visitor_consents'] as $consent) {
             // Check if the consent is at level1 (i.e., consent_uuid is null)
-            if (is_null($consent->consent_uuid)) {
+            if (is_null($consent['consent_uuid'])) {
                 // Check if the consent number is the same as the provided parameter
-                if (!is_null($consent->consent) && $consent->consent != (int) $params['consent']) {
+                if (!is_null($consent['consent']) && $consent['consent'] != (int) $params['consent']) {
                     continue; // Skip to the next consent if the numbers do not match
                 }
 
                 // Check if the consent is expired
-                if (!is_null($consent->expiration) && $consent->expiration > $now) {
+                if (!is_null($consent['expiration']) && $consent['expiration'] > $now) {
                     // Return an error if the previous consent has not expired
                     return new WP_Error(
                         'not_expired',
