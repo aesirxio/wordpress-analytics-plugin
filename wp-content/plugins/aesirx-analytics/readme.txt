@@ -65,9 +65,19 @@ The Terms of service can be found here https://aesirx.io/terms-conditions and th
 
 == Changelog ==
 
+= 4.0.2 =
+
+* Update language file
+* Update logo
+* Fix filter by date
+* Fix external mode
+* Update BI app
+* Update AesirX Analytics
+* Update of AesirX Library
+
 = 4.0.1 =
 
-* update readme
+* Update readme
 
 = 4.0.0 =
 
