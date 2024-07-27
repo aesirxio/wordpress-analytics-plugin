@@ -12,7 +12,7 @@ Class AesirX_Analytics_Get_List_Events extends AesirxAnalyticsMysqlHelper
         $where_clause = [];
         $bind = [];
 
-        parent::aesirx_analytics_add_filters($params, $where_claus, $bind);
+        parent::aesirx_analytics_add_filters($params, $where_clause, $bind);
         parent::aesirx_analytics_add_attribute_filters($params, $where_clause, $bind);
 
         foreach ([$params['filter'] ?? null, $params['filter_not'] ?? null] as $filter_array) {
@@ -90,7 +90,7 @@ Class AesirX_Analytics_Get_List_Events extends AesirxAnalyticsMysqlHelper
                     "SELECT * 
                     FROM {$wpdb->prefix}analytics_event_attributes 
                     WHERE event_uuid IN (" . implode(', ', array_fill(0, count($event_attribute_bind), '%s')) . ")",
-                    ...$bind
+                    ...$event_attribute_bind
                 )
             );
 
@@ -112,7 +112,8 @@ Class AesirX_Analytics_Get_List_Events extends AesirxAnalyticsMysqlHelper
 
             $collection = [];
 
-            foreach ($list->collection as $item) {
+            foreach ($list as $item) {
+                $item = (object) $item;
                 $attributes = [];
 
                 if (isset($hash_map[$item->uuid])) {

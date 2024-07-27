@@ -23,7 +23,7 @@ Class AesirX_Analytics_Get_Visitor_Consent_List extends AesirxAnalyticsMysqlHelp
         $exp = '';
 
         // handle expiration
-        if (is_null($params['expired']) || !$params['expired']) {
+        if (!isset($params['expired']) || is_null($params['expired']) || !$params['expired']) {
             $exp = $wpdb->prepare(" AND (`vc`.`expiration` >= %s OR `vc`.`expiration` IS NULL)
                     AND IF (c.uuid IS NULL, true, c.expiration IS NULL)", gmdate('Y-m-d H:i:s'));
 

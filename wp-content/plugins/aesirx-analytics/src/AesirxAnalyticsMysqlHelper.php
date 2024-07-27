@@ -1232,7 +1232,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             }
         
             require_once ABSPATH . WPINC . '/class-simplepie.php';
-            $parser = new SimplePie();
+            $parser = new \SimplePie();
             $parser->set_raw_data($html);
             $parser->init();
         
