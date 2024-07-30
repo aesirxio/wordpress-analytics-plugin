@@ -3,7 +3,7 @@ Contributors: aesirx,vikingtechguy,nixa999,nguyenbao10,vietnguyen1406,devphutran
 Tags: analytics
 Requires at least: 6.5
 Tested up to: 6.6
-Stable tag: 4.0.2
+Stable tag: 4.0.3
 Requires PHP: 8.1
 License: GPL 3.0
 
@@ -64,6 +64,13 @@ We are using our server dev01.aesirx.io for validating wallet and JWT decoding.
 The Terms of service can be found here https://aesirx.io/terms-conditions and the Privacy policy is here https://aesirx.io/privacy-policy.
 
 == Changelog ==
+
+= 4.0.3 =
+
+* Add DE language
+* Fix bugs in events and flow API
+* Update consent tier 1
+* Update AesirX Analytics
 
 = 4.0.2 =
 

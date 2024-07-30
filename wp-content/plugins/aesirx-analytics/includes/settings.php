@@ -665,7 +665,7 @@ function aesirx_analytics_add_nonce_menu_item() {
   ?>
   <script type="text/javascript">
   jQuery(document).ready(function($) {
-    $('#adminmenu .toplevel_page_aesirx-bi-dashboard a').attr('href', function() {
+    $('#adminmenu .toplevel_page_aesirx-bi-dashboard > a').attr('href', function() {
       return aesirx_analytics_add_nonce_url($(this));
     });
 
@@ -679,7 +679,7 @@ function aesirx_analytics_add_nonce_menu_item() {
     function aesirx_analytics_add_nonce_url(url) {
       const originalHref = url.attr('href');
       const page = originalHref.match(/[?&]page=([^&]*)/);
-      var nonce = '<?php echo wp_create_nonce("aesirx_analytics_submenu"); ?>';
+      var nonce = '<?php echo esc_html(wp_create_nonce("aesirx_analytics_submenu")); ?>';
       return originalHref + '&aesirx_analytics_nonce=' + nonce;
     }
   });
