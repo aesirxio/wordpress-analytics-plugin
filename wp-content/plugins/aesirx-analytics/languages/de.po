@@ -1,0 +1,301 @@
+# Copyright (C) 2024 aesirx.io
+# This file is distributed under the GPL v3.
+msgid ""
+msgstr ""
+"Project-Id-Version: AesirX Analytics 4.0.1\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aesirx-analytics\n"
+"POT-Creation-Date: 2024-07-25T03:47:45+00:00\n"
+"PO-Revision-Date: 2024-07-26 17:10+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.4.4\n"
+"X-Domain: aesirx-analytics\n"
+
+#. Plugin Name of the plugin
+#: aesirx-analytics.php
+msgid "AesirX Analytics"
+msgstr "AesirX Analytics"
+
+#. Plugin URI of the plugin
+#: aesirx-analytics.php
+msgid ""
+"https://analytics.aesirx.io?"
+"utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics"
+msgstr ""
+"https://analytics.aesirx.io?"
+"utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics"
+
+#. Description of the plugin
+#: aesirx-analytics.php
+msgid ""
+"Aesirx analytics plugin. When you join forces with AesirX, you're not just becoming a Partner - you're also becoming a "
+"freedom fighter in the battle for privacy! Earn 25% Affiliate Commission <a href=\"https://aesirx.io/seed-round?"
+"utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics\">[Click "
+"to Join]</a>"
+msgstr ""
+"Aesirx Analytics-Plugin. Wenn Sie sich mit AesirX zusammentun, werden Sie nicht nur ein Partner, sondern auch ein "
+"Freiheitskämpfer im Kampf für den Datenschutz! Verdienen Sie 25% Affiliate Kommission <a href=\"https://aesirx.io/seed-"
+"round?"
+"utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics\">[Klicken "
+"Sie zum Anmelden]</a>"
+
+#. Author of the plugin
+#: aesirx-analytics.php
+msgid "aesirx.io"
+msgstr "aesirx.io"
+
+#. Author URI of the plugin
+#: aesirx-analytics.php
+msgid "https://aesirx.io/"
+msgstr "https://aesirx.io/"
+
+#: aesirx-analytics.php:135
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: aesirx-analytics.php:250
+msgid "Problem with Aesirx Analytics plugin install"
+msgstr "Problem mit der Installation des Aesirx Analytics Plugins"
+
+#: includes/settings.php:17
+msgid "Please register your license at Signup.aesirx.io to enable the external first-party server."
+msgstr "Bitte registrieren Sie Ihre Lizenz unter signup.aesirx.io, um den externen First-Party-Server zu aktivieren."
+
+#: includes/settings.php:27
+msgid "Domain is empty."
+msgstr "Domain darf nicht leer sein."
+
+#: includes/settings.php:34
+msgid "Invalid domain format."
+msgstr "Ungültiges Domainformat."
+
+#. translators: %s: URL to aesir.io read mor details
+#: includes/settings.php:52
+msgid "Read more detail at"
+msgstr "Weitere Einzelheiten finden Sie unter"
+
+#: includes/settings.php:53
+msgid "Note: Please set Permalink structure is NOT plain."
+msgstr "Hinweis: Bitte setzen Sie Permalink Struktur, muss plain sein."
+
+#: includes/settings.php:65
+msgid "Please register your license at signup.aesirx.io to enable decentralized consent functionality."
+msgstr ""
+"Bitte registrieren Sie Ihre Lizenz unter signup.aesirx.io, um die Funktion der dezentralen Zustimmung zu aktivieren."
+
+#: includes/settings.php:74
+msgid "1st party server"
+msgstr "1st party server"
+
+#: includes/settings.php:81
+msgid "Internal"
+msgstr "Intern"
+
+#: includes/settings.php:84
+msgid "External"
+msgstr "Extern"
+
+#: includes/settings.php:133
+msgid "domain <i>(Use next format: http://example.com:1000/)</i>"
+msgstr "domain <i>(Folgendes Format nutzen: http://example.com:1000/)</i>"
+
+#. translators: %s: URL to aesir.io
+#: includes/settings.php:142
+msgid ""
+"<p class= 'description'>\n"
+"\t\t    You can setup 1st party server at <a target='_blank' href='%1$s'>%2$s</a>.</p>"
+msgstr ""
+"<p class= ‘description’>\n"
+"\t\t    Sie können den 1st Party Server unter <a target=‚_blank‘ href=‚%1$s‘>%2$s</a> einrichten.</p>"
+
+#: includes/settings.php:152
+msgid "Consent"
+msgstr "Zustimmung"
+
+#: includes/settings.php:159 includes/settings.php:236 includes/settings.php:257
+msgid "Yes"
+msgstr "Ja"
+
+#: includes/settings.php:162 includes/settings.php:239 includes/settings.php:260
+msgid "No"
+msgstr "Nein"
+
+#: includes/settings.php:172
+msgid "Client ID"
+msgstr "Client ID"
+
+#: includes/settings.php:185
+msgid "Client secret"
+msgstr "Client secret"
+
+#: includes/settings.php:199
+msgid "License"
+msgstr "Lizenz"
+
+#: includes/settings.php:214
+msgid "Geo cron time"
+msgstr "Geo cron time"
+
+#: includes/settings.php:228
+msgid "Enable cronjob"
+msgstr "Cronjob aktivieren"
+
+#: includes/settings.php:249
+msgid "Track ecommerce"
+msgstr "Track ecommerce"
+
+#: includes/settings.php:284 includes/settings.php:285
+msgid "Aesirx Analytics"
+msgstr "Aesirx Analytics"
+
+#: includes/settings.php:296
+msgid "Save"
+msgstr "Sichern"
+
+#: src/AesirxAnalyticsMysqlHelper.php:54
+msgid "Database error occurred."
+msgstr "Es ist ein Datenbankfehler aufgetreten."
+
+#: src/AesirxAnalyticsMysqlHelper.php:209 src/AesirxAnalyticsMysqlHelper.php:554 src/AesirxAnalyticsMysqlHelper.php:588
+msgid "\"start\" filter is not correct"
+msgstr "Filter „Start“ ist nicht korrekt"
+
+#: src/AesirxAnalyticsMysqlHelper.php:218 src/AesirxAnalyticsMysqlHelper.php:563 src/AesirxAnalyticsMysqlHelper.php:597
+msgid "\"end\" filter is not correct"
+msgstr "Filter „End“ ist nicht korrekt"
+
+#: src/AesirxAnalyticsMysqlHelper.php:287
+msgid "Domain not found"
+msgstr "Domain nicht gefunden"
+
+#: src/AesirxAnalyticsMysqlHelper.php:367 src/AesirxAnalyticsMysqlHelper.php:430 src/AesirxAnalyticsMysqlHelper.php:484
+#: src/AesirxAnalyticsMysqlHelper.php:510 src/AesirxAnalyticsMysqlHelper.php:533 src/AesirxAnalyticsMysqlHelper.php:619
+#: src/AesirxAnalyticsMysqlHelper.php:644 src/AesirxAnalyticsMysqlHelper.php:672 src/AesirxAnalyticsMysqlHelper.php:713
+#: src/AesirxAnalyticsMysqlHelper.php:979 src/Mysql/GetVisitorConsentList.php:61
+msgid "There was a problem with the database query."
+msgstr "Es gab ein Problem mit der Datenbankabfrage."
+
+#: src/AesirxAnalyticsMysqlHelper.php:762
+msgid "Could not insert consent"
+msgstr "Consent konnte nicht eingefügt werden"
+
+#: src/AesirxAnalyticsMysqlHelper.php:824 src/AesirxAnalyticsMysqlHelper.php:844 src/AesirxAnalyticsMysqlHelper.php:865
+#: src/AesirxAnalyticsMysqlHelper.php:1210
+msgid "Something went wrong"
+msgstr "Etwas ist schief gelaufen"
+
+#: src/AesirxAnalyticsMysqlHelper.php:904
+msgid "There was a problem updating the data in the database."
+msgstr "Es gab ein Problem bei der Aktualisierung der Daten in der Datenbank."
+
+#: src/Mysql/AddConsentLevel1.php:23
+msgid "The uuid parameter is required."
+msgstr "Der Parameter uuid ist erforderlich."
+
+#: src/Mysql/AddConsentLevel1.php:27
+msgid "The consent parameter is required and must be a number."
+msgstr "Der Parameter „Consent“ ist erforderlich und muss eine Zahl sein."
+
+#: src/Mysql/AddConsentLevel1.php:53
+msgid "Previous consent was not expired"
+msgstr "Der frühere „Consent“ war noch nicht abgelaufen"
+
+#: src/Mysql/AddConsentLevel2.php:16 src/Mysql/AddConsentLevel3or4.php:52
+msgid "Invalid token"
+msgstr "Ungültiges Token"
+
+#: src/Mysql/AddConsentLevel2.php:24 src/Mysql/AddConsentLevel3or4.php:19
+msgid "Visitor not found"
+msgstr "Besucher nicht gefunden"
+
+#: src/Mysql/AddConsentLevel2.php:41 src/Mysql/AddConsentLevel3or4.php:76
+msgid "Previous consent still active"
+msgstr "Vorheriger „Consent“ noch aktiv"
+
+#: src/Mysql/AddConsentLevel2.php:125 src/Mysql/AddConsentLevel3or4.php:164
+msgid "There was a problem querying the data in the database."
+msgstr "Es gab ein Problem bei der Abfrage der Daten in der Datenbank."
+
+#: src/Mysql/AddConsentLevel3or4.php:12
+msgid "Invalid signature"
+msgstr "Ungültige Unterschrift"
+
+#: src/Mysql/AddConsentLevel3or4.php:26
+msgid "Wallet not found"
+msgstr "Wallet nicht gefunden"
+
+#: src/Mysql/AddConsentLevel3or4.php:32
+msgid "Wallet nonce not found"
+msgstr "Wallet nonce nicht gefunden"
+
+#: src/Mysql/AddConsentLevel3or4.php:39 src/Mysql/RevokeConsentLevel3or4.php:37
+msgid "Nonce is not valid"
+msgstr "Nonce ist nicht gültig"
+
+#: src/Mysql/AddConsentLevel3or4.php:45 src/Mysql/RevokeConsentLevel3or4.php:43
+msgid "Contract is not valid"
+msgstr "Contract ist nicht gültig"
+
+#: src/Mysql/CloseVisitorEvent.php:14 src/Mysql/CloseVisitorEvent.php:18
+msgid "The event uuid parameter is required."
+msgstr "Der Parameter event uuid ist erforderlich."
+
+#: src/Mysql/CloseVisitorEvent.php:36
+msgid "Failed to update analytics events."
+msgstr "Analyseereignisse konnten nicht aktualisiert werden."
+
+#: src/Mysql/CloseVisitorEvent.php:43
+msgid "Visitor event not found."
+msgstr "Besucher Event nicht gefunden."
+
+#: src/Mysql/CloseVisitorEvent.php:55
+msgid "Failed to update analytics flows"
+msgstr "Aktualisierung des „Analytics Flow“ fehlgeschlagen"
+
+#: src/Mysql/GetNonce.php:14
+msgid "Address is not valid"
+msgstr "Adresse ist ungültig"
+
+#: src/Mysql/JobGeo.php:37 src/Mysql/JobGeo.php:45
+msgid "Error in API request"
+msgstr "Fehler in der API-Anforderung"
+
+#: src/Mysql/RevokeConsentLevel3or4.php:14
+msgid "Invalid signature."
+msgstr "Ungültige Signatur."
+
+#: src/Mysql/RevokeConsentLevel3or4.php:24
+msgid "Wallet not found."
+msgstr "Wallet nicht gefunden."
+
+#: src/Mysql/RevokeConsentLevel3or4.php:30
+msgid "Nonce not found."
+msgstr "Nonce nicht gefunden."
+
+#: src/Mysql/RevokeConsentLevel3or4.php:53
+msgid "Failed to update consent expiration."
+msgstr "Die Aktualisierung des Ablaufs des „Consent“ ist fehlgeschlagen."
+
+#: src/Mysql/RevokeConsentLevel3or4.php:60
+msgid "Failed to update nonce."
+msgstr "Aktualisierung des „Nonce“ fehlgeschlagen."
+
+#: src/Mysql/StartFingerprint.php:67
+msgid "Wrong URL format, domain not found"
+msgstr "Falsches URL-Format, Domain nicht gefunden"
+
+#: src/Mysql/StartFingerprint.php:71
+msgid "The domain sent in the new URL does not match the domain stored in the visitor document"
+msgstr "Die in der neuen URL gesendete Domain stimmt nicht mit der im Besucherdokument gespeicherten Domain überein"
+
+#: src/Route/Middleware/IsBackendMiddleware.php:16
+msgid "Permission denied!"
+msgstr "Zugriff verweigert!"
+
+#: src/Track/CliTracker.php:33
+msgid "Error in tracking"
+msgstr "Fehler im „Tracking“"
