@@ -39,20 +39,24 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
             return new WP_Error('validation_error', esc_html__('Nonce is not valid', 'aesirx-analytics'));
         }
 
-        $validate_contract = parent::aesirx_analytics_validate_contract($params['token']);
+        $web3id = null;
 
-        if (!$validate_contract || is_wp_error($validate_contract)) {
-            return new WP_Error('validation_error', esc_html__('Contract is not valid', 'aesirx-analytics'));
+        if ($params['token']) {
+            $validate_contract = parent::aesirx_analytics_validate_contract($params['token']);
+
+            if (!$validate_contract || is_wp_error($validate_contract)) {
+                return new WP_Error('validation_error', esc_html__('Contract is not valid', 'aesirx-analytics'));
+            }
+
+            // Extract web3id from jwt_payload
+            $web3idObj = parent::aesirx_analytics_decode_web3id($params['token']) ?? '';
+
+            if (!$web3idObj || !isset($web3idObj['web3id'])) {
+                return new WP_Error('validation_error', esc_html__('Invalid token', 'aesirx-analytics'));
+            }
+
+            $web3id = $web3idObj['web3id'];
         }
-
-        // Extract web3id from jwt_payload
-        $web3idObj = parent::aesirx_analytics_decode_web3id($params['token']) ?? '';
-
-        if (!$web3idObj || !isset($web3idObj['web3id'])) {
-            return new WP_Error('validation_error', esc_html__('Invalid token', 'aesirx-analytics'));
-        }
-
-        $web3id = $web3idObj['web3id'];
 
         // Fetch existing consents for level3 or level4
         $found_consent = [];
