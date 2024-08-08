@@ -34,6 +34,13 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                     $wpdb->prepare($sql, $bind) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
                     , ARRAY_A
                 );
+
+                $collection = array_map(function ($row) {
+                    if ( isset($row['total'])) {
+                        $row['total'] = absint($row['total']);
+                    }
+                    return $row;
+                }, $collection);
     
                 $list_response = [
                     'collection' => $collection,
