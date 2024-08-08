@@ -29,14 +29,12 @@ Class AesirX_Analytics_Get_Total_Consent_Tier extends AesirxAnalyticsMysqlHelper
 
         $total_sql =
             "SELECT 
-            CAST(
-                COUNT(DISTINCT CASE 
-                WHEN visitor_consent.consent_uuid IS NULL THEN 1 
-                WHEN consent.web3id IS NOT NULL AND consent.wallet_uuid IS NOT NULL THEN 4 
-                WHEN consent.web3id IS NULL AND consent.wallet_uuid IS NOT NULL THEN 3 
-                WHEN consent.web3id IS NOT NULL AND consent.wallet_uuid IS NULL THEN 2 
-                ELSE 1 END)
-            AS UNSIGNED) AS total 
+            COUNT(DISTINCT CASE 
+            WHEN visitor_consent.consent_uuid IS NULL THEN 1 
+            WHEN consent.web3id IS NOT NULL AND consent.wallet_uuid IS NOT NULL THEN 4 
+            WHEN consent.web3id IS NULL AND consent.wallet_uuid IS NOT NULL THEN 3 
+            WHEN consent.web3id IS NOT NULL AND consent.wallet_uuid IS NULL THEN 2 
+            ELSE 1 END) AS total 
             FROM `#__analytics_visitor_consent` AS visitor_consent 
             LEFT JOIN `#__analytics_visitors` AS visitors ON visitors.uuid = visitor_consent.visitor_uuid 
             LEFT JOIN `#__analytics_consent` AS consent ON consent.uuid = visitor_consent.consent_uuid 
