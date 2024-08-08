@@ -13,16 +13,23 @@ Class AesirX_Analytics_Get_Live_Visitors_Total extends AesirxAnalyticsMysqlHelpe
         ];
         $bind = [];
 
+        unset($params["filter"]["start"]);
+        unset($params["filter"]["end"]);
+
         parent::aesirx_analytics_add_filters($params, $where_clause, $bind);
 
         $sql =
-            "SELECT COUNT(DISTINCT #__analytics_flows.visitor_uuid) as total
+            "SELECT COUNT(DISTINCT `#__analytics_flows`.`visitor_uuid`) as total
             from `#__analytics_flows`
-            left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_flows.visitor_uuid
+            left join `#__analytics_visitors` on `#__analytics_visitors`.`uuid` = `#__analytics_flows`.`visitor_uuid`
             WHERE " . implode(" AND ", $where_clause);
 
-        $total = (int) $wpdb->get_var(
-            $wpdb->prepare($sql, $bind)
+        $sql = str_replace("#__", $wpdb->prefix, $sql);
+
+        // used placeholders and $wpdb->prepare() in variable $sql
+        // doing direct database calls to custom tables
+        $total = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prepare($sql, $bind) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         );
         
         return [
