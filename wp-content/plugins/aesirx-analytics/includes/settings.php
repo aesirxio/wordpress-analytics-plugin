@@ -69,6 +69,25 @@ add_action('admin_init', function () {
   }
   add_action( 'admin_notices', 'aesirx_analytics_warning_missing_license' );
 
+  function aesirx_analytics_warning_missing_crontrol() {
+
+    if (!is_plugin_active('wp-crontrol/wp-crontrol.php')) {
+      add_settings_error(
+        'aesirx_analytics_plugin_options',
+        'crontrol',
+        esc_html__('Crontrol plugin is not active. Please install and activate it to use geo tracking.', 'aesirx-analytics'),
+        'warning'
+      );
+
+      ?>
+        <div class="notice-warning notice notice-bi" style="display: none;">
+            <p><?php echo esc_html__( 'Crontrol plugin is not active. Please install and activate it to use geo tracking.', 'aesirx-analytics' ); ?></p>
+        </div>
+      <?php
+    }
+  }
+  add_action( 'admin_notices', 'aesirx_analytics_warning_missing_crontrol' );
+
   add_settings_field(
     'aesirx_analytics_storage',
     esc_html__('1st party server', 'aesirx-analytics'),
@@ -208,41 +227,43 @@ add_action('admin_init', function () {
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
   );
+  
+  if (is_plugin_active('wp-crontrol/wp-crontrol.php')) {
+    add_settings_field(
+      'aesirx_analytics_enable_cronjob',
+      esc_html__('Enable cronjob', 'aesirx-analytics'),
+      function () {
+  
+          $options = get_option('aesirx_analytics_plugin_options', []);
+          $checked = 'checked="checked"';
+          $storage = $options['enable_cronjob'] ?? 'true';
+          // using custom function to escape HTML
+          echo aesirx_analytics_escape_html('
+          <label>' . esc_html__('Yes', 'aesirx-analytics') . ' <input type="radio" id="aesirx_analytics-enable_cronjob" name="aesirx_analytics_plugin_options[enable_cronjob]" ' .
+               ($storage == 'true' ? $checked : '') .
+               ' value="true"  /></label>
+          <label>' . esc_html__('No', 'aesirx-analytics') . ' <input type="radio" id="aesirx_analytics-enable_cronjob" name="aesirx_analytics_plugin_options[enable_cronjob]" ' .
+               ($storage == 'false' ? $checked : '') .
+               ' value="false" /></label>');
+      },
+      'aesirx_analytics_plugin',
+      'aesirx_analytics_settings'
+    );
 
-  add_settings_field(
-    'aesirx_analytics_geo_cron_time',
-    esc_html__('Geo cron time', 'aesirx-analytics'),
-    function () {
-      $options = get_option('aesirx_analytics_plugin_options', []);
-      // using custom function to escape HTML
-      echo aesirx_analytics_escape_html("<input id='aesirx_analytics_geo_cron_time' name='aesirx_analytics_plugin_options[geo_cron_time]' type='text' value='" .
-        esc_attr($options['geo_cron_time'] ?? '') .
-        "' />");
-    },
-    'aesirx_analytics_plugin',
-    'aesirx_analytics_settings'
-  );
-
-  add_settings_field(
-    'aesirx_analytics_enable_cronjob',
-    esc_html__('Enable cronjob', 'aesirx-analytics'),
-    function () {
-
+    add_settings_field(
+      'aesirx_analytics_geo_cron_time',
+      esc_html__('Geo cron time', 'aesirx-analytics'),
+      function () {
         $options = get_option('aesirx_analytics_plugin_options', []);
-        $checked = 'checked="checked"';
-        $storage = $options['enable_cronjob'] ?? 'true';
         // using custom function to escape HTML
-        echo aesirx_analytics_escape_html('
-        <label>' . esc_html__('Yes', 'aesirx-analytics') . ' <input type="radio" id="aesirx_analytics-enable_cronjob" name="aesirx_analytics_plugin_options[enable_cronjob]" ' .
-             ($storage == 'true' ? $checked : '') .
-             ' value="true"  /></label>
-        <label>' . esc_html__('No', 'aesirx-analytics') . ' <input type="radio" id="aesirx_analytics-enable_cronjob" name="aesirx_analytics_plugin_options[enable_cronjob]" ' .
-             ($storage == 'false' ? $checked : '') .
-             ' value="false" /></label>');
-    },
-    'aesirx_analytics_plugin',
-    'aesirx_analytics_settings'
-  );
+        echo aesirx_analytics_escape_html("<input id='aesirx_analytics_geo_cron_time' name='aesirx_analytics_plugin_options[geo_cron_time]' type='text' value='" .
+          esc_attr($options['geo_cron_time'] ?? '') .
+          "' />");
+      },
+      'aesirx_analytics_plugin',
+      'aesirx_analytics_settings'
+    );
+  }
 
   add_settings_field(
     'aesirx_analytics_track_ecommerce',
