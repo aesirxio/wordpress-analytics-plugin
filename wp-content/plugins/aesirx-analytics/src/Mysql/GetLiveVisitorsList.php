@@ -13,6 +13,9 @@ Class AesirX_Analytics_Get_Live_Visitors_List extends AesirxAnalyticsMysqlHelper
         ];
         $bind = [];
 
+        unset($params["filter"]["start"]);
+        unset($params["filter"]["end"]);
+
         parent::aesirx_analytics_add_filters($params, $where_clause, $bind);
 
         // filters where clause for events
@@ -25,10 +28,9 @@ Class AesirX_Analytics_Get_Live_Visitors_List extends AesirxAnalyticsMysqlHelper
             WHERE " . implode(" AND ", $where_clause);
 
         $sql =
-            "SELECT #__analytics_flows.*, ip, user_agent, device, browser_name, browser_name, browser_version, domain, lang, city, isp, country_name, country_code, geo_created_at, #__analytics_visitors.uuid AS visitor_uuid, 
-            CAST(SUM(CASE WHEN #__analytics_events.event_name != 'visit' THEN 1 ELSE 0 END) as SIGNED) AS event, 
+            "SELECT #__analytics_flows.*, ip, user_agent, device, browser_name, browser_name, browser_version, domain, lang, city, isp, country_name, country_code, geo_created_at, #__analytics_visitors.uuid AS visitor_uuid,
             MAX(CASE WHEN #__analytics_event_attributes.name = 'sop_id' THEN #__analytics_event_attributes.value ELSE NULL END) AS sop_id, 
-            #__analytics_events.url AS url, 
+            #__analytics_events.url AS url
             from `#__analytics_flows`
             left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_flows.visitor_uuid
             left join `#__analytics_events` on #__analytics_events.flow_uuid = #__analytics_flows.uuid
@@ -49,8 +51,6 @@ Class AesirX_Analytics_Get_Live_Visitors_List extends AesirxAnalyticsMysqlHelper
                 "browser_version",
                 "domain",
                 "lang",
-                "action",
-                "event",
                 "url",
                 "sop_id",
             ],
@@ -77,6 +77,10 @@ Class AesirX_Analytics_Get_Live_Visitors_List extends AesirxAnalyticsMysqlHelper
         $bind = array_map(function($e) {
             return $e['uuid'];
         }, $list);
+
+        if (empty($bind)) {
+            return [];
+        }
 
         // doing direct database calls to custom tables
         // placeholders depends one number of $bind
@@ -113,6 +117,29 @@ Class AesirX_Analytics_Get_Live_Visitors_List extends AesirxAnalyticsMysqlHelper
             }
         }
 
+        $hash_map = [];
+
+        foreach ($events as $second) {
+            $visitor_event = [
+                'uuid' => $second->uuid,
+                'visitor_uuid' => $second->visitor_uuid,
+                'flow_uuid' => $second->flow_uuid,
+                'url' => $second->url,
+                'referer' => $second->referer,
+                'start' => $second->start,
+                'end' => $second->end,
+                'event_name' => $second->event_name,
+                'event_type' => $second->event_type,
+                'attributes' => $hash_attributes[$second->uuid] ?? [],
+            ];
+
+            if (!isset($hash_map[$second->flow_uuid])) {
+                $hash_map[$second->flow_uuid] = [$second->uuid => $visitor_event];
+            } else {
+                $hash_map[$second->flow_uuid][$second->uuid] = $visitor_event;
+            }
+        }
+
         foreach ($list as $item) {
             $item = (object) $item;
             
@@ -146,8 +173,6 @@ Class AesirX_Analytics_Get_Live_Visitors_List extends AesirxAnalyticsMysqlHelper
                 'end' => $item->end,
                 'geo' => $geo,
                 'events' => $events,
-                'action' => $item->action,
-                'event' => $item->event,
                 'url' => $item->url,
                 'sop_id' => $item->sop_id,
             ];
