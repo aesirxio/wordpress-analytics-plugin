@@ -1,10 +1,10 @@
 === AesirX Analytics ===
 Contributors: aesirx,vikingtechguy,nixa999,nguyenbao10,vietnguyen1406,devphutran,nguyencaohoai
-Tags: analytics
+Tags: privacy, analytics, compliance, wordpress analytics, analytics dashboard, tracking, insights, website-stats, stats, ecommerce
 Requires at least: 6.5
 Tested up to: 6.6
 Stable tag: 4.0.3
-Requires PHP: 8.1
+Requires PHP: 7.4
 License: GPL 3.0
 
 Enhance website tracking with AesirX Analytics WordPress plugin, integrating first-party analytics and consent for GDPR/ePrivacy compliance.
@@ -64,6 +64,16 @@ We are using our server dev01.aesirx.io for validating wallet and JWT decoding.
 The Terms of service can be found here https://aesirx.io/terms-conditions and the Privacy policy is here https://aesirx.io/privacy-policy.
 
 == Changelog ==
+
+= 4.1.0 =
+
+* Add live visitors
+* Add statistic for reject and revoke consents
+* Fix bugs in consents
+* Support php7.4
+* Remove requirements for wp-crontrol
+* Update AesirX Analytics
+* Update BI app
 
 = 4.0.3 =
 
