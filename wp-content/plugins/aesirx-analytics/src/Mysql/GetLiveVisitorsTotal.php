@@ -2,7 +2,7 @@
 
 use AesirxAnalytics\AesirxAnalyticsMysqlHelper;
 
-Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
+Class AesirX_Analytics_Get_Live_Visitors_Total extends AesirxAnalyticsMysqlHelper
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
