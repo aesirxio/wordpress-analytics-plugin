@@ -8,10 +8,9 @@
  * Author URI: https://aesirx.io/
  * Domain Path: /languages
  * Text Domain: aesirx-analytics
- * Requires PHP: 8.1
+ * Requires PHP: 7.4
  * License: GPL v3
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
- * Requires Plugins: wp-crontrol
  * 
  **/
 
@@ -120,14 +119,16 @@ add_action('plugins_loaded', function () {
   );
 });
 
-add_action('analytics_cron_geo', function () {
-if (aesirx_analytics_config_is_ok('internal')) {
-CliFactory::getCli()->processAnalytics(['job', 'geo']);
-}
-});
-
-if (!wp_next_scheduled('analytics_cron_geo')) {
-  wp_schedule_event(time(), 'hourly', 'analytics_cron_geo');
+if (is_plugin_active('wp-crontrol/wp-crontrol.php')) {
+    add_action('analytics_cron_geo', function () {
+        if (aesirx_analytics_config_is_ok('internal')) {
+            CliFactory::getCli()->processAnalytics(['job', 'geo']);
+        }
+    });
+    
+    if (!wp_next_scheduled('analytics_cron_geo')) {
+      wp_schedule_event(time(), 'hourly', 'analytics_cron_geo');
+    }    
 }
 
 add_filter('plugin_action_links_' . plugin_basename(__FILE__), function ($links) {
