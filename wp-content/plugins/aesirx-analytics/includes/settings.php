@@ -75,7 +75,7 @@ add_action('admin_init', function () {
       add_settings_error(
         'aesirx_analytics_plugin_options',
         'crontrol',
-        esc_html__('Crontrol plugin is not active. Please install and activate it to use geo tracking.', 'aesirx-analytics'),
+        esc_html__('Control plugin is not active. Please install and activate it to use geo tracking.', 'aesirx-analytics'),
         'warning'
       );
 
