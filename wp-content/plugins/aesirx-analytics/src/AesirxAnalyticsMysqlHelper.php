@@ -36,9 +36,12 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                 );
 
                 $collection = array_map(function ($row) {
-                    if ( isset($row['total'])) {
-                        $row['total'] = absint($row['total']);
+                    foreach ($row as $key => $value) {
+                        if ( in_array($key, ['total', 'total_visitor', 'unique_visitor']) ) {
+                            $row[$key] = absint($row[$key]);
+                        }
                     }
+                    
                     return $row;
                 }, $collection);
     
