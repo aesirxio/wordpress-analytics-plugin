@@ -7,6 +7,9 @@ Class AesirX_Analytics_Get_Live_Visitors_Device extends AesirxAnalyticsMysqlHelp
     function aesirx_analytics_mysql_execute($params = [])
     {
         global $wpdb;
+
+        unset($params["filter"]["start"]);
+        unset($params["filter"]["end"]);
     
         $select = [
             "coalesce(COUNT(DISTINCT (#__analytics_events.visitor_uuid)), 0) as number_of_visitors",
@@ -19,6 +22,10 @@ Class AesirX_Analytics_Get_Live_Visitors_Device extends AesirxAnalyticsMysqlHelp
         ];
 
         $total_select = [];
+
+        $groups = [
+            "#__analytics_visitors.device"
+        ];
 
         if (!empty($groups)) {
             foreach ($groups as $one_group) {
