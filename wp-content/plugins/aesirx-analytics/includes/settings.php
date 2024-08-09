@@ -59,7 +59,7 @@ add_action('admin_init', function () {
   function aesirx_analytics_warning_missing_license() {
     $options = get_option('aesirx_analytics_plugin_options');
 
-    if (empty($options['license']) && $options['storage'] === "internal") {
+    if (!$options || (empty($options['license']) && $options['storage'] === "internal")) {
       ?>
         <div class="notice-warning notice notice-bi" style="display: none;">
             <p><?php echo esc_html__( 'Please register your license at signup.aesirx.io to enable decentralized consent functionality.', 'aesirx-analytics' ); ?></p>

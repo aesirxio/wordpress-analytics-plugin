@@ -36,15 +36,15 @@
     "webpack-stream": "^7.0.0"
   },
   "dependencies": {
-    "aesirx-analytics": "^2.2.15",
-    "aesirx-bi-app": "^2.0.16",
+    "aesirx-analytics": "^2.2.16",
+    "aesirx-bi-app": "^2.0.17",
     "react": "^18.2.0",
     "react-dom": "^18.3.1",
     "react-spinners": "^0.13.8"
   },
   "resolutions": {
     "aesirx-lib": "^2.0.11",
-    "aesirx-sso": "^1.4.13",
+    "aesirx-sso": "^1.4.14",
     "aesirx-uikit": "^1.2.8",
     "react": "^18",
     "react-dom": "^18",

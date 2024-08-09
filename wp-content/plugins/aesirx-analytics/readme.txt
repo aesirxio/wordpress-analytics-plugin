@@ -1,9 +1,9 @@
 === AesirX Analytics ===
-Contributors: aesirx,vikingtechguy,nixa999,nguyenbao10,vietnguyen1406,devphutran,nguyencaohoai
-Tags: privacy, analytics, compliance, wordpress analytics, analytics dashboard, tracking, insights, website-stats, stats, ecommerce
+Contributors: aesirx,vikingtechguy,nixa999,nguyenbao10,vietnguyen1406,devphutran
+Tags: privacy, analytics, compliance, wordpress analytics, consent
 Requires at least: 6.5
 Tested up to: 6.6
-Stable tag: 4.0.3
+Stable tag: 4.1.0
 Requires PHP: 7.4
 License: GPL 3.0
 
@@ -67,11 +67,10 @@ The Terms of service can be found here https://aesirx.io/terms-conditions and th
 
 = 4.1.0 =
 
-* Add live visitors
 * Add statistic for reject and revoke consents
 * Fix bugs in consents
 * Support php7.4
-* Remove requirements for wp-crontrol
+* Remove requirements for wp-crontrol when installing
 * Update AesirX Analytics
 * Update BI app
 
