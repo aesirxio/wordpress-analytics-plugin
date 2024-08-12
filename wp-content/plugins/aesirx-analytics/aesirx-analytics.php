@@ -87,7 +87,8 @@ if (aesirx_analytics_config_is_ok()) {
         $options = get_option('aesirx_analytics_plugin_options');
 
         if (is_admin()
-            || ($options['track_ecommerce'] ?? 'true') != 'true')
+            || ($options['track_ecommerce'] ?? 'true') != 'true'
+            || !isset($_SESSION))
         {
             return;
         }
