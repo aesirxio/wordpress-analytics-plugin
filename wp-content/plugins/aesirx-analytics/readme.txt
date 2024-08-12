@@ -3,7 +3,7 @@ Contributors: aesirx,vikingtechguy,nixa999,nguyenbao10,vietnguyen1406,devphutran
 Tags: privacy, analytics, compliance, wordpress analytics, consent
 Requires at least: 6.5
 Tested up to: 6.6
-Stable tag: 4.1.0
+Stable tag: 4.1.1
 Requires PHP: 7.4
 License: GPL 3.0
 
@@ -64,6 +64,11 @@ We are using our server dev01.aesirx.io for validating wallet and JWT decoding.
 The Terms of service can be found here https://aesirx.io/terms-conditions and the Privacy policy is here https://aesirx.io/privacy-policy.
 
 == Changelog ==
+
+= 4.1.1 =
+
+* Fix warnings
+* Update dependencies
 
 = 4.1.0 =
 
