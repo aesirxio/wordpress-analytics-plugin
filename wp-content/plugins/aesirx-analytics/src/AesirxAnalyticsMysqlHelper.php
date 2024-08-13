@@ -28,22 +28,35 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             $total_pages = ceil($total_elements / $pageSize);
     
             try {
-                // used placeholders and $wpdb->prepare() in variable $sql
-                // doing direct database calls to custom tables
-                $collection = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-                    $wpdb->prepare($sql, $bind) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-                    , ARRAY_A
-                );
+                $key = $sql;
+                $group = 'aesirx_analytics_cache_group';
 
-                $collection = array_map(function ($row) {
-                    foreach ($row as $key => $value) {
-                        if ( in_array($key, ['total', 'total_visitor', 'unique_visitor']) ) {
-                            $row[$key] = absint($row[$key]);
+                // Retrieve the data from cache
+                $cached_data = wp_cache_get( $key, $group );
+
+                if ( false !== $cached_data ) {
+                    $collection = $cached_data;
+                } else {
+                    // used placeholders and $wpdb->prepare() in variable $sql
+                    // doing direct database calls to custom tables
+                    $collection = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,
+                        $wpdb->prepare($sql, $bind) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+                        , ARRAY_A
+                    );
+
+                    $collection = array_map(function ($row) {
+                        foreach ($row as $key => $value) {
+                            if ( in_array($key, ['total', 'total_visitor', 'unique_visitor']) ) {
+                                $row[$key] = absint($row[$key]);
+                            }
                         }
-                    }
-                    
-                    return $row;
-                }, $collection);
+                        
+                        return $row;
+                    }, $collection);
+
+                    // Store the data in cache
+                    wp_cache_set( $key, $collection, $group, 60 );
+                }
     
                 $list_response = [
                     'collection' => $collection,
