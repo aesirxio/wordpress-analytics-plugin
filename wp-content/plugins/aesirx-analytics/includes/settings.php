@@ -423,6 +423,7 @@ add_action('admin_enqueue_scripts', function ($hook) {
       'window.env = {};
 		  window.aesirxClientID = "' . esc_html($clientId) . '";
 		  window.aesirxClientSecret = "' . esc_html($clientSecret) . '";
+      window.env.REACT_APP_BI_ENDPOINT_URL = "' . esc_url($endpoint) . '";
 		  window.env.REACT_APP_ENDPOINT_URL = "' . esc_url($endpoint) . '";
 		  window.env.REACT_APP_DATA_STREAM = JSON.stringify(' . wp_json_encode($streams) . ');
 		  window.env.PUBLIC_URL= "' . esc_url(plugin_dir_url(__DIR__)) . '";
