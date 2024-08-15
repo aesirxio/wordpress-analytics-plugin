@@ -28,17 +28,36 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             $total_pages = ceil($total_elements / $pageSize);
     
             try {
-                $key = $sql;
-                $group = 'aesirx_analytics_cache_group';
+                $options = get_option('aesirx_analytics_plugin_options');
 
-                // Retrieve the data from cache
-                $cached_data = wp_cache_get( $key, $group );
+                if (isset($options['cache_time']) && (int) $options['cache_time'] > 0) {
+                    $key = $sql;
+                    $group = 'aesirx_analytics_cache_group';
+                    $cached_data = wp_cache_get( $key, $group );
 
-                if ( false !== $cached_data ) {
-                    $collection = $cached_data;
+                    if ( false !== $cached_data ) {
+                        $collection = $cached_data;
+                    } else {
+                        // used placeholders and $wpdb->prepare() in variable $sql
+                        // doing direct database calls to custom tables
+                        $collection = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,
+                            $wpdb->prepare($sql, $bind) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+                            , ARRAY_A
+                        );
+
+                        $collection = array_map(function ($row) {
+                            foreach ($row as $key => $value) {
+                                if ( in_array($key, ['total', 'total_visitor', 'unique_visitor', 'total_number_of_visitors']) ) {
+                                    $row[$key] = absint($row[$key]);
+                                }
+                            }
+                            
+                            return $row;
+                        }, $collection);
+
+                        wp_cache_set( $key, $collection, $group, $options['cache_time'] );
+                    }
                 } else {
-                    // used placeholders and $wpdb->prepare() in variable $sql
-                    // doing direct database calls to custom tables
                     $collection = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,
                         $wpdb->prepare($sql, $bind) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
                         , ARRAY_A
@@ -46,18 +65,15 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
 
                     $collection = array_map(function ($row) {
                         foreach ($row as $key => $value) {
-                            if ( in_array($key, ['total', 'total_visitor', 'unique_visitor']) ) {
+                            if ( in_array($key, ['total', 'total_visitor', 'unique_visitor', 'total_number_of_visitors']) ) {
                                 $row[$key] = absint($row[$key]);
                             }
                         }
                         
                         return $row;
                     }, $collection);
-
-                    // Store the data in cache
-                    wp_cache_set( $key, $collection, $group, 60 );
                 }
-    
+
                 $list_response = [
                     'collection' => $collection,
                     'page' => (int) $page,
