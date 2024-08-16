@@ -93,7 +93,7 @@ if (aesirx_analytics_config_is_ok()) {
             return;
         }
 
-        $flowUuid = sanitize_text_field($_SESSION['analytics_flow_uuid']) ?? null;
+        $flowUuid = isset($_SESSION['analytics_flow_uuid']) ? sanitize_text_field($_SESSION['analytics_flow_uuid']) : null;
 
         if (is_null($flowUuid))
         {
