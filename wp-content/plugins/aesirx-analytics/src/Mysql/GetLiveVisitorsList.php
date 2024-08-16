@@ -73,7 +73,13 @@ Class AesirX_Analytics_Get_Live_Visitors_List extends AesirxAnalyticsMysqlHelper
         $list = $list_response['collection'];
 
         if (empty($list)) {
-            return [];
+            return [
+                'collection' => [],
+                'page' => 1,
+                'page_size' => 1,
+                'total_pages' => 1,
+                'total_elements' => 0,
+            ];
         }
 
         $collection = [];
