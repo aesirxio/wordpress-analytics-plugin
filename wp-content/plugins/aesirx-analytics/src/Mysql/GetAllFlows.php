@@ -158,6 +158,18 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
                             }
                         }
 
+                        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+                            $status_code = 404;
+                        } else {
+                            $response = wp_remote_head($url);
+
+                            if (is_wp_error($response)) {
+                                $status_code = 500;
+                            } else {
+                                $status_code = wp_remote_retrieve_response_code($response);
+                            }
+                        }
+
                         $visitor_event = [
                             'uuid' => $second->uuid,
                             'visitor_uuid' => $second->visitor_uuid,
@@ -172,6 +184,7 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
                             'og_title' => $og_title,
                             'og_description' => $og_description,
                             'og_image' => $og_image,
+                            'status_code' => $status_code
                         ];
 
                         if (!isset($hash_map[$second->flow_uuid])) {
@@ -202,6 +215,8 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
 
                 $events = isset($hash_map[$item->uuid]) ? array_values($hash_map[$item->uuid]) : null;
 
+                $bad_url_count = count(array_filter($array, fn($item) => $item['status_code'] !== 200));
+
                 if ( $params[1] == 'flows') {
                     $collection[] = [
                         'uuid' => $item->uuid,
@@ -228,6 +243,7 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
                         'visit_actions' => $item->visit_actions,
                         'event_actions' => $item->event_actions,
                         'conversion_actions' => $item->conversion_actions,
+                        'bad_user' => $bad_url_count > 1 ? true : false,
                     ];
                 }
                 elseif ( $params[1] == 'flow' ) {
