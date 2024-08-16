@@ -10,6 +10,8 @@ Class AesirX_Analytics_Get_Live_Visitors_List extends AesirxAnalyticsMysqlHelper
 
         $where_clause = [
             "#__analytics_flows.start = #__analytics_flows.end",
+            "#__analytics_flows.start >= NOW() - INTERVAL 30 MINUTE",
+            "#__analytics_visitors.device != 'bot'"
         ];
         $bind = [];
 
@@ -25,7 +27,8 @@ Class AesirX_Analytics_Get_Live_Visitors_List extends AesirxAnalyticsMysqlHelper
             from `#__analytics_flows`
             left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_flows.visitor_uuid
             left join `#__analytics_events` on #__analytics_events.flow_uuid = #__analytics_flows.uuid
-            WHERE " . implode(" AND ", $where_clause);
+            WHERE " . implode(" AND ", $where_clause) .
+            " GROUP BY `#__analytics_flows`.`visitor_uuid`";
 
         $sql =
             "SELECT #__analytics_flows.*, ip, user_agent, device, browser_name, browser_name, browser_version, domain, lang, city, isp, country_name, country_code, geo_created_at, #__analytics_visitors.uuid AS visitor_uuid,
@@ -36,7 +39,7 @@ Class AesirX_Analytics_Get_Live_Visitors_List extends AesirxAnalyticsMysqlHelper
             left join `#__analytics_events` on #__analytics_events.flow_uuid = #__analytics_flows.uuid
             left join `#__analytics_event_attributes` on #__analytics_events.uuid = #__analytics_event_attributes.event_uuid
             WHERE " . implode(" AND ", $where_clause) .
-            " GROUP BY #__analytics_flows.uuid";
+            " GROUP BY `#__analytics_flows`.`visitor_uuid`";
 
         $sort = parent::aesirx_analytics_add_sort(
             $params,
@@ -69,6 +72,16 @@ Class AesirX_Analytics_Get_Live_Visitors_List extends AesirxAnalyticsMysqlHelper
 
         $list = $list_response['collection'];
 
+        if (empty($list)) {
+            return [
+                'collection' => [],
+                'page' => 1,
+                'page_size' => 1,
+                'total_pages' => 1,
+                'total_elements' => 0,
+            ];
+        }
+
         $collection = [];
 
         $ret = [];
@@ -77,10 +90,6 @@ Class AesirX_Analytics_Get_Live_Visitors_List extends AesirxAnalyticsMysqlHelper
         $bind = array_map(function($e) {
             return $e['uuid'];
         }, $list);
-
-        if (empty($bind)) {
-            return [];
-        }
 
         // doing direct database calls to custom tables
         // placeholders depends one number of $bind

@@ -45,15 +45,17 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                             , ARRAY_A
                         );
 
-                        $collection = array_map(function ($row) {
-                            foreach ($row as $key => $value) {
-                                if ( in_array($key, ['total', 'total_visitor', 'unique_visitor', 'total_number_of_visitors']) ) {
-                                    $row[$key] = absint($row[$key]);
+                        if (!empty($collection)) {
+                            $collection = array_map(function ($row) {
+                                foreach ($row as $key => $value) {
+                                    if ( in_array($key, ['total', 'total_visitor', 'unique_visitor', 'total_number_of_visitors']) ) {
+                                        $row[$key] = absint($row[$key]);
+                                    }
                                 }
-                            }
-                            
-                            return $row;
-                        }, $collection);
+                                
+                                return $row;
+                            }, $collection);
+                        }
 
                         wp_cache_set( $key, $collection, $group, $options['cache_time'] );
                     }
@@ -63,15 +65,17 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                         , ARRAY_A
                     );
 
-                    $collection = array_map(function ($row) {
-                        foreach ($row as $key => $value) {
-                            if ( in_array($key, ['total', 'total_visitor', 'unique_visitor', 'total_number_of_visitors']) ) {
-                                $row[$key] = absint($row[$key]);
+                    if (!empty($collection)) {
+                        $collection = array_map(function ($row) {
+                            foreach ($row as $key => $value) {
+                                if ( in_array($key, ['total', 'total_visitor', 'unique_visitor', 'total_number_of_visitors']) ) {
+                                    $row[$key] = absint($row[$key]);
+                                }
                             }
-                        }
-                        
-                        return $row;
-                    }, $collection);
+                            
+                            return $row;
+                        }, $collection);
+                    }
                 }
 
                 $list_response = [
@@ -614,7 +618,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         }
     
         function aesirx_analytics_add_conversion_filters($params, &$where_clause, &$bind) {
-            foreach ($params as $key => $vals) {
+            foreach ($params['filter'] as $key => $vals) {
                 $list = is_array($vals) ? $vals : [$vals];
     
                 switch ($key) {
