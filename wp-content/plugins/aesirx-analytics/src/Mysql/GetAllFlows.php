@@ -158,10 +158,10 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
                             }
                         }
 
-                        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+                        if (!filter_var($second->url, FILTER_VALIDATE_URL)) {
                             $status_code = 404;
                         } else {
-                            $response = wp_remote_head($url);
+                            $response = wp_remote_head($second->url);
 
                             if (is_wp_error($response)) {
                                 $status_code = 500;
@@ -215,7 +215,11 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
 
                 $events = isset($hash_map[$item->uuid]) ? array_values($hash_map[$item->uuid]) : null;
 
-                $bad_url_count = count(array_filter($array, fn($item) => $item['status_code'] !== 200));
+                $bad_url_count = 0;
+
+                if (!empty($events)) {
+                    $bad_url_count = count(array_filter($events, fn($item) => $item['status_code'] !== 200));
+                }
 
                 if ( $params[1] == 'flows') {
                     $collection[] = [

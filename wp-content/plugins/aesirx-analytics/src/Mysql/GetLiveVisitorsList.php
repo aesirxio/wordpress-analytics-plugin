@@ -72,6 +72,10 @@ Class AesirX_Analytics_Get_Live_Visitors_List extends AesirxAnalyticsMysqlHelper
 
         $list = $list_response['collection'];
 
+        if (empty($list)) {
+            return [];
+        }
+
         $collection = [];
 
         $ret = [];
@@ -80,10 +84,6 @@ Class AesirX_Analytics_Get_Live_Visitors_List extends AesirxAnalyticsMysqlHelper
         $bind = array_map(function($e) {
             return $e['uuid'];
         }, $list);
-
-        if (empty($bind)) {
-            return [];
-        }
 
         // doing direct database calls to custom tables
         // placeholders depends one number of $bind

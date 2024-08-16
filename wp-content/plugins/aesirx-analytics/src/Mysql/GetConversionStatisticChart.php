@@ -37,6 +37,6 @@ Class AesirX_Analytics_Get_Conversion_Statistic_Chart extends AesirxAnalyticsMys
             $sql .= " ORDER BY " . implode(", ", $sort);
         }
 
-        return parent::aesirx_analytics_get_list($sql, $total_sql, $param, [], $bind);
+        return parent::aesirx_analytics_get_list($sql, $total_sql, $params, [], $bind);
     }
 }
