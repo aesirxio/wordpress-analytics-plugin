@@ -286,6 +286,20 @@ add_action('admin_init', function () {
     'aesirx_analytics_settings'
   );
 
+  add_settings_field(
+    'aesirx_analytics_cache_query',
+    esc_html__('Cache query', 'aesirx-analytics'),
+    function () {
+      $options = get_option('aesirx_analytics_plugin_options', []);
+      // using custom function to escape HTML
+      echo aesirx_analytics_escape_html("<input id='aesirx_analytics_cache_query' name='aesirx_analytics_plugin_options[cache_query]' type='number' value='" .
+        esc_attr($options['cache_query'] ?? '') .
+        "' /> <p class= 'description'>Set cache time in seconds</p>");
+    },
+    'aesirx_analytics_plugin',
+    'aesirx_analytics_settings'
+  );
+
   add_settings_section(
     'aesirx_analytics_info',
     '',
