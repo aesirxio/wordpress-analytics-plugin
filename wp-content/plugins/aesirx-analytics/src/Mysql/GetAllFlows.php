@@ -99,8 +99,8 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
         $dirs = [];
 
         if (!empty($list)) {
-            if (isset($params['request']['with']) && !empty($params['request']['with'])) {
-                $with = $params['request']['with'];
+            if (isset($params['with']) && !empty($params['with'])) {
+                $with = $params['with'];
                 if (in_array("events", $with)) {
                     $bind = array_map(function($e) {
                         return $e['uuid'];

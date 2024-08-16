@@ -10,6 +10,8 @@ Class AesirX_Analytics_Get_Live_Visitors_Total extends AesirxAnalyticsMysqlHelpe
 
         $where_clause = [
             "#__analytics_flows.start = #__analytics_flows.end",
+            "#__analytics_flows.start >= NOW() - INTERVAL 30 MINUTE",
+            "#__analytics_visitors.device != 'bot'"
         ];
         $bind = [];
 
@@ -22,7 +24,8 @@ Class AesirX_Analytics_Get_Live_Visitors_Total extends AesirxAnalyticsMysqlHelpe
             "SELECT COUNT(DISTINCT `#__analytics_flows`.`visitor_uuid`) as total
             from `#__analytics_flows`
             left join `#__analytics_visitors` on `#__analytics_visitors`.`uuid` = `#__analytics_flows`.`visitor_uuid`
-            WHERE " . implode(" AND ", $where_clause);
+            WHERE " . implode(" AND ", $where_clause) . 
+            " GROUP BY `#__analytics_flows`.`visitor_uuid`";
 
         $sql = str_replace("#__", $wpdb->prefix, $sql);
 

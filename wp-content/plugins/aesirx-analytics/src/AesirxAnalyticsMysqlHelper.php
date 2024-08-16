@@ -614,7 +614,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         }
     
         function aesirx_analytics_add_conversion_filters($params, &$where_clause, &$bind) {
-            foreach ($params as $key => $vals) {
+            foreach ($params['filter'] as $key => $vals) {
                 $list = is_array($vals) ? $vals : [$vals];
     
                 switch ($key) {
