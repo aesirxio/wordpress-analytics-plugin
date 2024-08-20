@@ -346,6 +346,217 @@ add_action('admin_menu', function () {
     plugins_url( 'aesirx-analytics/assets/images-plugin/AesirX_BI_icon.png'),
     3
   );
+  add_submenu_page(
+    'aesirx-bi-dashboard',
+    'AesirX BI Dashboard',
+    'Dashboard',
+    'manage_options',
+    'aesirx-bi-dashboard',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    3);
+  add_submenu_page(
+    'aesirx-bi-dashboard',
+    'AesirX BI Acquisition',
+    'Acquisition',
+    'manage_options',
+    'aesirx-bi-acquisition',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    3);
+  add_submenu_page(
+    'aesirx-bi-acquisition',
+    'AesirX BI Acquisition Search Engine',
+    'Acquisition Search Engine',
+    'manage_options',
+    'aesirx-bi-acquisition-search-engines',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    3);
+  add_submenu_page(
+    'aesirx-bi-acquisition',
+    'AesirX BI Acquisition Campaigns',
+    'Acquisition Campaigns',
+    'manage_options',
+    'aesirx-bi-acquisition-campaigns',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    3);
+  add_submenu_page(
+    'aesirx-bi-dashboard',
+    'AesirX BI Behavior',
+    'Behavior',
+    'manage_options',
+    'aesirx-bi-behavior',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    3);
+  add_submenu_page(
+    'aesirx-bi-behavior',
+    'AesirX BI Behavior Events',
+    'Behavior Events',
+    'manage_options',
+    'aesirx-bi-behavior-events',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    3);
+  add_submenu_page(
+    'aesirx-bi-behavior',
+    'AesirX BI Behavior Events Generator',
+    'Behavior Events Generator',
+    'manage_options',
+    'aesirx-bi-behavior-events-generator',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    3);
+  add_submenu_page(
+    'aesirx-bi-behavior',
+    'AesirX BI Behavior Outlinks',
+    'Behavior Outlinks',
+    'manage_options',
+    'aesirx-bi-behavior-outlinks',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    3);
+  add_submenu_page(
+    'aesirx-bi-behavior',
+    'AesirX BI Behavior User Flow',
+    'Behavior User Flow',
+    'manage_options',
+    'aesirx-bi-behavior-users-flow',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    3);
+  add_submenu_page(
+    'aesirx-bi-dashboard',
+    'AesirX BI Consents',
+    'Consent',
+    'manage_options',
+    'aesirx-bi-consents',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    4); 
+  add_submenu_page(
+    'aesirx-bi-consents',
+    'AesirX BI Consents Template',
+    'Consents Template',
+    'manage_options',
+    'aesirx-bi-consents-template',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    4);
+  add_submenu_page(
+    'aesirx-bi-dashboard',
+    'AesirX BI UTM Tracking',
+    'Tracking',
+    'manage_options',
+    'aesirx-bi-utm-tracking',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    5);
+  add_submenu_page(
+    'aesirx-bi-utm-tracking',
+    'AesirX BI UTM Tracking Generator',
+    'UTM Tracking Generator',
+    'manage_options',
+    'aesirx-bi-utm-tracking-generator',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    5);
+  add_submenu_page(
+    'aesirx-bi-dashboard',
+    'AesirX BI Visitors',
+    'Visitors',
+    'manage_options',
+    'aesirx-bi-visitors',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    6);
+  add_submenu_page(
+    'aesirx-bi-visitors',
+    'AesirX BI Visitors Locations',
+    'Locations',
+    'manage_options',
+    'aesirx-bi-visitors-locations',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    6);
+  add_submenu_page(
+    'aesirx-bi-visitors',
+    'AesirX BI Visitors Flow',
+    'Flow',
+    'manage_options',
+    'aesirx-bi-visitors-flow',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    6);
+
+  add_submenu_page(
+    'aesirx-bi-visitors',
+    'AesirX BI Visitors Platforms',
+    'Platforms',
+    'manage_options',
+    'aesirx-bi-visitors-platforms',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    6);
+  add_submenu_page(
+    'aesirx-bi-visitors',
+    'AesirX BI Visitors Flow Detail',
+    'Flow',
+    'manage_options',
+    'aesirx-bi-flow',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    6);
+  add_submenu_page(
+    'aesirx-bi-dashboard',
+    'AesirX BI User Experience',
+    'User Experience',
+    'manage_options',
+    'aesirx-bi-flow-list',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    7);
+  add_submenu_page(
+    'aesirx-bi-dashboard',
+    'AesirX BI Woocommerce',
+    'Woo',
+    'manage_options',
+    'aesirx-bi-woocommerce',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    8);
+  add_submenu_page(
+    'aesirx-bi-woocommerce',
+    'AesirX BI Woocommerce Product',
+    'Woo Product',
+    'manage_options',
+    'aesirx-bi-woocommerce-product',
+    function () {
+      ?><div id="biapp" class="aesirxui"></div><?php
+    },
+    8);
 });
 
 add_action('admin_init', 'aesirx_analytics_redirect_config', 1);
@@ -438,7 +649,6 @@ add_action('admin_enqueue_scripts', function ($hook) {
 		  window.aesirxClientID = "' . esc_html($clientId) . '";
 		  window.aesirxClientSecret = "' . esc_html($clientSecret) . '";
       window.env.REACT_APP_BI_ENDPOINT_URL = "' . esc_url($endpoint) . '";
-		  window.env.REACT_APP_ENDPOINT_URL = "' . esc_url($endpoint) . '";
 		  window.env.REACT_APP_DATA_STREAM = JSON.stringify(' . wp_json_encode($streams) . ');
 		  window.env.PUBLIC_URL= "' . esc_url(plugin_dir_url(__DIR__)) . '";
       window.env.STORAGE= "' . esc_html($options['storage']) . '";
@@ -497,7 +707,7 @@ function aesirx_analytics_add_nonce_menu_item() {
         link.attr('href', aesirx_analytics_add_nonce_url(link));
       }
     });
-
+    $('#adminmenu #toplevel_page_aesirx-bi-dashboard .wp-submenu').css('display', 'none');
     function aesirx_analytics_add_nonce_url(url) {
       const originalHref = url.attr('href');
       const page = originalHref.match(/[?&]page=([^&]*)/);
