@@ -2377,10 +2377,10 @@ aes-js@^3.1.2:
   resolved "https://registry.yarnpkg.com/aes-js/-/aes-js-3.1.2.tgz#db9aabde85d5caabbfc0d4f2a4446960f627146a"
   integrity sha512-e5pEa2kBnBOgR4Y/p20pskXI74UEz7de8ZGVo58asOtvSVG5YAbJeELPZxOmt+Bnz3rX753YKhfIn4X4l1PPRQ==
 
-aesirx-analytics@^2.2.19:
-  version "2.2.19"
-  resolved "https://registry.yarnpkg.com/aesirx-analytics/-/aesirx-analytics-2.2.19.tgz#4e4f29875a44223be09fd801fac88216ccb4d5e6"
-  integrity sha512-0IuNa0mYxTnwyJn/2eMLlfB4wWb7/Gp9GwA9itu3tRyGllobjyMfifmFLoTlaXmah1Cova1LwzmNSbHzTOJHKA==
+aesirx-analytics@^2.2.20:
+  version "2.2.20"
+  resolved "https://registry.yarnpkg.com/aesirx-analytics/-/aesirx-analytics-2.2.20.tgz#3aab792447e97532da891b7b0988f2ea184578d0"
+  integrity sha512-G60p8LS98yN8vwU+QgfK+a5qSfxYKxqVKYjMEJeK1+aJLpbYnsN5MgwH4JgjiQXzu/mMzR9f0cfQ+nklm6sRSg==
   dependencies:
     "@concordium/browser-wallet-api-helpers" "^3.0.0"
     "@concordium/react-components" "^0.4.0-rc.7"
