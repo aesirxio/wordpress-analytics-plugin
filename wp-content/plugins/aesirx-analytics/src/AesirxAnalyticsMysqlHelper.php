@@ -937,6 +937,21 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                     array('%s')   // Data type for 'uuid'
                 );
 
+                // Execute the update
+                // doing direct database calls to custom tables
+                $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                    $wpdb->prefix . 'analytics_visitor',
+                    [
+                        'ip' => '',
+                        'lang' => '',
+                        'browser_version' => '',
+                        'browser_name' => '',
+                        'device' => '',
+                        'user_agent' => ''
+                    ],
+                    ['uuid' => $visitor_uuid],
+                );
+
                 if ($wpdb->last_error) {
                     error_log('Query error: ' . $wpdb->last_error);
                     return new WP_Error($wpdb->last_error);

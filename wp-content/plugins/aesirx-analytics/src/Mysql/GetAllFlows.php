@@ -8,7 +8,14 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
     {
         global $wpdb;
 
-        $where_clause = [];
+        $where_clause = [
+            '#__analytics_visitors.ip != ""',
+            '#__analytics_visitors.user_agent != ""',
+            '#__analytics_visitors.device != ""',
+            '#__analytics_visitors.browser_version != ""',
+            '#__analytics_visitors.browser_name != ""',
+            '#__analytics_visitors.lang != ""',
+        ];
         $where_clause_event = [];
         $bind = [];
         $bind_event = [];
