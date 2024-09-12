@@ -106,8 +106,8 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
         $dirs = [];
 
         if (!empty($list)) {
-            if (isset($params['with']) && !empty($params['with'])) {
-                $with = $params['with'];
+            if (isset($params['request']['with']) && !empty($params['request']['with'])) {
+                $with = $params['request']['with'];
                 if (in_array("events", $with)) {
                     $bind = array_map(function($e) {
                         return $e['uuid'];
@@ -208,8 +208,8 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
                         }
                     }
 
-                    if (!empty($events)) {
-                        if ($events[0]->start = $events[0]->end) {
+                    if (!empty($events) && $params[1] == "flow") {
+                        if ($events[0]->start == $events[0]->end) {
                             $consents = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                                 $wpdb->prepare(
                                     "SELECT * FROM {$wpdb->prefix}analytics_visitor_consent WHERE visitor_uuid = %s AND UNIX_TIMESTAMP(datetime) > %d",
@@ -260,18 +260,18 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
                                     );
     
                                     if (!empty($wallet_detail)) {
-                                        $consent_attibute["wallet"] = $wallet_detail[0]->address;
+                                        $consent_attibute["wallet"] = $wallet_detail->address;
                                     }
     
                                     if ($consent_detail->web3id) {
                                         $consent_attibute["tier"] = 2;
                                     }
     
-                                    if ($consent_detail->wallet_uuid) {
+                                    if ($wallet_detail->address) {
                                         $consent_attibute["tier"] = 3;
                                     }
     
-                                    if ($consent_detail->web3id && $consent_detail->wallet_uuid) {
+                                    if ($consent_detail->web3id && $wallet_detail->address) {
                                         $consent_attibute["tier"] = 4;
                                     }
     
@@ -322,7 +322,7 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
                 $bad_url_count = 0;
 
                 if (!empty($events)) {
-                    $bad_url_count = count(array_filter($events, fn($item) => $item['status_code'] !== 200));
+                    $bad_url_count = count(array_filter($events, fn($item) => $item->status_code !== 200));
                 }
 
                 if ( $params[1] == 'flows') {
