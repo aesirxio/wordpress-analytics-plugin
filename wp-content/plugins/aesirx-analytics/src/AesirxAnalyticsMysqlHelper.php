@@ -757,7 +757,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             }
         }
     
-        function aesirx_analytics_add_visitor_consent($visitor_uuid, $consent_uuid = null, $consent = null, $datetime = null, $expiration = null) {
+        function aesirx_analytics_add_visitor_consent($visitor_uuid, $consent_uuid = null, $consent = null, $datetime = null, $expiration = null, $params = []) {
             global $wpdb;
     
             $data = array(
@@ -798,6 +798,47 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                 $wpdb->prefix . 'analytics_visitor_consent',
                 $data,
                 $data_types
+            );
+
+            $visitor_data = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+                $wpdb->prepare(
+                    "SELECT * FROM {$wpdb->prefix}analytics_visitor WHERE uuid = %s",
+                    $visitor_uuid
+                )
+            );
+
+            $updated_data = [];
+
+            if ($visitor_data['ip'] == '') {
+                $updated_data['ip'] = $params['ip'];
+            }
+
+            if ($visitor_data['browser_version'] == '') {
+                $updated_data['browser_version'] = $params['browser_version'];
+            }
+
+            if ($visitor_data['browser_name'] == '') {
+                $updated_data['browser_name'] = $params['ibrowser_namep'];
+            }
+
+            if ($visitor_data['device'] == '') {
+                $updated_data['device'] = $params['device'];
+            }
+
+            if ($visitor_data['user_agent'] == '') {
+                $updated_data['user_agent'] = $params['user_agent'];
+            }
+
+            if ($visitor_data['ip'] == '') {
+                $updated_data['user_agent'] = $params['user_agent'];
+            }
+
+            // Execute the update
+            // doing direct database calls to custom tables
+            $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->prefix . 'analytics_visitor',
+                $updated_data,
+                ['uuid' => $visitor_uuid],
             );
     
             if ($wpdb->last_error) {

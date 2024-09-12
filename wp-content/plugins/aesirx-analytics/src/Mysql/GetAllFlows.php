@@ -165,6 +165,10 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
                             }
                         }
 
+                        $second->og_title = $og_title;
+                        $second->og_description = $og_description;
+                        $second->og_image = $og_image;
+
                         if (!filter_var($second->url, FILTER_VALIDATE_URL)) {
                             $status_code = 404;
                         } else {
@@ -176,6 +180,9 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
                                 $status_code = wp_remote_retrieve_response_code($response);
                             }
                         }
+
+                        $second->status_code = $status_code;
+                        $second->attribute = $hash_attributes[$second->uuid] ?? [];
 
                         $visitor_event = [
                             'uuid' => $second->uuid,
@@ -198,6 +205,96 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
                             $hash_map[$second->flow_uuid] = [$second->uuid => $visitor_event];
                         } else {
                             $hash_map[$second->flow_uuid][$second->uuid] = $visitor_event;
+                        }
+                    }
+
+                    if (!empty($events)) {
+                        if ($events[0]->start = $events[0]->end) {
+                            $consents = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                                $wpdb->prepare(
+                                    "SELECT * FROM {$wpdb->prefix}analytics_visitor_consent WHERE visitor_uuid = %s AND UNIX_TIMESTAMP(datetime) > %d",
+                                    $events[0]->visitor_uuid,
+                                    strtotime($events[0]->start)
+                                )
+                            );
+                        } else {
+                            $consents = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                                $wpdb->prepare(
+                                    "SELECT * FROM {$wpdb->prefix}analytics_visitor_consent WHERE visitor_uuid = %s AND UNIX_TIMESTAMP(datetime) > %d AND UNIX_TIMESTAMP(datetime) < %d",
+                                    $events[0]->visitor_uuid,
+                                    strtotime($events[0]->start),
+                                    strtotime($events[0]->end)
+                                )
+                            );
+                        }
+    
+                        foreach ($consents as $consent) {
+                            $consent_data = $events[0];
+    
+                            if ($consent->consent_uuid != null) {
+                                $consent_detail = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                                    $wpdb->prepare(
+                                        "SELECT * FROM {$wpdb->prefix}analytics_consent WHERE uuid = %s",
+                                        $consent->consent_uuid
+                                    )
+                                );
+
+                                if ($consent_detail->consent != 1) {
+                                    continue;
+                                }
+    
+                                if (!empty($consent_detail)) {
+                                    $consent_attibute = [
+                                        "web3id" => $consent_detail->web3id,
+                                        "network" => $consent_detail->network,
+                                        "datetime" => $consent_detail->datetime,
+                                        "expiration" => $consent_detail->expiration,
+                                        "tier" => 1,
+                                    ];
+    
+                                    $wallet_detail = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                                        $wpdb->prepare(
+                                            "SELECT * FROM {$wpdb->prefix}analytics_wallet WHERE uuid = %s",
+                                            $consent_detail->wallet_uuid
+                                        )
+                                    );
+    
+                                    if (!empty($wallet_detail)) {
+                                        $consent_attibute["wallet"] = $wallet_detail[0]->address;
+                                    }
+    
+                                    if ($consent_detail->web3id) {
+                                        $consent_attibute["tier"] = 2;
+                                    }
+    
+                                    if ($consent_detail->wallet_uuid) {
+                                        $consent_attibute["tier"] = 3;
+                                    }
+    
+                                    if ($consent_detail->web3id && $consent_detail->wallet_uuid) {
+                                        $consent_attibute["tier"] = 4;
+                                    }
+    
+                                    $consent_data->attributes = $consent_attibute;
+                                }
+    
+                                $consent_data->uuid = $consent->consent_uuid;
+                                $consent_data->start = $consent_detail->datetime;
+                                $consent_data->end = $consent_detail->expiration;
+                            } else {
+
+                                if ($consent->consent != 1) {
+                                    continue;
+                                }
+
+                                $consent_data->start = $consent->datetime;
+                                $consent_data->end = $consent->expiration;
+                            }
+    
+                            $consent_data->event_name = 'Consent';
+                            $consent_data->event_type = 'consent';
+    
+                            $hash_map[$consent_data->flow_uuid][] = $consent_data;
                         }
                     }
                 }
