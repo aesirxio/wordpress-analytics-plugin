@@ -30,7 +30,7 @@ Class AesirX_Analytics_Revoke_Consent_Level1 extends AesirxAnalyticsMysqlHelper
         // Execute the update
         // doing direct database calls to custom tables
         $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            $wpdb->prefix . 'analytics_visitor',
+            $wpdb->prefix . 'analytics_visitors',
             [
                 'ip' => '',
                 'lang' => '',

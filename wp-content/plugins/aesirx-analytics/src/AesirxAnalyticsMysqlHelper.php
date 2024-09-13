@@ -981,7 +981,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                 // Execute the update
                 // doing direct database calls to custom tables
                 $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-                    $wpdb->prefix . 'analytics_visitor',
+                    $wpdb->prefix . 'analytics_visitors',
                     [
                         'ip' => '',
                         'lang' => '',
