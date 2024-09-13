@@ -557,17 +557,14 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         function aesirx_analytics_mark_visitor_flow_as_multiple($visitor_flow_uuid) {
             global $wpdb;
     
-            // Ensure UUID is properly formatted for the database
-            $uuid_str = (string) $uuid;
-    
             // need $wpdb->query() due to the complexity of the JSON manipulation required
             // doing direct database calls to custom tables
             $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prepare(
-                    "UPDATE {$wpdb->prefix}visitor
-                    SET visitor_flows = JSON_SET(visitor_flows, CONCAT('$[', JSON_UNQUOTE(JSON_SEARCH(visitor_flows, 'one', %s)), '].multiple_events'), true)
-                    WHERE JSON_CONTAINS(visitor_flows, JSON_OBJECT('uuid', %s))",
-                    sanitize_text_field($uuid_str), sanitize_text_field($uuid_str)
+                    "UPDATE {$wpdb->prefix}analytics_flows
+                    SET multiple_events = 1
+                    WHERE uuid = %s",
+                    sanitize_text_field($visitor_flow_uuid),
                 )
             );
     
@@ -757,7 +754,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             }
         }
     
-        function aesirx_analytics_add_visitor_consent($visitor_uuid, $consent_uuid = null, $consent = null, $datetime = null, $expiration = null) {
+        function aesirx_analytics_add_visitor_consent($visitor_uuid, $consent_uuid = null, $consent = null, $datetime = null, $expiration = null, $params = []) {
             global $wpdb;
     
             $data = array(
@@ -799,6 +796,49 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                 $data,
                 $data_types
             );
+
+            $visitor_data = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+                $wpdb->prepare(
+                    "SELECT * FROM {$wpdb->prefix}analytics_visitors WHERE uuid = %s",
+                    $visitor_uuid
+                )
+            );
+
+            $updated_data = [];
+
+            if ($visitor_data->ip == '') {
+                $updated_data['ip'] = $params['request']['ip'];
+            }
+
+            if ($visitor_data->browser_version == '') {
+                $updated_data['browser_version'] = $params['request']['browser_version'];
+            }
+
+            if ($visitor_data->browser_name == '') {
+                $updated_data['browser_name'] = $params['request']['browser_name'];
+            }
+
+            if ($visitor_data->device == '') {
+                $updated_data['device'] = $params['request']['device'];
+            }
+
+            if ($visitor_data->user_agent == '') {
+                $updated_data['user_agent'] = $params['request']['user_agent'];
+            }
+
+            if ($visitor_data->lang == '') {
+                $updated_data['lang'] = $params['request']['lang'];
+            }
+
+            if (!empty($updated_data)) {
+                // Execute the update
+                // doing direct database calls to custom tables
+                $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                    $wpdb->prefix . 'analytics_visitors',
+                    $updated_data,
+                    ['uuid' => $visitor_uuid],
+                );
+            }
     
             if ($wpdb->last_error) {
                 error_log('Query error: ' . $wpdb->last_error);
@@ -935,6 +975,30 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                     $where,
                     array('%s'),  // Data type for 'expiration'
                     array('%s')   // Data type for 'uuid'
+                );
+
+                // Execute the query
+                // doing direct database calls to custom tables
+                $visitor_data = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                    $wpdb->prepare(
+                        "SELECT * FROM {$wpdb->prefix}analytics_visitor_consent WHERE consent_uuid = %s",
+                        sanitize_text_field($consent_uuid)
+                    )
+                );
+
+                // Execute the update
+                // doing direct database calls to custom tables
+                $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                    $wpdb->prefix . 'analytics_visitors',
+                    [
+                        'ip' => '',
+                        'lang' => '',
+                        'browser_version' => '',
+                        'browser_name' => '',
+                        'device' => '',
+                        'user_agent' => ''
+                    ],
+                    ['uuid' => $visitor_data->visitor_uuid],
                 );
 
                 if ($wpdb->last_error) {

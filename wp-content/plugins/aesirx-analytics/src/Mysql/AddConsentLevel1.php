@@ -63,6 +63,8 @@ Class AesirX_Analytics_Add_Consent_Level1 extends AesirxAnalyticsMysqlHelper
             null,                                              // Consent UUID (null for new consent)
             (int) $params['consent'],                          // Consent level
             $now,                                              // Current timestamp
+            null,                                              // Consent expiration (null for no expiration)
+            $params                                            // Additional parameters
         );
     }
 }

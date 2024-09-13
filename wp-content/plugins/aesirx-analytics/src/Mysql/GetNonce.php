@@ -16,10 +16,10 @@ Class AesirX_Analytics_Get_Nonce extends AesirxAnalyticsMysqlHelper
 
         $num = (string) wp_rand(10000, 99999);
 
-        if (is_null($params['text'])) {
+        if (is_null($params['request']['text'])) {
             $num = "Please sign nonce $num issued by {$params['domain']} in " . gmdate('Y-m-d H:i:s');
         } else {
-            $text = $params['text'];
+            $text = $params['request']['text'];
             if (strpos($text, '{nonce}') === false || strpos($text, '{domain}') === false || strpos($text, '{time}') === false) {
                 return false;
             }

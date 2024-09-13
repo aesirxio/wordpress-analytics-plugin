@@ -42,7 +42,7 @@ Class AesirX_Analytics_Start_Fingerprint extends AesirxAnalyticsMysqlHelper
     
             $new_visitor_event = [
                 'uuid' => wp_generate_uuid4(),
-                'visitor_uuid' => $new_visito['uuid'],
+                'visitor_uuid' => $new_visitor['uuid'],
                 'flow_uuid' => $new_visitor_flow['uuid'],
                 'url' => $params['request']['url'],
                 'referer' => $params['request']['referer'],
@@ -50,7 +50,7 @@ Class AesirX_Analytics_Start_Fingerprint extends AesirxAnalyticsMysqlHelper
                 'end' => $start,
                 'event_name' => $params['request']['event_name'] ?? 'visit',
                 'event_type' => $params['request']['event_type'] ?? 'action',
-                'attributes' => $params['request']['attributes'],
+                'attributes' => $params['request']['attributes'] ?? '',
             ];
     
             parent::aesirx_analytics_create_visitor($new_visitor);
@@ -82,12 +82,23 @@ Class AesirX_Analytics_Start_Fingerprint extends AesirxAnalyticsMysqlHelper
     
             if ($params['request']['referer']) {
                 $referer = wp_parse_url($params['request']['referer']);
+
                 if ($referer && $referer['host'] == $url['host'] && $visitor['visitor_flows']) {
-                    foreach ($visitor['visitor_flows'] as $flow) {
-                        if ($flow['start'] > $visitor_flow['start']) {
-                            $visitor_flow['uuid'] = $flow['uuid'];
-                            $is_already_multiple = $flow['multiple_events'];
-                            $create_flow = false;
+
+                    $list = $visitor['visitor_flows'];
+    
+                    if (!empty($list)) {
+                        $first = $list[0];
+                        $max = $first['start'];
+                        $visitor_flow['uuid'] = $first['uuid'];
+                        $is_already_multiple = $first['multiple_events'];
+                        $create_flow = false;
+
+                        foreach ($list as $val) {
+                            if ($max < $val['start']) {
+                                $max = $val['start'];
+                                $visitor_flow['uuid'] = $val['uuid'];
+                            }
                         }
                     }
                 }

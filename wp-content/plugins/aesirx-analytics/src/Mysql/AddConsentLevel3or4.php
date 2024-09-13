@@ -41,7 +41,7 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
 
         $web3id = null;
 
-        if ($params['token']) {
+        if (isset($params['token']) && $params['token']) {
             $validate_contract = parent::aesirx_analytics_validate_contract($params['token']);
 
             if (!$validate_contract || is_wp_error($validate_contract)) {
@@ -71,7 +71,7 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
             return $consent_list;
         }
 
-        if ($consent_list) {
+        if (isset($consent_list->consents)) {
             foreach ($consent_list->consents as $one_consent) {
                 // Check if consent is part of the current visitor UUID
                 if (in_array($params['visitor_uuid'], array_column($one_consent->visitor, 'uuid'))) {
@@ -97,7 +97,7 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
             }
 
             // Add visitor consent record
-            parent::aesirx_analytics_add_visitor_consent($params['visitor_uuid'], $uuid, null, gmdate('Y-m-d H:i:s'));
+            parent::aesirx_analytics_add_visitor_consent($params['visitor_uuid'], $uuid, null, gmdate('Y-m-d H:i:s'), null, $params);
         }
 
         // Update nonce
@@ -124,7 +124,7 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
             $consents = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prepare(
                     "SELECT consent.*, wallet.address 
-                    FROM $wpdb->prefix . 'analytics_consent' AS consent
+                    FROM {$wpdb->prefix}analytics_consent AS consent
                     LEFT JOIN {$wpdb->prefix}analytics_wallet AS wallet ON wallet.uuid = consent.wallet_uuid
                     LEFT JOIN {$wpdb->prefix}analytics_visitor_consent AS visitor_consent ON consent.uuid = visitor_consent.consent_uuid
                     LEFT JOIN {$wpdb->prefix}analytics_visitors AS visitor ON visitor_consent.visitor_uuid = visitor.uuid
@@ -138,7 +138,7 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
             $visitors = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prepare(
                     "SELECT visitor.*, visitor_consent.consent_uuid
-                    FROM $wpdb->prefix . 'analytics_visitors' AS visitor
+                    FROM {$wpdb->prefix}analytics_visitors AS visitor
                     LEFT JOIN {$wpdb->prefix}analytics_visitor_consent AS visitor_consent ON visitor_consent.visitor_uuid = visitor.uuid
                     LEFT JOIN {$wpdb->prefix}analytics_consent AS consent ON consent.uuid = visitor_consent.consent_uuid
                     LEFT JOIN {$wpdb->prefix}analytics_wallet AS wallet ON wallet.uuid = consent.wallet_uuid
@@ -151,7 +151,7 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
             $flows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prepare(
                     "SELECT flows.*
-                    FROM $wpdb->prefix . 'analytics_flows' AS flows
+                    FROM {$wpdb->prefix}analytics_flows AS flows
                     LEFT JOIN {$wpdb->prefix}analytics_visitors AS visitor ON visitor.uuid = flows.visitor_uuid
                     LEFT JOIN {$wpdb->prefix}analytics_visitor_consent AS visitor_consent ON visitor_consent.visitor_uuid = visitor.uuid
                     LEFT JOIN {$wpdb->prefix}analytics_consent AS consent ON consent.uuid = visitor_consent.consent_uuid

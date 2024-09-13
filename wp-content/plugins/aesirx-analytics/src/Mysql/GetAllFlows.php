@@ -8,7 +8,14 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
     {
         global $wpdb;
 
-        $where_clause = [];
+        $where_clause = [
+            '#__analytics_visitors.ip != ""',
+            '#__analytics_visitors.user_agent != ""',
+            '#__analytics_visitors.device != ""',
+            '#__analytics_visitors.browser_version != ""',
+            '#__analytics_visitors.browser_name != ""',
+            '#__analytics_visitors.lang != ""',
+        ];
         $where_clause_event = [];
         $bind = [];
         $bind_event = [];
@@ -99,8 +106,8 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
         $dirs = [];
 
         if (!empty($list)) {
-            if (isset($params['with']) && !empty($params['with'])) {
-                $with = $params['with'];
+            if (isset($params['request']['with']) && !empty($params['request']['with'])) {
+                $with = $params['request']['with'];
                 if (in_array("events", $with)) {
                     $bind = array_map(function($e) {
                         return $e['uuid'];
@@ -150,13 +157,17 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
                         if ($detail_page == true && !empty($second->url)) {
                             // Try to fetch and parse the Open Graph data
                             $og_data = parent::aesirx_analytics_fetch_open_graph_data($second->url);
-                        
+                            
                             if (!empty($og_data)) {
                                 $og_title = isset($og_data['og:title']) ? $og_data['og:title'] : null;
                                 $og_description = isset($og_data['og:description']) ? $og_data['og:description'] : null;
                                 $og_image = isset($og_data['og:image']) ? $og_data['og:image'] : null;
                             }
                         }
+
+                        $second->og_title = $og_title;
+                        $second->og_description = $og_description;
+                        $second->og_image = $og_image;
 
                         if (!filter_var($second->url, FILTER_VALIDATE_URL)) {
                             $status_code = 404;
@@ -169,6 +180,9 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
                                 $status_code = wp_remote_retrieve_response_code($response);
                             }
                         }
+
+                        $second->status_code = $status_code;
+                        $second->attribute = $hash_attributes[$second->uuid] ?? [];
 
                         $visitor_event = [
                             'uuid' => $second->uuid,
@@ -193,6 +207,96 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
                             $hash_map[$second->flow_uuid][$second->uuid] = $visitor_event;
                         }
                     }
+
+                    if (!empty($events) && $params[1] == "flow") {
+                        if ($events[0]->start == $events[0]->end) {
+                            $consents = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                                $wpdb->prepare(
+                                    "SELECT * FROM {$wpdb->prefix}analytics_visitor_consent WHERE visitor_uuid = %s AND UNIX_TIMESTAMP(datetime) > %d",
+                                    $events[0]->visitor_uuid,
+                                    strtotime($events[0]->start)
+                                )
+                            );
+                        } else {
+                            $consents = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                                $wpdb->prepare(
+                                    "SELECT * FROM {$wpdb->prefix}analytics_visitor_consent WHERE visitor_uuid = %s AND UNIX_TIMESTAMP(datetime) > %d AND UNIX_TIMESTAMP(datetime) < %d",
+                                    $events[0]->visitor_uuid,
+                                    strtotime($events[0]->start),
+                                    strtotime($events[0]->end)
+                                )
+                            );
+                        }
+    
+                        foreach ($consents as $consent) {
+                            $consent_data = $events[0];
+    
+                            if ($consent->consent_uuid != null) {
+                                $consent_detail = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                                    $wpdb->prepare(
+                                        "SELECT * FROM {$wpdb->prefix}analytics_consent WHERE uuid = %s",
+                                        $consent->consent_uuid
+                                    )
+                                );
+
+                                if (!isset($consent_detail->consent) || $consent_detail->consent != 1) {
+                                    continue;
+                                }
+    
+                                if (!empty($consent_detail)) {
+                                    $consent_attibute = [
+                                        "web3id" => $consent_detail->web3id,
+                                        "network" => $consent_detail->network,
+                                        "datetime" => $consent_detail->datetime,
+                                        "expiration" => $consent_detail->expiration,
+                                        "tier" => 1,
+                                    ];
+    
+                                    $wallet_detail = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                                        $wpdb->prepare(
+                                            "SELECT * FROM {$wpdb->prefix}analytics_wallet WHERE uuid = %s",
+                                            $consent_detail->wallet_uuid
+                                        )
+                                    );
+    
+                                    if (!empty($wallet_detail)) {
+                                        $consent_attibute["wallet"] = $wallet_detail->address;
+                                    }
+    
+                                    if ($consent_detail->web3id) {
+                                        $consent_attibute["tier"] = 2;
+                                    }
+    
+                                    if ($wallet_detail->address) {
+                                        $consent_attibute["tier"] = 3;
+                                    }
+    
+                                    if ($consent_detail->web3id && $wallet_detail->address) {
+                                        $consent_attibute["tier"] = 4;
+                                    }
+    
+                                    $consent_data->attributes = $consent_attibute;
+                                }
+    
+                                $consent_data->uuid = $consent->consent_uuid;
+                                $consent_data->start = $consent_detail->datetime;
+                                $consent_data->end = $consent_detail->expiration;
+                            } else {
+
+                                if ($consent->consent != 1) {
+                                    continue;
+                                }
+
+                                $consent_data->start = $consent->datetime;
+                                $consent_data->end = $consent->expiration;
+                            }
+    
+                            $consent_data->event_name = 'Consent';
+                            $consent_data->event_type = 'consent';
+    
+                            $hash_map[$consent_data->flow_uuid][] = $consent_data;
+                        }
+                    }
                 }
             }
 
@@ -215,13 +319,14 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
 
                 $events = isset($hash_map[$item->uuid]) ? array_values($hash_map[$item->uuid]) : null;
 
-                $bad_url_count = 0;
-
-                if (!empty($events)) {
-                    $bad_url_count = count(array_filter($events, fn($item) => $item['status_code'] !== 200));
-                }
-
                 if ( $params[1] == 'flows') {
+
+                    $bad_url_count = 0;
+
+                    if (!empty($events)) {
+                        $bad_url_count = count(array_filter($events, fn($item) => $item->status_code !== 200));
+                    }
+
                     $collection[] = [
                         'uuid' => $item->uuid,
                         'visitor_uuid' => $item->visitor_uuid,
