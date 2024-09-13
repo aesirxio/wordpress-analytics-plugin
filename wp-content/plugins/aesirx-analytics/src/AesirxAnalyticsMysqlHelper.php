@@ -811,23 +811,23 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             }
 
             if ($visitor_data->browser_version == '') {
-                $updated_data['browser_version'] = $params['request']['browser_version'];
+                $updated_data['browser_version'] = isset($params['request']['browser_version']) ? $params['request']['browser_version'] : '';
             }
 
             if ($visitor_data->browser_name == '') {
-                $updated_data['browser_name'] = $params['request']['browser_name'];
+                $updated_data['browser_name'] = isset($params['request']['browser_name']) ? $params['request']['browser_name'] : '';
             }
 
             if ($visitor_data->device == '') {
-                $updated_data['device'] = $params['request']['device'];
+                $updated_data['device'] = isset($params['request']['device']) ? $params['request']['device'] : '';
             }
 
             if ($visitor_data->user_agent == '') {
-                $updated_data['user_agent'] = $params['request']['user_agent'];
+                $updated_data['user_agent'] = isset($params['request']['user_agent']) ? $params['request']['user_agent'] : '';
             }
 
             if ($visitor_data->lang == '') {
-                $updated_data['lang'] = $params['request']['lang'];
+                $updated_data['lang'] = isset($params['request']['lang']) ? $params['request']['lang'] : '';
             }
 
             if (!empty($updated_data)) {

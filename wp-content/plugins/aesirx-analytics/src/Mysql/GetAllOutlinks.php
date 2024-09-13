@@ -28,7 +28,7 @@ Class AesirX_Analytics_Get_All_Outlinks extends AesirxAnalyticsMysqlHelper
             $where_clause[] = "#__analytics_events.referer LIKE '%bing.%'";
             $where_clause[] = "#__analytics_events.referer LIKE '%yandex.%'";
             $where_clause[] = "#__analytics_events.referer LIKE '%yahoo.%'";
-            $where_clause[] = "#__analytics_events.referer LIKE '%duckduckgo.%'";
+            $where_clause[] = "#__analytics_events.referer LIKE '%%duckduckgo.%'";
         }
 
         parent::aesirx_analytics_add_filters($params, $where_clause, $bind);
