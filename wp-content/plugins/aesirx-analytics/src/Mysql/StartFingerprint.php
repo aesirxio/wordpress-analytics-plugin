@@ -50,7 +50,7 @@ Class AesirX_Analytics_Start_Fingerprint extends AesirxAnalyticsMysqlHelper
                 'end' => $start,
                 'event_name' => $params['request']['event_name'] ?? 'visit',
                 'event_type' => $params['request']['event_type'] ?? 'action',
-                'attributes' => $params['request']['attributes'],
+                'attributes' => $params['request']['attributes'] ?? '',
             ];
     
             parent::aesirx_analytics_create_visitor($new_visitor);
