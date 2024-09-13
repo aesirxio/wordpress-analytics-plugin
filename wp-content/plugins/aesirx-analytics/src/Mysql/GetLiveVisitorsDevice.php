@@ -38,10 +38,6 @@ Class AesirX_Analytics_Get_Live_Visitors_Device extends AesirxAnalyticsMysqlHelp
             $total_select[] = "COUNT(#__analytics_events.uuid) AS total";
         }
 
-        foreach ($selects as $additional_result) {
-            $select[] = $additional_result["select"] . " AS " . $additional_result["result"];
-        }
-
         $where_clause = [
             "#__analytics_events.event_name = %s",
             "#__analytics_events.event_type = %s",

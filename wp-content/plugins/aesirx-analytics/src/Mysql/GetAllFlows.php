@@ -157,7 +157,7 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
                         if ($detail_page == true && !empty($second->url)) {
                             // Try to fetch and parse the Open Graph data
                             $og_data = parent::aesirx_analytics_fetch_open_graph_data($second->url);
-                        
+                            
                             if (!empty($og_data)) {
                                 $og_title = isset($og_data['og:title']) ? $og_data['og:title'] : null;
                                 $og_description = isset($og_data['og:description']) ? $og_data['og:description'] : null;
@@ -239,7 +239,7 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
                                     )
                                 );
 
-                                if ($consent_detail->consent != 1) {
+                                if (!isset($consent_detail->consent) || $consent_detail->consent != 1) {
                                     continue;
                                 }
     
@@ -319,13 +319,14 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
 
                 $events = isset($hash_map[$item->uuid]) ? array_values($hash_map[$item->uuid]) : null;
 
-                $bad_url_count = 0;
-
-                if (!empty($events)) {
-                    $bad_url_count = count(array_filter($events, fn($item) => $item->status_code !== 200));
-                }
-
                 if ( $params[1] == 'flows') {
+
+                    $bad_url_count = 0;
+
+                    if (!empty($events)) {
+                        $bad_url_count = count(array_filter($events, fn($item) => $item->status_code !== 200));
+                    }
+
                     $collection[] = [
                         'uuid' => $item->uuid,
                         'visitor_uuid' => $item->visitor_uuid,

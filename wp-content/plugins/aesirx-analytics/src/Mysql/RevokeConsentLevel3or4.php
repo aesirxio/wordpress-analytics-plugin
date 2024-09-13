@@ -8,8 +8,8 @@ Class AesirX_Analytics_Revoke_Consent_Level3or4 extends AesirxAnalyticsMysqlHelp
     {
         global $wpdb;
 
-        // Decode the signature
-        $decoded = base64_decode($params['signature']);
+        // Decode the signaturea
+        $decoded = base64_decode($params['request']['signature']);
         if ($decoded === false) {
             return new WP_Error('invalid_signature', esc_html__('Invalid signature.', 'aesirx-analytics'));
         }
@@ -37,7 +37,7 @@ Class AesirX_Analytics_Revoke_Consent_Level3or4 extends AesirxAnalyticsMysqlHelp
             return new WP_Error('validation_error', esc_html__('Nonce is not valid', 'aesirx-analytics'));
         }
 
-        if ($params['token']) {
+        if (isset($params['token']) && $params['token']) {
             $validate_contract = parent::aesirx_analytics_validate_contract($params['token']);
 
             if (!$validate_contract || is_wp_error($validate_contract)) {

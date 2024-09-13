@@ -42,7 +42,7 @@ Class AesirX_Analytics_Start_Fingerprint extends AesirxAnalyticsMysqlHelper
     
             $new_visitor_event = [
                 'uuid' => wp_generate_uuid4(),
-                'visitor_uuid' => $new_visito['uuid'],
+                'visitor_uuid' => $new_visitor['uuid'],
                 'flow_uuid' => $new_visitor_flow['uuid'],
                 'url' => $params['request']['url'],
                 'referer' => $params['request']['referer'],
