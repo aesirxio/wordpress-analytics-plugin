@@ -82,12 +82,23 @@ Class AesirX_Analytics_Start_Fingerprint extends AesirxAnalyticsMysqlHelper
     
             if ($params['request']['referer']) {
                 $referer = wp_parse_url($params['request']['referer']);
+
                 if ($referer && $referer['host'] == $url['host'] && $visitor['visitor_flows']) {
-                    foreach ($visitor['visitor_flows'] as $flow) {
-                        if ($flow['start'] > $visitor_flow['start']) {
-                            $visitor_flow['uuid'] = $flow['uuid'];
-                            $is_already_multiple = $flow['multiple_events'];
-                            $create_flow = false;
+
+                    $list = $visitor['visitor_flows'];
+    
+                    if (!empty($list)) {
+                        $first = $list[0];
+                        $max = $first['start'];
+                        $visitor_flow['uuid'] = $first['uuid'];
+                        $is_already_multiple = $first['multiple_events'];
+                        $create_flow = false;
+
+                        foreach ($list as $val) {
+                            if ($max < $val['start']) {
+                                $max = $val['start'];
+                                $visitor_flow['uuid'] = $val['uuid'];
+                            }
                         }
                     }
                 }

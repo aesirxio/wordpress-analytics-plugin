@@ -557,17 +557,14 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
         function aesirx_analytics_mark_visitor_flow_as_multiple($visitor_flow_uuid) {
             global $wpdb;
     
-            // Ensure UUID is properly formatted for the database
-            $uuid_str = (string) $uuid;
-    
             // need $wpdb->query() due to the complexity of the JSON manipulation required
             // doing direct database calls to custom tables
             $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prepare(
-                    "UPDATE {$wpdb->prefix}visitor
-                    SET visitor_flows = JSON_SET(visitor_flows, CONCAT('$[', JSON_UNQUOTE(JSON_SEARCH(visitor_flows, 'one', %s)), '].multiple_events'), true)
-                    WHERE JSON_CONTAINS(visitor_flows, JSON_OBJECT('uuid', %s))",
-                    sanitize_text_field($uuid_str), sanitize_text_field($uuid_str)
+                    "UPDATE {$wpdb->prefix}analytics_flows
+                    SET multiple_events = 1
+                    WHERE uuid = %s",
+                    sanitize_text_field($visitor_flow_uuid),
                 )
             );
     
