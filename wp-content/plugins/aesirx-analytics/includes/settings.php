@@ -300,6 +300,47 @@ add_action('admin_init', function () {
     'aesirx_analytics_settings'
   );
 
+  add_settings_field(
+    'aesirx_analytics_blocking_cookies',
+    esc_html__('Automatic blocking cookies', 'aesirx-analytics'),
+    function () {
+      $options = get_option('aesirx_analytics_plugin_options', []);
+      echo '<table id="aesirx-analytics-blocking-cookies">';
+      if (isset($options['blocking_cookies'])) {
+          foreach ($options['blocking_cookies'] as $field) {
+              echo '<tr class="aesirx-analytics-cookie-row">';
+              echo '<td>' . aesirx_analytics_escape_html('<input type="text" name="aesirx_analytics_plugin_options[blocking_cookies][]" value="'.esc_attr($field).'">') . '</td>';
+              echo '<td>' . aesirx_analytics_escape_html('<button class="aesirx-analytics-remove-cookies-row">Remove domain</button>') . '</td>';
+              echo '</tr>';
+          }
+      } else {
+          echo '<tr class="aesirx-analytics-cookie-row">';
+          echo '<td>' . aesirx_analytics_escape_html('<input type="text" name="aesirx_analytics_plugin_options[blocking_cookies][]">') . '</td>';
+          echo '<td>' . aesirx_analytics_escape_html('<button class="aesirx-analytics-remove-cookies-row">Remove domain</button>') . '</td>';
+          echo '</tr>';
+      }
+      echo '</table>';
+      echo aesirx_analytics_escape_html('<button id="aesirx-analytics-add-cookies-row">Add domain</button>');
+    },
+    'aesirx_analytics_plugin',
+    'aesirx_analytics_settings'
+  );
+
+  add_settings_field(
+    'aesirx_analytics_blocking_cookies_jetpack',
+    esc_html__('Blocking cookies JetPack ', 'aesirx-analytics'),
+    function () {
+      $options = get_option('aesirx_analytics_plugin_options', []);
+      // using custom function to escape HTML
+      echo aesirx_analytics_escape_html(
+        "<input id='aesirx_analytics_blocking_cookies_jetpack' name='aesirx_analytics_plugin_options[blocking_cookies_jetpack]' type='checkbox'" 
+        . ($options['blocking_cookies_jetpack'] ? ' checked="checked"' : '') . "/>"
+      );
+    },
+    'aesirx_analytics_plugin',
+    'aesirx_analytics_settings'
+  );
+
   add_settings_section(
     'aesirx_analytics_info',
     '',
@@ -586,6 +627,10 @@ function aesirx_analytics_redirect_config() {
 }
 
 add_action('admin_enqueue_scripts', function ($hook) {
+  if ($hook === 'settings_page_aesirx-analytics-plugin') {
+    wp_enqueue_script('aesirx_analytics_repeatable_fields', plugins_url('assets/vendor/aesirx-analytics-repeatable-fields.js', __DIR__), array('jquery'), '1.0.0', true);
+  }
+
   if ($hook === 'toplevel_page_aesirx-bi-dashboard' || 
       $hook === 'toplevel_page_aesirx-bi-visitors' || 
       $hook === 'toplevel_page_aesirx-bi-behavior' || 
