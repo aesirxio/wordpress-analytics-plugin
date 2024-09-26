@@ -328,7 +328,7 @@ add_action('admin_init', function () {
 
   add_settings_field(
     'aesirx_analytics_blocking_cookies_plugins',
-    esc_html__('Blocking cookies Plugins ', 'aesirx-analytics'),
+    esc_html__('Blocking cookies plugins ', 'aesirx-analytics'),
     function () {
       $options = get_option('aesirx_analytics_plugin_options', []);
       $installed_plugins = get_plugins();
