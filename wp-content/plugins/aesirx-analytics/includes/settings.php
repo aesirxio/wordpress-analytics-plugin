@@ -347,10 +347,11 @@ add_action('admin_init', function () {
     function () {
       $options = get_option('aesirx_analytics_plugin_options', []);
       $installed_plugins = get_plugins();
+      $active_plugins = get_option('active_plugins');
 
-      foreach ($installed_plugins as $plugin) {
+      foreach ($installed_plugins as $path => $plugin) {
 
-        if ($plugin['TextDomain'] === 'aesirx-analytics' || $plugin['TextDomain'] === '') {
+        if ($plugin['TextDomain'] === 'aesirx-analytics' || $plugin['TextDomain'] === '' || !in_array($path, $active_plugins)) {
           continue;
         }
 
