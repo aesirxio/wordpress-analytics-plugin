@@ -341,6 +341,32 @@ add_action('admin_init', function () {
     'aesirx_analytics_settings'
   );
 
+  add_settings_field(
+    'aesirx_analytics_blocking_cookies_plugins',
+    esc_html__('Blocking cookies Plugins ', 'aesirx-analytics'),
+    function () {
+      $options = get_option('aesirx_analytics_plugin_options', []);
+      $installed_plugins = get_plugins();
+
+      foreach ($installed_plugins as $plugin) {
+
+        if ($plugin['TextDomain'] === 'aesirx-analytics' || $plugin['TextDomain'] === '') {
+          continue;
+        }
+
+        echo '<label>' . esc_html($plugin['Name']) . '</label>';
+        echo aesirx_analytics_escape_html(
+          "<input id='aesirx_analytics_blocking_cookies_plugins' name='aesirx_analytics_plugin_options[blocking_cookies_plugins][]' 
+          value='" . esc_attr($plugin['TextDomain']) . "' type='checkbox'" 
+          . (isset($options['blocking_cookies_plugins']) && in_array($plugin['TextDomain'], $options['blocking_cookies_plugins']) ? ' checked="checked"' : '') . "/>"
+        );
+      }
+      
+    },
+    'aesirx_analytics_plugin',
+    'aesirx_analytics_settings'
+  );
+
   add_settings_section(
     'aesirx_analytics_info',
     '',
