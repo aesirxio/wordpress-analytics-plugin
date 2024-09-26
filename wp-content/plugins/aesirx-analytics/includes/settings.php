@@ -309,18 +309,18 @@ add_action('admin_init', function () {
       if (isset($options['blocking_cookies'])) {
           foreach ($options['blocking_cookies'] as $field) {
               echo '<tr class="aesirx-analytics-cookie-row">';
-              echo '<td>' . aesirx_analytics_escape_html('<input type="text" name="aesirx_analytics_plugin_options[blocking_cookies][]" value="'.esc_attr($field).'">') . '</td>';
-              echo '<td>' . aesirx_analytics_escape_html('<button class="aesirx-analytics-remove-cookies-row">Remove domain</button>') . '</td>';
+              echo '<td>' . aesirx_analytics_escape_html('<input type="text" name="aesirx_analytics_plugin_options[blocking_cookies][]" placeholder="Enter domain or path" value="'.esc_attr($field).'">') . '</td>';
+              echo '<td>' . aesirx_analytics_escape_html('<button class="aesirx-analytics-remove-cookies-row">Remove</button>') . '</td>';
               echo '</tr>';
           }
       } else {
           echo '<tr class="aesirx-analytics-cookie-row">';
-          echo '<td>' . aesirx_analytics_escape_html('<input type="text" name="aesirx_analytics_plugin_options[blocking_cookies][]">') . '</td>';
-          echo '<td>' . aesirx_analytics_escape_html('<button class="aesirx-analytics-remove-cookies-row">Remove domain</button>') . '</td>';
+          echo '<td>' . aesirx_analytics_escape_html('<input type="text" name="aesirx_analytics_plugin_options[blocking_cookies][]" placeholder="Enter domain or path">') . '</td>';
+          echo '<td>' . aesirx_analytics_escape_html('<button class="aesirx-analytics-remove-cookies-row">Remove</button>') . '</td>';
           echo '</tr>';
       }
       echo '</table>';
-      echo aesirx_analytics_escape_html('<button id="aesirx-analytics-add-cookies-row">Add domain</button>');
+      echo aesirx_analytics_escape_html('<button id="aesirx-analytics-add-cookies-row">Add</button>');
     },
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
@@ -744,6 +744,7 @@ function aesirx_analytics_escape_html($string) {
         'name'  => array(),
         'value' => array(),
         'class' => array(),
+        'placeholder' => array(),
         'checked' => array(),
      ),
      'a' => array(),
