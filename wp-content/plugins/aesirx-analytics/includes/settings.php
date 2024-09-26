@@ -327,42 +327,32 @@ add_action('admin_init', function () {
   );
 
   add_settings_field(
-    'aesirx_analytics_blocking_cookies_jetpack',
-    esc_html__('Blocking cookies JetPack ', 'aesirx-analytics'),
-    function () {
-      $options = get_option('aesirx_analytics_plugin_options', []);
-      // using custom function to escape HTML
-      echo aesirx_analytics_escape_html(
-        "<input id='aesirx_analytics_blocking_cookies_jetpack' name='aesirx_analytics_plugin_options[blocking_cookies_jetpack]' type='checkbox'" 
-        . ($options['blocking_cookies_jetpack'] ? ' checked="checked"' : '') . "/>"
-      );
-    },
-    'aesirx_analytics_plugin',
-    'aesirx_analytics_settings'
-  );
-
-  add_settings_field(
     'aesirx_analytics_blocking_cookies_plugins',
-    esc_html__('Blocking cookies Plugins ', 'aesirx-analytics'),
+    esc_html__('Blocking cookies plugins ', 'aesirx-analytics'),
     function () {
       $options = get_option('aesirx_analytics_plugin_options', []);
       $installed_plugins = get_plugins();
       $active_plugins = get_option('active_plugins');
-
+      echo '<table class="aesirx-analytics-cookie-plugin">';
       foreach ($installed_plugins as $path => $plugin) {
 
         if ($plugin['TextDomain'] === 'aesirx-analytics' || $plugin['TextDomain'] === '' || !in_array($path, $active_plugins)) {
           continue;
         }
-
-        echo '<label>' . esc_html($plugin['Name']) . '</label>';
+        echo '<tr class="aesirx-analytics-cookie-plugin-item">';
+        echo '<td>';
+        echo '<label for="aesirx_analytics_blocking_cookies_plugins'.esc_attr($plugin['TextDomain']).'">' . esc_html($plugin['Name']) . '</label>';
+        echo '</td>';
+        echo '<td>';
         echo aesirx_analytics_escape_html(
-          "<input id='aesirx_analytics_blocking_cookies_plugins' name='aesirx_analytics_plugin_options[blocking_cookies_plugins][]' 
+          "<input id='aesirx_analytics_blocking_cookies_plugins".esc_attr($plugin['TextDomain'])."' name='aesirx_analytics_plugin_options[blocking_cookies_plugins][]' 
           value='" . esc_attr($plugin['TextDomain']) . "' type='checkbox'" 
           . (isset($options['blocking_cookies_plugins']) && in_array($plugin['TextDomain'], $options['blocking_cookies_plugins']) ? ' checked="checked"' : '') . "/>"
         );
+        echo '</td>';
+        echo '</tr>';
       }
-      
+      echo '</table>';
     },
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
