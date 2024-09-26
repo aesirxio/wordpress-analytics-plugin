@@ -51,8 +51,10 @@ function aesirx_analytics_config_is_ok(string $isStorage = null): bool {
 }
 
 if (aesirx_analytics_config_is_ok()) {
+    wp_register_script('aesirx-analytics', plugins_url('assets/vendor/analytics.js', __FILE__), [], true,  array(
+        'in_footer' => false,
+    ));
     add_action('wp_enqueue_scripts', function (): void {
-        wp_register_script('aesirx-analytics', plugins_url('assets/vendor/analytics.js', __FILE__), [], true, true);
         wp_enqueue_script('aesirx-analytics');
 
         $options = get_option('aesirx_analytics_plugin_options');
@@ -68,7 +70,7 @@ if (aesirx_analytics_config_is_ok()) {
                 : 'true';
 
         $trackEcommerce = ($options['track_ecommerce'] ?? 'true') == 'true' ? 'true': 'false';
-
+        $blockingCookies = count($options['blocking_cookies']) > 0 ? json_encode($options['blocking_cookies']) : '[]';
         $clientId = $options['clientid'] ?? '';
         $secret = $options['secret'] ?? '';
 
@@ -78,6 +80,7 @@ if (aesirx_analytics_config_is_ok()) {
             window.disableAnalyticsConsent="' . esc_html($consent) . '";
             window.aesirxClientID="' . esc_html($clientId) . '";
             window.aesirxClientSecret="' . esc_html($secret) . '";
+            window.blockJSDomains=' . $blockingCookies . ';
             window.aesirxTrackEcommerce="' . esc_html($trackEcommerce) . '";',
             'before');
     });
