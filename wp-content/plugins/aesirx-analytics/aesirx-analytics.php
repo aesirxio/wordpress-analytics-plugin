@@ -137,14 +137,14 @@ if (aesirx_analytics_config_is_ok()) {
                 : 'true';
 
         $trackEcommerce = ($options['track_ecommerce'] ?? 'true') == 'true' ? 'true': 'false';
-        $blockingCookiesPath = count($options['blocking_cookies']) > 0 ? $options['blocking_cookies'] : [];
-        $arrayCookiesPlugins =  count($options['blocking_cookies_plugins']) > 0 ? $options['blocking_cookies_plugins'] : [];
+        $blockingCookiesPath = isset($options['blocking_cookies']) && count($options['blocking_cookies']) > 0 ? $options['blocking_cookies'] : [];
+        $arrayCookiesPlugins =  isset($options['blocking_cookies_plugins']) &&  count($options['blocking_cookies_plugins']) > 0 ? $options['blocking_cookies_plugins'] : [];
         $prefix = "wp-content/plugins/";
-        $blockingCookiesPlugins =  count($options['blocking_cookies_plugins']) > 0 ? array_map(function($value) use ($prefix) {
+        $blockingCookiesPlugins =  isset($options['blocking_cookies_plugins']) &&  count($options['blocking_cookies_plugins']) > 0 ? array_map(function($value) use ($prefix) {
             return $prefix . $value;
         }, $arrayCookiesPlugins) : [];
         $blockingCookies = array_unique(array_merge($blockingCookiesPath, $blockingCookiesPlugins), SORT_REGULAR);
-        $blockingCookiesJSON = count($options['blocking_cookies']) > 0 ? json_encode($blockingCookies) : '[]';
+        $blockingCookiesJSON = isset($options['blocking_cookies']) && count($options['blocking_cookies']) > 0 ? wp_json_encode($blockingCookies) : '[]';
         $clientId = $options['clientid'] ?? '';
         $secret = $options['secret'] ?? '';
 
