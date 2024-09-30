@@ -137,7 +137,14 @@ if (aesirx_analytics_config_is_ok()) {
                 : 'true';
 
         $trackEcommerce = ($options['track_ecommerce'] ?? 'true') == 'true' ? 'true': 'false';
-        $blockingCookies = count($options['blocking_cookies']) > 0 ? json_encode($options['blocking_cookies']) : '[]';
+        $blockingCookiesPath = count($options['blocking_cookies']) > 0 ? $options['blocking_cookies'] : [];
+        $arrayCookiesPlugins =  count($options['blocking_cookies_plugins']) > 0 ? $options['blocking_cookies_plugins'] : [];
+        $prefix = "wp-content/plugins/";
+        $blockingCookiesPlugins =  count($options['blocking_cookies_plugins']) > 0 ? array_map(function($value) use ($prefix) {
+            return $prefix . $value;
+        }, $arrayCookiesPlugins) : [];
+        $blockingCookies = array_unique(array_merge($blockingCookiesPath, $blockingCookiesPlugins), SORT_REGULAR);
+        $blockingCookiesJSON = count($options['blocking_cookies']) > 0 ? json_encode($blockingCookies) : '[]';
         $clientId = $options['clientid'] ?? '';
         $secret = $options['secret'] ?? '';
 
@@ -147,7 +154,7 @@ if (aesirx_analytics_config_is_ok()) {
             window.disableAnalyticsConsent="' . esc_html($consent) . '";
             window.aesirxClientID="' . esc_html($clientId) . '";
             window.aesirxClientSecret="' . esc_html($secret) . '";
-            window.blockJSDomains=' . $blockingCookies . ';
+            window.blockJSDomains=' . $blockingCookiesJSON . ';
             window.aesirxTrackEcommerce="' . esc_html($trackEcommerce) . '";',
             'before');
     });
