@@ -302,7 +302,7 @@ add_action('admin_init', function () {
 
   add_settings_field(
     'aesirx_analytics_blocking_cookies',
-    esc_html__('Automatic blocking cookies', 'aesirx-analytics'),
+    esc_html__('Domain/Path-Based Blocking', 'aesirx-analytics'),
     function () {
       $options = get_option('aesirx_analytics_plugin_options', []);
       echo '<table id="aesirx-analytics-blocking-cookies">';
@@ -321,6 +321,7 @@ add_action('admin_init', function () {
       }
       echo '</table>';
       echo aesirx_analytics_escape_html('<button id="aesirx-analytics-add-cookies-row">Add</button>');
+      echo aesirx_analytics_escape_html('<p class="description">You can specify a domain, path, or folder, and AesirX will automatically block all JavaScript files from that source before the user provides consent.</p>');
     },
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
@@ -328,7 +329,7 @@ add_action('admin_init', function () {
 
   add_settings_field(
     'aesirx_analytics_blocking_cookies_plugins',
-    esc_html__('Blocking cookies plugins ', 'aesirx-analytics'),
+    esc_html__('Plugin Blocking ', 'aesirx-analytics'),
     function () {
       $options = get_option('aesirx_analytics_plugin_options', []);
       $installed_plugins = get_plugins();
@@ -353,6 +354,7 @@ add_action('admin_init', function () {
         echo '</tr>';
       }
       echo '</table>';
+      echo aesirx_analytics_escape_html('<p class="description">AesirX will detect active plugins and block all JavaScript files related to those plugins until the user consents.</p>');
     },
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
