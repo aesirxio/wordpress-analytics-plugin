@@ -45,12 +45,11 @@ add_action('admin_init', function () {
   });
   add_settings_section(
     'aesirx_analytics_settings',
-    'Aesirx Analytics',
+    'AesirX Analytics & CMP',
     function () {
       echo wp_kses_post(
         /* translators: %s: URL to aesir.io read mor details */
-        sprintf('<p>'. esc_html__('Read more detail at', 'aesirx-analytics') .' <a target="_blank" href="%s">%s</a></p><p class= "description">
-        <p>'. esc_html__('Note: Please set Permalink structure is NOT plain.', 'aesirx-analytics') .'</p></p>', 'https://github.com/aesirxio/analytics#in-ssr-site', 'https://github.com/aesirxio/analytics#in-ssr-site')
+        sprintf('<p class= "description"><strong>'. esc_html__('Note: ', 'aesirx-analytics') . '</strong>' . esc_html__('Please set Permalink Settings in WP so it is NOT set as plain.', 'aesirx-analytics') .'</p>')
       );
     },
     'aesirx_analytics_plugin'
@@ -90,7 +89,7 @@ add_action('admin_init', function () {
 
   add_settings_field(
     'aesirx_analytics_storage',
-    esc_html__('1st party server', 'aesirx-analytics'),
+    esc_html__('AesirX First-Party Server', 'aesirx-analytics'),
     function () {
       $options = get_option('aesirx_analytics_plugin_options', []);
       $checked = 'checked="checked"';
@@ -103,7 +102,8 @@ add_action('admin_init', function () {
     <label>' . esc_html__('External', 'aesirx-analytics') . ' <input type="radio" class="analytic-storage-class" name="aesirx_analytics_plugin_options[storage]" ' .
         ($storage == 'external' ? $checked : '') .
         ' value="external" /></label>');
-
+        echo aesirx_analytics_escape_html('<p class="description"><strong>Internal Storage: </strong>Stores analytics data directly within the WordPress database (WP DB). This option does not offer additional control over the data, as it is part of the core website infrastructure. It may be less secure since it shares space with other WordPress data and could impact performance, especially with high traffic or large datasets.</p>');
+        echo aesirx_analytics_escape_html('<p class="description"><strong>External Storage (First-Party Server): </strong>Stores analytics data on a dedicated first-party server, isolating the data from the WordPress database. This improves security and performance by keeping analytics data separate, reducing the load on the WordPress site. It also supports enhanced Web3 functionality, making it a more secure and efficient solution for handling data.</p>');
         echo '<script>
         jQuery(document).ready(function() {
       function switch_radio(test) {
@@ -168,7 +168,7 @@ add_action('admin_init', function () {
 
   add_settings_field(
     'aesirx_analytics_consent',
-    __('Consent', 'aesirx-analytics'),
+    __('Consent Management', 'aesirx-analytics'),
     function () {
       $options = get_option('aesirx_analytics_plugin_options', []);
       $checked = 'checked="checked"';
@@ -181,6 +181,7 @@ add_action('admin_init', function () {
         <label>' . esc_html__('No', 'aesirx-analytics') . ' <input type="radio" class="analytic-consent-class" name="aesirx_analytics_plugin_options[consent]" ' .
             ($storage == 'false' ? $checked : '') .
             ' value="false" /></label>');
+      echo aesirx_analytics_escape_html("<p class='description'><strong>Description: </strong>This option lets website owners enable or disable the consent popup. If enabled, visitors must give consent for data collection and third-party services. If disabled, tracking and analytics won't run without consent, and the popup won't be displayed.</p>");
     }, 
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
@@ -221,8 +222,8 @@ add_action('admin_init', function () {
       // using custom function to escape HTML
       echo aesirx_analytics_escape_html("<input id='aesirx_analytics_license' name='aesirx_analytics_plugin_options[license]' type='text' value='" .
         esc_attr($options['license'] ?? '') .
-        "' /> <p class= 'description'>
-        Register to AesirX and get your client id, client secret and license here: <a target='_blank' href='https://signup.aesirx.io'>https://signup.aesirx.io</a>.</p>");
+        "' /> <p class= 'description'><strong>Description: </strong>
+        Sign up on the AesirX platform to obtain your Shield of Privacy ID and license, and activate support for decentralized consent at <a target='_blank' href='https://signup.aesirx.io'>https://signup.aesirx.io</a>.</p>");
     },
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
@@ -245,6 +246,7 @@ add_action('admin_init', function () {
           <label>' . esc_html__('No', 'aesirx-analytics') . ' <input type="radio" id="aesirx_analytics-enable_cronjob" name="aesirx_analytics_plugin_options[enable_cronjob]" ' .
                ($storage == 'false' ? $checked : '') .
                ' value="false" /></label>');
+          echo aesirx_analytics_escape_html('<p class="description"><strong>Description: </strong>This setting allows you to capture the geographic location of users when tracking their activity. The location data can be used to improve personalized experiences or for location-based analytics.</p>');
       },
       'aesirx_analytics_plugin',
       'aesirx_analytics_settings'
@@ -259,6 +261,7 @@ add_action('admin_init', function () {
         echo aesirx_analytics_escape_html("<input id='aesirx_analytics_geo_cron_time' name='aesirx_analytics_plugin_options[geo_cron_time]' type='text' value='" .
           esc_attr($options['geo_cron_time'] ?? '') .
           "' />");
+        echo aesirx_analytics_escape_html('<p class="description"><strong>Description: </strong>This function runs a cron job at set intervals ("X" time) to refresh and update the user’s location data. This ensures that location tracking remains accurate over time without requiring manual intervention.</p>');
       },
       'aesirx_analytics_plugin',
       'aesirx_analytics_settings'
@@ -281,6 +284,7 @@ add_action('admin_init', function () {
         <label>' . esc_html__('No', 'aesirx-analytics') . ' <input type="radio" class="analytic-track_ecommerce-class" name="aesirx_analytics_plugin_options[track_ecommerce]" ' .
              ($storage == 'false' ? $checked : '') .
              ' value="false" /></label>');
+        echo aesirx_analytics_escape_html('<p class="description"><strong>Description: </strong>If enabled, this feature will track key WooCommerce events, including Add to Cart, Checkout, and Search Product. This allows website owners to gather data on shopping behaviors and optimize the eCommerce experience.</p>');
     },
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
@@ -294,7 +298,7 @@ add_action('admin_init', function () {
       // using custom function to escape HTML
       echo aesirx_analytics_escape_html("<input id='aesirx_analytics_cache_query' name='aesirx_analytics_plugin_options[cache_query]' type='number' value='" .
         esc_attr($options['cache_query'] ?? '') .
-        "' /> <p class= 'description'>Set cache time in seconds</p>");
+        "' /> <p class= 'description'><strong>Description: </strong>This option allows you to cache tracking data for a specified amount of time ('X' time). Caching improves the speed of data retrieval and reduces the load on your server by temporarily storing data before it is refreshed.</p>");
     },
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
@@ -327,7 +331,8 @@ add_action('admin_init', function () {
         echo '</tr>';
       }
       echo '</table>';
-      echo aesirx_analytics_escape_html('<p class="description">AesirX will detect active plugins and block all JavaScript files related to those plugins until the user consents.</p>');
+      echo aesirx_analytics_escape_html('<p class="description"><strong>Description: </strong>This automatically detects new third-party plugins added to your WordPress site, flagging potential tracking scripts like beacons and pixel trackers.</p>');
+      echo aesirx_analytics_escape_html('<p class="description">For detailed guides, how-to videos, and API documentation, visit our Documentation Hub: <a href="https://aesirx.io/documentation" target="_blank">https://aesirx.io/documentation</a></p>');
     },
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
@@ -335,7 +340,7 @@ add_action('admin_init', function () {
 
   add_settings_field(
     'aesirx_analytics_blocking_cookies',
-    esc_html__('Domain/Path-Based Blocking', 'aesirx-analytics'),
+    esc_html__('AesirX Consent Shield for Domain/Path-Based Blocking', 'aesirx-analytics'),
     function () {
       $options = get_option('aesirx_analytics_plugin_options', []);
       echo '<table id="aesirx-analytics-blocking-cookies">';
@@ -354,7 +359,7 @@ add_action('admin_init', function () {
       }
       echo '</table>';
       echo aesirx_analytics_escape_html('<button id="aesirx-analytics-add-cookies-row">Add</button>');
-      echo aesirx_analytics_escape_html('<p class="description">You can specify a domain, path, or folder, and AesirX will automatically block all JavaScript files from that source before the user provides consent.</p>');
+      echo aesirx_analytics_escape_html('<p class="description"><strong>Description: </strong>You can specify a domain, path, or folder, and AesirX will automatically block all JavaScript files from that source before the user provides consent.</p>');
     },
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
@@ -742,8 +747,11 @@ function aesirx_analytics_escape_html($string) {
         'placeholder' => array(),
         'checked' => array(),
      ),
+     'strong' => array(),
      'a' => array(),
-     'p' => array(),
+     'p' => array(
+      'class' => array(),
+     ),
      'h3' => array(),
      'div' => array(
         'class' => array(),
