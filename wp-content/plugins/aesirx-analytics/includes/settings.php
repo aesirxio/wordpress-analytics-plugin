@@ -149,7 +149,7 @@ add_action('admin_init', function () {
 
   add_settings_field(
     'aesirx_analytics_domain',
-    __('domain <i>(Use next format: http://example.com:1000/)</i>', 'aesirx-analytics'),
+    __('Domain <i>(Use next format: http://example.com:1000/)</i>', 'aesirx-analytics'),
     function () {
       $options = get_option('aesirx_analytics_plugin_options', []);
       // using custom function to escape HTML
@@ -159,8 +159,37 @@ add_action('admin_init', function () {
            /* translators: %s: URL to aesir.io */
            /* translators: %s: URL to aesir.io */
            . sprintf(__("<p class= 'description'>
-		    You can setup 1st party server at <a target='_blank' href='%1\$s'>%2\$s</a>.</p>", 'aesirx-analytics'), 'https://github.com/aesirxio/analytics-1stparty', 'https://github.com/aesirxio/analytics-1stparty')
+		    You can setup 1st party server at <a target='_blank' href='%1\$s'>%2\$s</a>.</p>", 'aesirx-analytics'), 'https://aesirx.io/documentation/first-party-server/install-guide/1st-party', 'https://aesirx.io/documentation/first-party-server/install-guide/1st-party')
       );
+    },
+    'aesirx_analytics_plugin',
+    'aesirx_analytics_settings'
+  );
+
+  add_settings_field(
+    'aesirx_analytics_clientid',
+    esc_html__('Client ID', 'aesirx-analytics'),
+    function () {
+      $options = get_option('aesirx_analytics_plugin_options', []);
+      echo aesirx_analytics_escape_html("<input id='aesirx_analytics_clientid' name='aesirx_analytics_plugin_options[clientid]' type='text' value='" .
+        esc_attr($options['clientid'] ?? '') .
+        "' />");
+        echo aesirx_analytics_escape_html("<p class='description'><strong>Description: </strong>Provided SSO CLIENT ID from <a href='https://dapp.shield.aesirx.io/licenses' target='_blank'>https://dapp.shield.aesirx.io/licenses</a></p>");
+    },
+    'aesirx_analytics_plugin',
+    'aesirx_analytics_settings'
+  );
+
+  add_settings_field(
+    'aesirx_analytics_secret',
+    esc_html__('Client Secret', 'aesirx-analytics'),
+    function () {
+      $options = get_option('aesirx_analytics_plugin_options', []);
+      // using custom function to escape HTML
+      echo aesirx_analytics_escape_html("<input id='aesirx_analytics_secret' name='aesirx_analytics_plugin_options[secret]' type='text' value='" .
+        esc_attr($options['secret'] ?? '') .
+        "' />");
+      echo aesirx_analytics_escape_html("<p class='description'><strong>Description: </strong>Provided SSO Client Secret from <a href='https://dapp.shield.aesirx.io/licenses' target='_blank'>https://dapp.shield.aesirx.io/licenses</a></p>");
     },
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
@@ -187,32 +216,7 @@ add_action('admin_init', function () {
     'aesirx_analytics_settings'
   );
 
-  add_settings_field(
-    'aesirx_analytics_clientid',
-    esc_html__('Client ID', 'aesirx-analytics'),
-    function () {
-      $options = get_option('aesirx_analytics_plugin_options', []);
-      echo aesirx_analytics_escape_html("<input id='aesirx_analytics_clientid' name='aesirx_analytics_plugin_options[clientid]' type='text' value='" .
-        esc_attr($options['clientid'] ?? '') .
-        "' />");
-    },
-    'aesirx_analytics_plugin',
-    'aesirx_analytics_settings'
-  );
-
-  add_settings_field(
-    'aesirx_analytics_secret',
-    esc_html__('Client secret', 'aesirx-analytics'),
-    function () {
-      $options = get_option('aesirx_analytics_plugin_options', []);
-      // using custom function to escape HTML
-      echo aesirx_analytics_escape_html("<input id='aesirx_analytics_secret' name='aesirx_analytics_plugin_options[secret]' type='text' value='" .
-        esc_attr($options['secret'] ?? '') .
-        "' />");
-    },
-    'aesirx_analytics_plugin',
-    'aesirx_analytics_settings'
-  );
+ 
 
   add_settings_field(
     'aesirx_analytics_license',
@@ -223,7 +227,7 @@ add_action('admin_init', function () {
       echo aesirx_analytics_escape_html("<input id='aesirx_analytics_license' name='aesirx_analytics_plugin_options[license]' type='text' value='" .
         esc_attr($options['license'] ?? '') .
         "' /> <p class= 'description'><strong>Description: </strong>
-        Sign up on the AesirX platform to obtain your Shield of Privacy ID and license, and activate support for decentralized consent at <a target='_blank' href='https://signup.aesirx.io'>https://signup.aesirx.io</a>.</p>");
+        Sign up on the AesirX platform to obtain your Shield of Privacy ID and free license, and activate support for decentralized consent at <a target='_blank' href='https://signup.aesirx.io'>https://signup.aesirx.io</a>.</p>");
     },
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
@@ -270,7 +274,7 @@ add_action('admin_init', function () {
 
   add_settings_field(
     'aesirx_analytics_track_ecommerce',
-    esc_html__('Track ecommerce', 'aesirx-analytics'),
+    esc_html__('Track Ecommerce', 'aesirx-analytics'),
     function () {
 
         $options = get_option('aesirx_analytics_plugin_options', []);
@@ -284,7 +288,7 @@ add_action('admin_init', function () {
         <label>' . esc_html__('No', 'aesirx-analytics') . ' <input type="radio" class="analytic-track_ecommerce-class" name="aesirx_analytics_plugin_options[track_ecommerce]" ' .
              ($storage == 'false' ? $checked : '') .
              ' value="false" /></label>');
-        echo aesirx_analytics_escape_html('<p class="description"><strong>Description: </strong>If enabled, this feature will track key WooCommerce events, including Add to Cart, Checkout, and Search Product. This allows website owners to gather data on shopping behaviors and optimize the eCommerce experience.</p>');
+        echo aesirx_analytics_escape_html('<p class="description"><strong>Description: </strong>If enabled, this feature will track key Woo events, including Add to Cart, Checkout, and Search Product. This allows website owners to gather data on shopping behaviors and optimize the eCommerce experience.</p>');
     },
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
@@ -292,7 +296,7 @@ add_action('admin_init', function () {
 
   add_settings_field(
     'aesirx_analytics_cache_query',
-    esc_html__('Cache query', 'aesirx-analytics'),
+    esc_html__('Cache Query', 'aesirx-analytics'),
     function () {
       $options = get_option('aesirx_analytics_plugin_options', []);
       // using custom function to escape HTML
@@ -748,7 +752,10 @@ function aesirx_analytics_escape_html($string) {
         'checked' => array(),
      ),
      'strong' => array(),
-     'a' => array(),
+     'a' => array(
+      'href'  => array(),
+      'target'    => array(),
+     ),
      'p' => array(
       'class' => array(),
      ),
