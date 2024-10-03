@@ -222,7 +222,7 @@ add_action('admin_init', function () {
       echo aesirx_analytics_escape_html("<input id='aesirx_analytics_license' name='aesirx_analytics_plugin_options[license]' type='text' value='" .
         esc_attr($options['license'] ?? '') .
         "' /> <p class= 'description'>
-        Register to AesirX and get your client id, client secret and license here: <a target='_blank' href='https://web3id.aesirx.io'>https://web3id.aesirx.io</a>.</p>");
+        Register to AesirX and get your client id, client secret and license here: <a target='_blank' href='https://signup.aesirx.io'>https://signup.aesirx.io</a>.</p>");
     },
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
@@ -299,37 +299,10 @@ add_action('admin_init', function () {
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
   );
-
-  add_settings_field(
-    'aesirx_analytics_blocking_cookies',
-    esc_html__('Domain/Path-Based Blocking', 'aesirx-analytics'),
-    function () {
-      $options = get_option('aesirx_analytics_plugin_options', []);
-      echo '<table id="aesirx-analytics-blocking-cookies">';
-      if (isset($options['blocking_cookies'])) {
-          foreach ($options['blocking_cookies'] as $field) {
-              echo '<tr class="aesirx-analytics-cookie-row">';
-              echo '<td>' . aesirx_analytics_escape_html('<input type="text" name="aesirx_analytics_plugin_options[blocking_cookies][]" placeholder="Enter domain or path" value="'.esc_attr($field).'">') . '</td>';
-              echo '<td>' . aesirx_analytics_escape_html('<button class="aesirx-analytics-remove-cookies-row">Remove</button>') . '</td>';
-              echo '</tr>';
-          }
-      } else {
-          echo '<tr class="aesirx-analytics-cookie-row">';
-          echo '<td>' . aesirx_analytics_escape_html('<input type="text" name="aesirx_analytics_plugin_options[blocking_cookies][]" placeholder="Enter domain or path">') . '</td>';
-          echo '<td>' . aesirx_analytics_escape_html('<button class="aesirx-analytics-remove-cookies-row">Remove</button>') . '</td>';
-          echo '</tr>';
-      }
-      echo '</table>';
-      echo aesirx_analytics_escape_html('<button id="aesirx-analytics-add-cookies-row">Add</button>');
-      echo aesirx_analytics_escape_html('<p class="description">You can specify a domain, path, or folder, and AesirX will automatically block all JavaScript files from that source before the user provides consent.</p>');
-    },
-    'aesirx_analytics_plugin',
-    'aesirx_analytics_settings'
-  );
-
+  
   add_settings_field(
     'aesirx_analytics_blocking_cookies_plugins',
-    esc_html__('Plugin Blocking ', 'aesirx-analytics'),
+    esc_html__('AesirX Consent Shield for Third-Party Plugins ', 'aesirx-analytics'),
     function () {
       $options = get_option('aesirx_analytics_plugin_options', []);
       $installed_plugins = get_plugins();
@@ -359,6 +332,35 @@ add_action('admin_init', function () {
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
   );
+
+  add_settings_field(
+    'aesirx_analytics_blocking_cookies',
+    esc_html__('Domain/Path-Based Blocking', 'aesirx-analytics'),
+    function () {
+      $options = get_option('aesirx_analytics_plugin_options', []);
+      echo '<table id="aesirx-analytics-blocking-cookies">';
+      if (isset($options['blocking_cookies'])) {
+          foreach ($options['blocking_cookies'] as $field) {
+              echo '<tr class="aesirx-analytics-cookie-row">';
+              echo '<td>' . aesirx_analytics_escape_html('<input type="text" name="aesirx_analytics_plugin_options[blocking_cookies][]" placeholder="Enter domain or path" value="'.esc_attr($field).'">') . '</td>';
+              echo '<td>' . aesirx_analytics_escape_html('<button class="aesirx-analytics-remove-cookies-row">Remove</button>') . '</td>';
+              echo '</tr>';
+          }
+      } else {
+          echo '<tr class="aesirx-analytics-cookie-row">';
+          echo '<td>' . aesirx_analytics_escape_html('<input type="text" name="aesirx_analytics_plugin_options[blocking_cookies][]" placeholder="Enter domain or path">') . '</td>';
+          echo '<td>' . aesirx_analytics_escape_html('<button class="aesirx-analytics-remove-cookies-row">Remove</button>') . '</td>';
+          echo '</tr>';
+      }
+      echo '</table>';
+      echo aesirx_analytics_escape_html('<button id="aesirx-analytics-add-cookies-row">Add</button>');
+      echo aesirx_analytics_escape_html('<p class="description">You can specify a domain, path, or folder, and AesirX will automatically block all JavaScript files from that source before the user provides consent.</p>');
+    },
+    'aesirx_analytics_plugin',
+    'aesirx_analytics_settings'
+  );
+
+  
 
   add_settings_section(
     'aesirx_analytics_info',
