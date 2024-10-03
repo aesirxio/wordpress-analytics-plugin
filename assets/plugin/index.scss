@@ -26,11 +26,11 @@
 }
 .aesirx_analytics_info {
   margin-top: 1rem;
-  background-image: url('../images/Hero.jpg');
+  background-image: url('../images/Hero.png');
   background-position: 100%;
   background-size: 100%;
   background-repeat: no-repeat;
-  padding: 2rem;
+  padding: 40px 2rem;
   color: #fff;
   margin-right: 20px;
   .wrap {
@@ -49,16 +49,31 @@
         padding: 5px 0px;
       }
     }
-
+    .banner-description {
+      font-size: 15px;
+      margin-bottom: 5px;
+      margin-top: 25px;
+    }
+    .banner-description-bold {
+      font-size: 18px;
+      margin-top: 15px;
+    }
     a {
       color: #fff;
       background-color: #1ab394;
       border-color: #1ab394;
-      padding: 0.5rem 1rem;
+      padding: 13px 30px;
+      font-size: 18px;
+      border-radius: 10px;
       line-height: 1.5;
       display: inline-block;
       border-radius: 0.375rem;
       text-decoration: none;
+      img {
+        vertical-align: middle;
+        margin-bottom: 4px;
+        margin-right: 5px;
+      }
     }
   }
 }

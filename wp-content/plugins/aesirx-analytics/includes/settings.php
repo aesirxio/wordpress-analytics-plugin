@@ -376,9 +376,10 @@ add_action('admin_init', function () {
     '',
     function () {
       // using custom function to escape HTML
-      echo aesirx_analytics_escape_html('<div class="aesirx_analytics_info"><div class="wrap">Sign up for a
-      <h3>FREE License</h3><p>at the AesirX Shield of Privacy dApp</p><div>
-      <a target="_blank" href="https://dapp.shield.aesirx.io?utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics">Get Free License</a></div>');
+      echo aesirx_analytics_escape_html("<div class='aesirx_analytics_info'><div class='wrap'>Need Help? Access Our Comprehensive Documentation Hub
+      <p class='banner-description'>Explore How-To Guides, instructions, and tutorials to get the most from AesirX Consent Shield. Whether you're a </br> developer or admin, find all you need to configure and optimize your privacy setup.</p>
+      <p class='banner-description-bold'>Ready to take the next step? Discover the latest features and best practices.</p><div>
+      <a target='_blank' href='https://aesirx.io/documentation'><img src='". plugins_url( 'aesirx-analytics/assets/images-plugin/icon_button.svg')."' />ACCESS THE DOCUMENTATION HUB</a></div>");
     },
     'aesirx_analytics_info'
   );
@@ -760,6 +761,10 @@ function aesirx_analytics_escape_html($string) {
       'class' => array(),
      ),
      'h3' => array(),
+     'br' => array(),
+     'img' => array(
+      'src'  => array(),
+     ),
      'div' => array(
         'class' => array(),
      ),
