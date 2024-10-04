@@ -366,6 +366,7 @@ add_action('admin_init', function () {
       echo aesirx_analytics_escape_html('<button id="aesirx-analytics-add-cookies-row">Add</button>');
       echo aesirx_analytics_escape_html('<p class="description"><strong>Description: </strong>Removes scripts matching specified domains or paths from the browser until user consent is given.</p>');
       echo aesirx_analytics_escape_html("<ul class='description'><li>Blocks or removes scripts from running in the user's browser before consent is given.</li><li>While it prevents scripts from executing, initial network requests may still occur, so it enhances privacy compliance under GDPR but may not fully meet the ePrivacy Directive requirements.</li></ul>");
+      echo aesirx_analytics_escape_html('<p class="description"><strong>Disclaimer: </strong>The AesirX Consent Shield has only just been released and still being adopted based on feedback and inputs from agencies, developers and users, if you experience any issues please contact our support.</p>');
     },
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
