@@ -3,7 +3,7 @@ Contributors: aesirx,vikingtechguy,nixa999,nguyenbao10,vietnguyen1406,devphutran
 Tags: privacy, analytics, compliance, wordpress analytics, consent
 Requires at least: 5.9
 Tested up to: 6.6.2
-Stable tag: 4.1.6
+Stable tag: 4.2.0
 Requires PHP: 7.4
 License: GPL 3.0
 
@@ -65,7 +65,7 @@ The Terms of service can be found here https://aesirx.io/terms-conditions and th
 
 == Changelog ==
 
-= 4.1.6 =
+= 4.2.0 =
 
 * AesirX Consent Shield for Third-Party Plugins
 * AesirX Consent Shield for Domain/Path-Based Blocking
