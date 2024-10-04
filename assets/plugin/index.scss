@@ -11,9 +11,15 @@
   }
 }
 .settings_page_aesirx-analytics-plugin {
+  ul.description,
   p.description {
     max-width: 800px;
     margin-top: 12px;
+  }
+  ul.description {
+    list-style-type: disc;
+    padding-left: 20px;
+    color: #646970;
   }
 }
 .aesirx-analytics-cookie-plugin {
