@@ -1,6 +1,6 @@
 {
   "name": "aesirx_analytics",
-  "version": "4.1.5",
+  "version": "4.2.0",
   "description": "analytics via aesirx",
   "private": true,
   "scripts": {
@@ -36,16 +36,16 @@
     "webpack-stream": "^7.0.0"
   },
   "dependencies": {
-    "aesirx-analytics": "^2.2.21",
+    "aesirx-analytics": "^2.3.0",
     "aesirx-bi-app": "^2.0.22",
     "react": "^18.2.0",
     "react-dom": "^18.3.1",
     "react-spinners": "^0.13.8"
   },
   "resolutions": {
-    "aesirx-lib": "^2.0.14",
-    "aesirx-sso": "^1.4.17",
-    "aesirx-uikit": "^1.2.12",
+    "aesirx-lib": "^2.1.1",
+    "aesirx-sso": "^1.4.18",
+    "aesirx-uikit": "^1.3.0",
     "react": "^18",
     "react-dom": "^18",
     "tough-cookie": "^4",
