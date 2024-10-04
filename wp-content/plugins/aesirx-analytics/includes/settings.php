@@ -335,7 +335,8 @@ add_action('admin_init', function () {
         echo '</tr>';
       }
       echo '</table>';
-      echo aesirx_analytics_escape_html('<p class="description"><strong>Description: </strong>This automatically detects new third-party plugins added to your WordPress site, flagging potential tracking scripts like beacons and pixel trackers.</p>');
+      echo aesirx_analytics_escape_html('<p class="description"><strong>Description: </strong>Blocks selected third-party plugins from loading until user consent is given.</p>');
+      echo aesirx_analytics_escape_html('<ul class="description"><li>Completely prevents the loading and execution of chosen third-party plugins before consent.</li><li>No network requests are made to third-party servers, enabling maximum compliance with privacy regulations like GDPR and the ePrivacy Directive.</li></ul>');
       echo aesirx_analytics_escape_html('<p class="description">For detailed guides, how-to videos, and API documentation, visit our Documentation Hub: <a href="https://aesirx.io/documentation" target="_blank">https://aesirx.io/documentation</a></p>');
     },
     'aesirx_analytics_plugin',
@@ -363,7 +364,9 @@ add_action('admin_init', function () {
       }
       echo '</table>';
       echo aesirx_analytics_escape_html('<button id="aesirx-analytics-add-cookies-row">Add</button>');
-      echo aesirx_analytics_escape_html('<p class="description"><strong>Description: </strong>You can specify a domain, path, or folder, and AesirX will automatically block all JavaScript files from that source before the user provides consent.</p>');
+      echo aesirx_analytics_escape_html('<p class="description"><strong>Description: </strong>Removes scripts matching specified domains or paths from the browser until user consent is given.</p>');
+      echo aesirx_analytics_escape_html("<ul class='description'><li>Blocks or removes scripts from running in the user's browser before consent is given.</li><li>While it prevents scripts from executing, initial network requests may still occur, so it enhances privacy compliance under GDPR but may not fully meet the ePrivacy Directive requirements.</li></ul>");
+      echo aesirx_analytics_escape_html('<p class="description"><strong>Disclaimer: </strong>The AesirX Consent Shield has only just been released and still being adopted based on feedback and inputs from agencies, developers and users, if you experience any issues please contact our support.</p>');
     },
     'aesirx_analytics_plugin',
     'aesirx_analytics_settings'
@@ -761,6 +764,10 @@ function aesirx_analytics_escape_html($string) {
       'class' => array(),
      ),
      'h3' => array(),
+     'ul' => array(
+      'class' => array(),
+     ),
+     'li' => array(),
      'br' => array(),
      'img' => array(
       'src'  => array(),
