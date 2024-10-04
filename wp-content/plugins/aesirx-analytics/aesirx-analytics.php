@@ -52,7 +52,9 @@ function aesirx_analytics_config_is_ok(string $isStorage = null): bool {
 
 if (aesirx_analytics_config_is_ok()) {
     add_action('wp_enqueue_scripts', function (): void {
-        wp_register_script('aesirx-analytics', plugins_url('assets/vendor/analytics.js', __FILE__), [], true, true);
+        wp_register_script('aesirx-analytics', plugins_url('assets/vendor/analytics.js', __FILE__), [], true,  array(
+            'in_footer' => false,
+        ));
         $translation_array = array(
             'txt_shield_of_privacy' => __( 'Shield of Privacy', 'aesirx-analytics' ),
             'txt_you_can_revoke' => __( 'Revoke your consent for data use whenever you wish.', 'aesirx-analytics' ),
@@ -134,7 +136,14 @@ if (aesirx_analytics_config_is_ok()) {
                 : 'true';
 
         $trackEcommerce = ($options['track_ecommerce'] ?? 'true') == 'true' ? 'true': 'false';
-
+        $blockingCookiesPath = isset($options['blocking_cookies']) && count($options['blocking_cookies']) > 0 ? $options['blocking_cookies'] : [];
+        $arrayCookiesPlugins =  isset($options['blocking_cookies_plugins']) &&  count($options['blocking_cookies_plugins']) > 0 ? $options['blocking_cookies_plugins'] : [];
+        $prefix = "wp-content/plugins/";
+        $blockingCookiesPlugins =  isset($options['blocking_cookies_plugins']) &&  count($options['blocking_cookies_plugins']) > 0 ? array_map(function($value) use ($prefix) {
+            return $prefix . $value;
+        }, $arrayCookiesPlugins) : [];
+        $blockingCookies = array_unique(array_merge($blockingCookiesPath, $blockingCookiesPlugins), SORT_REGULAR);
+        $blockingCookiesJSON = isset($options['blocking_cookies']) && count($options['blocking_cookies']) > 0 ? wp_json_encode($blockingCookies) : '[]';
         $clientId = $options['clientid'] ?? '';
         $secret = $options['secret'] ?? '';
 
@@ -144,6 +153,7 @@ if (aesirx_analytics_config_is_ok()) {
             window.disableAnalyticsConsent="' . esc_html($consent) . '";
             window.aesirxClientID="' . esc_html($clientId) . '";
             window.aesirxClientSecret="' . esc_html($secret) . '";
+            window.blockJSDomains=' . $blockingCookiesJSON . ';
             window.aesirxTrackEcommerce="' . esc_html($trackEcommerce) . '";',
             'before');
     });
