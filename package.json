@@ -1,6 +1,6 @@
 {
   "name": "aesirx_analytics",
-  "version": "4.2.0",
+  "version": "4.2.1",
   "description": "analytics via aesirx",
   "private": true,
   "scripts": {
@@ -36,7 +36,7 @@
     "webpack-stream": "^7.0.0"
   },
   "dependencies": {
-    "aesirx-analytics": "^2.3.0",
+    "aesirx-analytics": "^2.3.1",
     "aesirx-bi-app": "^2.0.22",
     "react": "^18.2.0",
     "react-dom": "^18.3.1",
