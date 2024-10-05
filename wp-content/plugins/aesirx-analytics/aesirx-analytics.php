@@ -369,13 +369,18 @@ if (!$consent) {
         $deregistered_scripts = array();
         $options = get_option('aesirx_analytics_plugin_options');
         $blockingCookiesPaths = isset($options['blocking_cookies']) && count($options['blocking_cookies']) > 0 ? $options['blocking_cookies'] : [];
-        
+        $arrayCookiesPlugins =  isset($options['blocking_cookies_plugins']) &&  count($options['blocking_cookies_plugins']) > 0 ? $options['blocking_cookies_plugins'] : [];
+        $blockingCookiesPlugins =  isset($options['blocking_cookies_plugins']) &&  count($options['blocking_cookies_plugins']) > 0 ? array_map(function($value) {
+            return "wp-content/plugins/" . $value;
+        }, $arrayCookiesPlugins) : [];
+        $blockingCookies = array_unique(array_merge($blockingCookiesPaths, $blockingCookiesPlugins), SORT_REGULAR);
+
         foreach ( $wp_scripts->registered as $handle => $script ) {
             if ( !is_string($script->src) ) {
                 continue;
             }
     
-            foreach ($blockingCookiesPaths as $path) {
+            foreach ($blockingCookies as $path) {
                 if (stripos($script->src, $path) !== false) {
                     $deregistered_scripts[$handle] = $script;
                     wp_deregister_script( $handle );
