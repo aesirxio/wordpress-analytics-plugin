@@ -396,6 +396,8 @@ if ($consent) {
         $filename = "example.txt";
     
         $content = wp_json_encode($deregistered_scripts);
+
+        wp_localize_script( 'aesirx-analytics', 'aesirx_analytics_degistered_scripts', $deregistered_scripts );
     
         $file = fopen($filename, "w");
     
