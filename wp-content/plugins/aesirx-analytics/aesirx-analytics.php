@@ -346,3 +346,44 @@ add_action('admin_init', function () {
         }
     }
 });
+
+global $wpdb;
+
+$consent = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+	$wpdb->prepare(
+		"SELECT * 
+		FROM {$wpdb->prefix}analytics_visitor_consent
+		INNER JOIN {$wpdb->prefix}analytics_visitors 
+		    ON {$wpdb->prefix}analytics_visitor_consent.visitor_uuid = {$wpdb->prefix}analytics_visitors.uuid
+        INNER JOIN {$wpdb->prefix}analytics_flows  
+            ON {$wpdb->prefix}analytics_visitors.uuid = {$wpdb->prefix}analytics_flows.visitor_uuid  
+		WHERE ip = %s AND consent = 1 AND expiration IS NULL
+            AND {$wpdb->prefix}analytics_flows.start = {$wpdb->prefix}analytics_flows.end", 
+		sanitize_text_field($_SERVER['REMOTE_ADDR']))
+);
+
+if (!$consent) {
+    add_action( 'wp_enqueue_scripts', function (): void {
+
+		global $wp_scripts;
+        $deregistered_scripts = array();
+        $options = get_option('aesirx_analytics_plugin_options');
+        $blockingCookiesPaths = isset($options['blocking_cookies']) && count($options['blocking_cookies']) > 0 ? $options['blocking_cookies'] : [];
+        
+        foreach ( $wp_scripts->registered as $handle => $script ) {
+            if ( !is_string($script->src) ) {
+                continue;
+            }
+    
+            foreach ($blockingCookiesPaths as $path) {
+                if (stripos($script->src, $path) !== false) {
+                    $deregistered_scripts[$handle] = $script;
+                    wp_deregister_script( $handle );
+                    wp_dequeue_script( $handle );
+                }
+            }
+        }
+
+        wp_localize_script( 'aesirx-analytics', 'aesirx_analytics_degistered_scripts', $deregistered_scripts );
+	}, 9999 );
+}
