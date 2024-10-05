@@ -355,23 +355,14 @@ $consent = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.Dire
 		FROM {$wpdb->prefix}analytics_visitor_consent
 		INNER JOIN {$wpdb->prefix}analytics_visitors 
 		    ON {$wpdb->prefix}analytics_visitor_consent.visitor_uuid = {$wpdb->prefix}analytics_visitors.uuid
-		WHERE ip = %s AND consent = 1 AND expiration IS NULL", 
+        INNER JOIN {$wpdb->prefix}analytics_flows  
+            ON {$wpdb->prefix}analytics_visitors.uuid = {$wpdb->prefix}analytics_flows.visitor_uuid  
+		WHERE ip = %s AND consent = 1 AND expiration IS NULL
+            AND {$wpdb->prefix}analytics_flows.start = {$wpdb->prefix}analytics_flows.end", 
 		sanitize_text_field($_SERVER['REMOTE_ADDR']))
 );
 
-if ($consent) {
-	add_action('wp_enqueue_scripts', function (): void {
-
-		$filename = 'example.txt';
-		$content = file_get_contents($filename);
-	
-		foreach ( json_decode($content) as $handle => $script ) {
-            wp_register_script( $handle, $script->src, $script->deps, $script->ver );
-            wp_enqueue_script( $handle );	
-		}
-	
-	}, 99999);
-} else {
+if (!$consent) {
     add_action( 'wp_enqueue_scripts', function (): void {
 
 		global $wp_scripts;
@@ -392,19 +383,7 @@ if ($consent) {
                 }
             }
         }
-        
-        $filename = "example.txt";
-    
-        $content = wp_json_encode($deregistered_scripts);
 
         wp_localize_script( 'aesirx-analytics', 'aesirx_analytics_degistered_scripts', $deregistered_scripts );
-    
-        $file = fopen($filename, "w");
-    
-        if ($file) {
-            fwrite($file, $content);
-            
-            fclose($file);
-        }
 	}, 9999 );
 }
