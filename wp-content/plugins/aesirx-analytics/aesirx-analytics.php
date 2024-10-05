@@ -350,16 +350,22 @@ add_action('admin_init', function () {
 global $wpdb;
 
 $consent = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-	$wpdb->prepare(
-		"SELECT * 
-		FROM {$wpdb->prefix}analytics_visitor_consent
-		INNER JOIN {$wpdb->prefix}analytics_visitors 
-		    ON {$wpdb->prefix}analytics_visitor_consent.visitor_uuid = {$wpdb->prefix}analytics_visitors.uuid
+    $wpdb->prepare(
+        "SELECT * 
+        FROM {$wpdb->prefix}analytics_visitor_consent
+        INNER JOIN {$wpdb->prefix}analytics_visitors 
+            ON {$wpdb->prefix}analytics_visitor_consent.visitor_uuid = {$wpdb->prefix}analytics_visitors.uuid
         INNER JOIN {$wpdb->prefix}analytics_flows  
             ON {$wpdb->prefix}analytics_visitors.uuid = {$wpdb->prefix}analytics_flows.visitor_uuid  
-		WHERE ip = %s AND consent = 1 AND expiration IS NULL
-            AND {$wpdb->prefix}analytics_flows.start = {$wpdb->prefix}analytics_flows.end", 
-		sanitize_text_field($_SERVER['REMOTE_ADDR']))
+        WHERE ip = %s AND user_agent = %s AND consent = 1 AND expiration IS NULL
+            AND {$wpdb->prefix}analytics_flows.start = {$wpdb->prefix}analytics_flows.end
+            AND DATE({$wpdb->prefix}analytics_flows.start) = CURDATE()
+        ORDER BY {$wpdb->prefix}analytics_flows.start DESC
+        LIMIT 1", 
+        array(
+            sanitize_text_field($_SERVER['REMOTE_ADDR']),
+            sanitize_text_field($_SERVER['HTTP_USER_AGENT']),
+        ))
 );
 
 if (!$consent) {
@@ -375,13 +381,15 @@ if (!$consent) {
         }, $arrayCookiesPlugins) : [];
         $blockingCookies = array_unique(array_merge($blockingCookiesPaths, $blockingCookiesPlugins), SORT_REGULAR);
 
+        $queueScripts = $wp_scripts->queue;
+
         foreach ( $wp_scripts->registered as $handle => $script ) {
-            if ( !is_string($script->src) ) {
+            if ( !is_string($script->src) || !in_array($handle, $queueScripts) ) {
                 continue;
             }
     
             foreach ($blockingCookies as $path) {
-                if (stripos($script->src, $path) !== false) {
+                if ($path && stripos($script->src, $path) !== false) {
                     $deregistered_scripts[$handle] = $script;
                     wp_deregister_script( $handle );
                     wp_dequeue_script( $handle );

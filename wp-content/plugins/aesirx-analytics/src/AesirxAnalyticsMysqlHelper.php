@@ -508,9 +508,9 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                         $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
                             $wpdb->prefix . 'analytics_event_attributes',
                             array(
-                                'event_uuid' => $visitor_event->uuid,
-                                'name'       => $attribute->name,
-                                'value'      => $attribute->value
+                                'event_uuid' => $visitor_event['uuid'],
+                                'name'       => $attribute['name'],
+                                'value'      => $attribute['value']
                             ),
                             array(
                                 '%s',
