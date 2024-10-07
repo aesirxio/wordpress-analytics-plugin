@@ -371,7 +371,35 @@ $consent = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.Dire
 if (!$consent) {
     add_action( 'wp_enqueue_scripts', function (): void {
 
-		global $wp_scripts;
+		$deregistered_scripts = aesirx_analytics_get_deregistered_scripts();
+
+        wp_localize_script( 'aesirx-analytics', 'aesirx_analytics_degistered_scripts', $deregistered_scripts );
+	}, 9999 );
+
+    add_action( 'wp_head', function (): void {
+
+        $deregistered_scripts = aesirx_analytics_get_deregistered_scripts();
+
+        ?>
+        <script type="text/javascript">
+            var deregistered_scripts_head = <?php echo wp_json_encode($deregistered_scripts); ?>;
+        </script>
+    <?php
+    }, 9999 );
+
+    add_action( 'wp_footer', function (): void {
+
+        $deregistered_scripts = aesirx_analytics_get_deregistered_scripts();
+
+        ?>
+        <script type="text/javascript">
+            var deregistered_scripts_footer = <?php echo wp_json_encode($deregistered_scripts); ?>;
+        </script>
+    <?php
+    }, 9999 );
+
+    function aesirx_analytics_get_deregistered_scripts() {
+        global $wp_scripts;
         $deregistered_scripts = array();
         $options = get_option('aesirx_analytics_plugin_options');
         $blockingCookiesPaths = isset($options['blocking_cookies']) && count($options['blocking_cookies']) > 0 ? $options['blocking_cookies'] : [];
@@ -406,6 +434,6 @@ if (!$consent) {
             }
         }
 
-        wp_localize_script( 'aesirx-analytics', 'aesirx_analytics_degistered_scripts', $deregistered_scripts );
-	}, 9999 );
+        return $deregistered_scripts;
+    }
 }
