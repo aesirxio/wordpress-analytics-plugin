@@ -1,5 +1,6 @@
 const zip = require('gulp-zip');
 const gulp = require('gulp');
+const rename = require('gulp-rename');
 const composer = require('gulp-composer');
 const webpack = require('webpack-stream');
 const { watch, series } = require('gulp');
@@ -24,6 +25,7 @@ function movePluginFolderTask() {
 function moveAnalyticJSTask() {
   return gulp
     .src(['./node_modules/aesirx-analytics/dist/analytics.js'])
+    .pipe(rename('consent.js'))
     .pipe(gulp.dest(`${dist}/plugins/aesirx-analytics/assets/vendor`));
 }
 
