@@ -52,7 +52,7 @@ function aesirx_analytics_config_is_ok(string $isStorage = null): bool {
 
 if (aesirx_analytics_config_is_ok()) {
     add_action('wp_enqueue_scripts', function (): void {
-        wp_register_script('aesirx-analytics', plugins_url('assets/vendor/analytics.js', __FILE__), [], true,  array(
+        wp_register_script('aesirx-analytics', plugins_url('assets/vendor/consent.js', __FILE__), [], true,  array(
             'in_footer' => false,
         ));
         $translation_array = array(
