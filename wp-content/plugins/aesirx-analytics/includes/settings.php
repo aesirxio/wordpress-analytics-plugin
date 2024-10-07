@@ -367,7 +367,7 @@ add_action('admin_init', function () {
           echo '</tr>';
       }
       echo '</table>';
-      echo aesirx_analytics_escape_html('<button id="aesirx-analytics-add-cookies-row">'.esc_html__('Remove', 'aesirx-analytics').'</button>');
+      echo aesirx_analytics_escape_html('<button id="aesirx-analytics-add-cookies-row">'.esc_html__('Add', 'aesirx-analytics').'</button>');
       echo aesirx_analytics_escape_html('<p class="description"><strong>'.esc_html__('Description', 'aesirx-analytics').': </strong>'.esc_html__('Removes scripts matching specified domains or paths from the browser until user consent is given.', 'aesirx-analytics').'</p>');
       echo aesirx_analytics_escape_html("<ul class='description'><li>".esc_html__("Blocks or removes scripts from running in the user's browser before consent is given.", 'aesirx-analytics')."</li><li>".esc_html__("While it prevents scripts from executing, initial network requests may still occur, so it enhances privacy compliance under GDPR but may not fully meet the ePrivacy Directive requirements.", 'aesirx-analytics')."</li></ul>");
       echo aesirx_analytics_escape_html('<p class="description"><strong>'.esc_html__('Disclaimer', 'aesirx-analytics').': </strong>'.esc_html__('The AesirX Consent Shield has only just been released and still being adopted based on feedback and inputs from agencies, developers and users, if you experience any issues please contact our support.', 'aesirx-analytics').'</p>');
@@ -376,7 +376,26 @@ add_action('admin_init', function () {
     'aesirx_analytics_settings'
   );
 
-  
+  add_settings_field(
+    'aesirx_analytics_blocking_cookies_mode',
+    esc_html__('Blocking Cookies Mode', 'aesirx-analytics'),
+    function () {
+        $options = get_option('aesirx_analytics_plugin_options', []);
+        $checked = 'checked="checked"';
+        $mode = $options['blocking_cookies_mode'] ?? '3rd_party';
+        // using custom function to escape HTML
+        echo aesirx_analytics_escape_html('
+        <label>' . esc_html__('Only third Party', 'aesirx-analytics') . ' <input type="radio" class="analytic-blocking_cookies_mode-class" name="aesirx_analytics_plugin_options[blocking_cookies_mode]" ' .
+             ($mode == '3rd_party' ? $checked : '') .
+             ' value="3rd_party"  /></label>
+        <label>' . esc_html__('Both first and third Party', 'aesirx-analytics') . ' <input type="radio" class="analytic-blocking_cookies_mode-class" name="aesirx_analytics_plugin_options[blocking_cookies_mode]" ' .
+             ($mode == 'both' ? $checked : '') .
+             ' value="both" /></label>');
+        echo aesirx_analytics_escape_html('<p class="description"><strong>'.esc_html__('Description', 'aesirx-analytics').': </strong>'.esc_html__('If choosing "Only third Party", only third party cookies will be blocked. If choosing "Both first and third Party", both first party and third party cookies will be blocked.', 'aesirx-analytics').'</p>');
+    },
+    'aesirx_analytics_plugin',
+    'aesirx_analytics_settings'
+  );
 
   add_settings_section(
     'aesirx_analytics_info',

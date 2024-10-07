@@ -380,12 +380,21 @@ if (!$consent) {
             return "wp-content/plugins/" . $value;
         }, $arrayCookiesPlugins) : [];
         $blockingCookies = array_unique(array_merge($blockingCookiesPaths, $blockingCookiesPlugins), SORT_REGULAR);
-
         $queueScripts = $wp_scripts->queue;
+        $blockingCookiesMode = isset($options['blocking_cookies_mode']) ? $options['blocking_cookies_mode'] : '3rd_party';
+        $siteDomain = $_SERVER['HTTP_HOST'];
 
         foreach ( $wp_scripts->registered as $handle => $script ) {
             if ( !is_string($script->src) || !in_array($handle, $queueScripts) ) {
                 continue;
+            }
+
+            if ($blockingCookiesMode === '3rd_party') {
+                $scriptDomain = wp_parse_url($script->src, PHP_URL_HOST);
+
+                if ($scriptDomain && $scriptDomain == $siteDomain) {
+                    continue;
+                }
             }
     
             foreach ($blockingCookies as $path) {
