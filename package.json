@@ -57,6 +57,9 @@
     "json5": "^2",
     "d3-color": "^3",
     "glob-parent": "^5",
-    "shelljs": "^0.8.5 "
+    "shelljs": "^0.8.5",
+    "ws": "^8.18.0",
+    "braces": "^3.0.3",
+    "micromatch": "^4.0.8"
   }
 }
