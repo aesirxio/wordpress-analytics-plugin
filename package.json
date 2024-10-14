@@ -60,6 +60,7 @@
     "shelljs": "^0.8.5",
     "ws": "^8.18.0",
     "braces": "^3.0.3",
-    "micromatch": "^4.0.8"
+    "micromatch": "^4.0.8",
+    "elliptic": "^6.5.7"
   }
 }
