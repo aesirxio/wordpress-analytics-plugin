@@ -65,7 +65,7 @@ Class AesirX_Analytics_Get_Attribute_Value extends AesirxAnalyticsMysqlHelper
                     from {$wpdb->prefix}analytics_event_attributes
                     left join {$wpdb->prefix}analytics_events on {$wpdb->prefix}analytics_event_attributes.event_uuid = {$wpdb->prefix}analytics_events.uuid
                     left join {$wpdb->prefix}analytics_visitors on {$wpdb->prefix}analytics_visitors.uuid = {$wpdb->prefix}analytics_events.visitor_uuid
-                    left join {$wpdb->prefix}analytics_flows` on {$wpdb->prefix}analytics_flows.uuid = {$wpdb->prefix}analytics_events.flow_uuid
+                    left join {$wpdb->prefix}analytics_flows on {$wpdb->prefix}analytics_flows.uuid = {$wpdb->prefix}analytics_events.flow_uuid
                     WHERE {$wpdb->prefix}analytics_event_attributes.name IN (%s)" .
                     " GROUP BY {$wpdb->prefix}analytics_event_attributes.name, {$wpdb->prefix}analytics_event_attributes.value",
                     "'" . implode("', '", $names) . "'"
