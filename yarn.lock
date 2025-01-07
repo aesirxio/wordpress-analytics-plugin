@@ -796,6 +796,13 @@
   dependencies:
     "@protobuf-ts/runtime-rpc" "^2.9.1"
 
+"@concordium/react-components@0.4.0-rc.7":
+  version "0.4.0-rc.7"
+  resolved "https://registry.yarnpkg.com/@concordium/react-components/-/react-components-0.4.0-rc.7.tgz#0e696996318a896ee2e1dfd01ed23837c1d69efc"
+  integrity sha512-RCKfch4e6Ypo7TeZnZQJcU68MrmMLiC4T0Q0YIqUI0f27zClTHsv8ObMCeUzjN/N0OIylxssFvoMr1pRuq9dwg==
+  dependencies:
+    "@concordium/wallet-connectors" "^0.4.0-rc.6"
+
 "@concordium/react-components@0.6.1":
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/@concordium/react-components/-/react-components-0.6.1.tgz#d138eb52ef0bd51bec398a483710b7acbf18c09f"
@@ -822,7 +829,7 @@
   resolved "https://registry.yarnpkg.com/@concordium/rust-bindings/-/rust-bindings-3.2.1.tgz#372edcba32b482fc1a5c37c6c51fd86ef0c50ea4"
   integrity sha512-5mcuLWmPgjJNTqzd5LrXzBwh/pSrvLH0pEeWC4LF6ZO07a/Yj34H9NMFNz2QxLloioc9EcuJ+ec4HhOBeVu7rw==
 
-"@concordium/wallet-connectors@^0.4.0":
+"@concordium/wallet-connectors@^0.4.0", "@concordium/wallet-connectors@^0.4.0-rc.6":
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/@concordium/wallet-connectors/-/wallet-connectors-0.4.0.tgz#c2a140ed39ae2723c1c1184c22c4a751f006ee6c"
   integrity sha512-zVnndnkT4eGMSHxYwqMtyycB1Vn1lpYX+1IKlNs8H72PoEVc0l41Me95gSJY9M4zhltYJfxOajnLC1eLSdGqhA==
@@ -842,6 +849,28 @@
     "@walletconnect/modal-core" "^2.6.2"
     "@walletconnect/sign-client" "^2.1.4"
     buffer "^6.0.3"
+
+"@concordium/web-sdk@7.0.4-rc.3":
+  version "7.0.4-rc.3"
+  resolved "https://registry.yarnpkg.com/@concordium/web-sdk/-/web-sdk-7.0.4-rc.3.tgz#f99c5655b646f1a7772eafa423cca5396ab01fcf"
+  integrity sha512-Y9Lt0lzjQoeeGxYxOKmV4YhSkpfrN4OozzJFltgcUZtUnBxmUk9KWTmNOucnpuO3P0wUXxYfbVFyAP6NX+xF/A==
+  dependencies:
+    "@concordium/rust-bindings" "2.0.1"
+    "@grpc/grpc-js" "^1.9.4"
+    "@noble/ed25519" "^2.0.0"
+    "@noble/hashes" "^1.3.2"
+    "@protobuf-ts/grpc-transport" "^2.9.1"
+    "@protobuf-ts/grpcweb-transport" "^2.9.1"
+    "@protobuf-ts/runtime-rpc" "^2.8.2"
+    "@scure/bip39" "^1.2.1"
+    "@types/big.js" "^6.2.0"
+    big.js "^6.2.0"
+    bs58check "^3.0.1"
+    buffer "^6.0.3"
+    hash.js "^1.1.7"
+    iso-3166-1 "^2.1.1"
+    json-bigint "^1.0.0"
+    uuid "^8.3.2"
 
 "@concordium/web-sdk@7.1.0":
   version "7.1.0"
@@ -3186,21 +3215,35 @@ aes-js@^3.1.2:
   resolved "https://registry.yarnpkg.com/aes-js/-/aes-js-3.1.2.tgz#db9aabde85d5caabbfc0d4f2a4446960f627146a"
   integrity sha512-e5pEa2kBnBOgR4Y/p20pskXI74UEz7de8ZGVo58asOtvSVG5YAbJeELPZxOmt+Bnz3rX753YKhfIn4X4l1PPRQ==
 
-aesirx-analytics@^2.3.3:
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/aesirx-analytics/-/aesirx-analytics-2.4.0.tgz#f22bf891676ca68958790b9efe0674629779e6ff"
-  integrity sha512-d9afFk64MHUw68f/g+dQcMpZHNmE1KE89L63/FdCLYrMTLNFRIqiMoFPT5xj8RVdua8ZlblwMwR0mCdytFFvAA==
+aesirx-analytics@2.3.3:
+  version "2.3.3"
+  resolved "https://registry.yarnpkg.com/aesirx-analytics/-/aesirx-analytics-2.3.3.tgz#e3e6c21e4b1029bb99f7b7ab6a387e6c54fa952d"
+  integrity sha512-r6ob3Yyp7xHHlp9Eq44WBuS0/i2VrlHmVzbGWBEwVrz2oPHZK2a8uAuFzdPLRiUUJPCDSN+h53UQB9TEw0Diiw==
   dependencies:
+    "@concordium/browser-wallet-api-helpers" "3.0.1"
+    "@concordium/react-components" "0.4.0-rc.7"
+    "@concordium/web-sdk" "7.0.4-rc.3"
+    "@web3modal/ethereum" "^2.7.0"
+    "@web3modal/react" "^2.7.0"
+    aesirx-sso "^1.4.18"
+    axios "^1.7.4"
     bootstrap "^5.3.2"
     bowser "^2.11.0"
     buffer "^6.0.3"
     ethers "^6.6.5"
+    i18next "^23.6.0"
+    i18next-browser-languagedetector "^7.2.1"
     murmurhash-js "^1.0.0"
     next "^14.2.10"
     query-string "^7.1.1"
     react "^18.3.1"
+    react-bootstrap "^2.8.0"
+    react-content-loader "^7.0.0"
+    react-device-detect "^2.2.3"
     react-dom "18"
+    react-select "^5.8.0"
     react-toastify "^9.1.3"
+    wagmi "^1.3.2"
 
 aesirx-bi-app@^2.4.0:
   version "2.4.0"
@@ -5996,7 +6039,7 @@ https-proxy-agent@^5.0.0:
     agent-base "6"
     debug "4"
 
-i18next-browser-languagedetector@^7.1.0:
+i18next-browser-languagedetector@^7.1.0, i18next-browser-languagedetector@^7.2.1:
   version "7.2.2"
   resolved "https://registry.yarnpkg.com/i18next-browser-languagedetector/-/i18next-browser-languagedetector-7.2.2.tgz#748e7dc192847613911d8a79d9d9a6c2d266133e"
   integrity sha512-6b7r75uIJDWCcCflmbof+sJ94k9UQO4X0YR62oUfqGI/GjCLVzlCwu8TFdRZIqVLzWbzNcmkmhfqKEr4TLz4HQ==
@@ -6009,6 +6052,13 @@ i18next@^22.4.15:
   integrity sha512-8TGPgM3pAD+VRsMtUMNknRz3kzqwp/gPALrWMsDnmC1mKqJwpWyooQRLMcbTwq8z8YwSmuj+ZYvc+xCuEpkssA==
   dependencies:
     "@babel/runtime" "^7.20.6"
+
+i18next@^23.6.0:
+  version "23.16.8"
+  resolved "https://registry.yarnpkg.com/i18next/-/i18next-23.16.8.tgz#3ae1373d344c2393f465556f394aba5a9233b93a"
+  integrity sha512-06r/TitrM88Mg5FdUXAKL96dJMzgqLE5dv3ryBAra4KCwD9mJ4ndOTS95ZuymIGoE+2hzfdaMak2X11/es7ZWg==
+  dependencies:
+    "@babel/runtime" "^7.23.2"
 
 iconv-lite@0.4.24:
   version "0.4.24"
@@ -7819,6 +7869,11 @@ react-color@^2.19.3:
     reactcss "^1.2.0"
     tinycolor2 "^1.4.1"
 
+react-content-loader@^7.0.0:
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/react-content-loader/-/react-content-loader-7.0.2.tgz#5d5e0f723cb937db88f9fec1c5b0651cd301c42e"
+  integrity sha512-773S98JTyC8VB2nu7LXUhpHx8tZMieGxMcx3qTe7IkohT6Br7d9AXnIXs/wQ6IhlUdKQcw6JLKk1QKigYCWDRA==
+
 react-csv@^2.2.2:
   version "2.2.2"
   resolved "https://registry.yarnpkg.com/react-csv/-/react-csv-2.2.2.tgz#5bbf0d72a846412221a14880f294da9d6def9bfb"
@@ -7982,7 +8037,7 @@ react-secure-storage@^1.3.2:
     crypto-js "^4.1.1"
     murmurhash-js "^1.0.0"
 
-react-select@^5.7.2:
+react-select@^5.7.2, react-select@^5.8.0:
   version "5.9.0"
   resolved "https://registry.yarnpkg.com/react-select/-/react-select-5.9.0.tgz#41325b7bfe8452a8d401b82fc4fb7d44a03e29c5"
   integrity sha512-nwRKGanVHGjdccsnzhFte/PULziueZxGD8LL2WojON78Mvnq7LdAMEtu2frrwld1fr3geixg3iiMBIc/LLAZpw==
