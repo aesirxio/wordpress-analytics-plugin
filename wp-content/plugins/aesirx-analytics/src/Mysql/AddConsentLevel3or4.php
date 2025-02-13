@@ -74,7 +74,7 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
         if (isset($consent_list->consents)) {
             foreach ($consent_list->consents as $one_consent) {
                 // Check if consent is part of the current visitor UUID
-                if (in_array($params['visitor_uuid'], array_column($one_consent->visitor, 'uuid'))) {
+                if (in_array($params['visitor_uuid'], array_column($one_consent->visitor, 'uuid'), true)) {
                     foreach ($params['consents'] as $consent) {
                         if ((int)$consent === $one_consent->consent) {
                             return new WP_Error('rejected', esc_html__("Previous consent still active", 'aesirx-analytics'));
@@ -164,7 +164,6 @@ Class AesirX_Analytics_Add_Consent_Level3or4 extends AesirxAnalyticsMysqlHelper
 
             return parent::aesirx_analytics_list_consent_common($consents, $visitors, $flows);
         } catch (Exception $e) {
-            error_log("Query error: " . $e->getMessage());
             return new WP_Error('db_update_error', esc_html__('There was a problem querying the data in the database.', 'aesirx-analytics'), ['status' => 500]);
         }
     }

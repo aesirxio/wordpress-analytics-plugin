@@ -1,7 +1,5 @@
 <?php
 
-// namespace AesirxAnalytics\Mysql;
-
 use AesirxAnalytics\AesirxAnalyticsMysqlHelper;
 
 Class AesirX_Analytics_Get_Nonce extends AesirxAnalyticsMysqlHelper

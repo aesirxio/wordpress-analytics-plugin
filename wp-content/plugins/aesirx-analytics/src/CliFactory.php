@@ -42,7 +42,7 @@ class CliFactory {
             new Env(
                 $options['license'] ?? '',
                 DB_USER,
-                urlencode( DB_PASSWORD ),
+                rawurlencode( DB_PASSWORD ),
                 DB_NAME,
                 $table_prefix,
                 $host,

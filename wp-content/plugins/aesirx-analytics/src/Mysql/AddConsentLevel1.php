@@ -41,7 +41,7 @@ Class AesirX_Analytics_Add_Consent_Level1 extends AesirxAnalyticsMysqlHelper
             // Check if the consent is at level1 (i.e., consent_uuid is null)
             if (is_null($consent['consent_uuid'])) {
                 // Check if the consent number is the same as the provided parameter
-                if (!is_null($consent['consent']) && $consent['consent'] != (int) $params['consent']) {
+                if (!is_null($consent['consent']) && $consent['consent'] !== (int) $params['consent']) {
                     continue; // Skip to the next consent if the numbers do not match
                 }
 
@@ -60,10 +60,10 @@ Class AesirX_Analytics_Add_Consent_Level1 extends AesirxAnalyticsMysqlHelper
         // Add new visitor consent with the given parameters and calculated timestamps
         return parent::aesirx_analytics_add_visitor_consent(
             sanitize_text_field($params['uuid']),              // Visitor UUID
-            null,                                              // Consent UUID (null for new consent)
+            null,                                              // Consent UUID, null for new consent
             (int) $params['consent'],                          // Consent level
             $now,                                              // Current timestamp
-            null,                                              // Consent expiration (null for no expiration)
+            null,                                              // Consent expiration, null for no expiration
             $params                                            // Additional parameters
         );
     }

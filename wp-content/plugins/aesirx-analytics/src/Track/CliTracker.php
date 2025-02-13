@@ -29,7 +29,6 @@ class CliTracker extends AbstractTracker {
                 $this->cli->processAnalytics($message->asCliCommand());
             } catch (Exception $e) {
                 // Handle any other general exceptions that might occur
-                error_log($e->getMessage());
                 throw esc_html__('Error in tracking', 'aesirx-analytics');
             }
         }

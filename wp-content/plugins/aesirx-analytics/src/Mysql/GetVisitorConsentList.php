@@ -57,7 +57,6 @@ Class AesirX_Analytics_Get_Visitor_Consent_List extends AesirxAnalyticsMysqlHelp
         }
 
         if ($wpdb->last_error) {
-            error_log("Query error: " . $wpdb->last_error);
             return new WP_Error('db_query_error', esc_html__('There was a problem with the database query.', 'aesirx-analytics'), ['status' => 500]);
         }
 
