@@ -327,7 +327,17 @@ function aesirx_analytics_display_update_notice(  ) {
         {
             /* translators: %s: error message */
             // using custom function to escape HTML in error message
-            echo aesirx_analytics_escape_html('<div class="notice notice-error"><p>' . esc_html__('Problem with Aesirx Analytics plugin install', 'aesirx-analytics') . '</p></div>');
+            echo wp_kses('<div class="notice notice-error"><p>' . esc_html__('Problem with Aesirx Analytics plugin install', 'aesirx-analytics') . '</p></div>', array(
+                'p' => array(
+                    'class' => array(),
+                    'span' => array(
+                    'class' => array(),
+                ),
+                'div' => array(
+                    'id' => array(),
+                    'class' => array(),
+                ),
+            )));
         }
 
         delete_transient( 'aesirx_analytics_update_notice' );
