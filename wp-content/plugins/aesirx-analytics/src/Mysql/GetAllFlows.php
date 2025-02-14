@@ -19,7 +19,7 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
         $where_clause_event = [];
         $bind = [];
         $bind_event = [];
-
+        $hash_map = [];
         $detail_page = false;
         parent::aesirx_analytics_add_filters($params, $where_clause, $bind);
 
@@ -108,7 +108,7 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
         if (!empty($list)) {
             if (isset($params['request']['with']) && !empty($params['request']['with'])) {
                 $with = $params['request']['with'];
-                if (in_array("events", $with)) {
+                if (in_array("events", $with, true)) {
                     $bind = array_map(function($e) {
                         return $e['uuid'];
                     }, $list);
@@ -154,7 +154,7 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
                         $og_image = null;
 
                         // OG
-                        if ($detail_page == true && !empty($second->url)) {
+                        if ($detail_page === true && !empty($second->url)) {
                             // Try to fetch and parse the Open Graph data
                             $og_data = parent::aesirx_analytics_fetch_open_graph_data($second->url);
                             
@@ -208,8 +208,8 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
                         }
                     }
 
-                    if (!empty($events) && $params[1] == "flow") {
-                        if ($events[0]->start == $events[0]->end) {
+                    if (!empty($events) && $params[1] === "flow") {
+                        if ($events[0]->start === $events[0]->end) {
                             $consents = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                                 $wpdb->prepare(
                                     "SELECT * FROM {$wpdb->prefix}analytics_visitor_consent WHERE visitor_uuid = %s AND UNIX_TIMESTAMP(datetime) > %d",
@@ -231,7 +231,7 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
                         foreach ($consents as $consent) {
                             $consent_data = $events[0];
     
-                            if ($consent->consent_uuid != null) {
+                            if ($consent->consent_uuid !== null) {
                                 $consent_detail = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                                     $wpdb->prepare(
                                         "SELECT * FROM {$wpdb->prefix}analytics_consent WHERE uuid = %s",
@@ -239,7 +239,7 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
                                     )
                                 );
 
-                                if (!isset($consent_detail->consent) || $consent_detail->consent != 1) {
+                                if (!isset($consent_detail->consent) || $consent_detail->consent !== 1) {
                                     continue;
                                 }
     
@@ -283,7 +283,7 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
                                 $consent_data->end = $consent_detail->expiration;
                             } else {
 
-                                if ($consent->consent != 1) {
+                                if ($consent->consent !== 1) {
                                     continue;
                                 }
 
@@ -303,7 +303,7 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
             foreach ($list as $item) {
                 $item = (object) $item;
                 
-                if (!empty($collection) && end($collection)['uuid'] == $item->uuid) {
+                if (!empty($collection) && end($collection)['uuid'] === $item->uuid) {
                     continue;
                 }
 
@@ -319,7 +319,7 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
 
                 $events = isset($hash_map[$item->uuid]) ? array_values($hash_map[$item->uuid]) : null;
 
-                if ( $params[1] == 'flows') {
+                if ( $params[1] === 'flows') {
 
                     $bad_url_count = 0;
 
@@ -355,7 +355,7 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
                         'bad_user' => $bad_url_count > 1 ? true : false,
                     ];
                 }
-                elseif ( $params[1] == 'flow' ) {
+                elseif ( $params[1] === 'flow' ) {
                     $collection = [
                         'uuid' => $item->uuid,
                         'visitor_uuid' => $item->visitor_uuid,
@@ -386,7 +386,7 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
             }
         }
 
-        if ( $params[1] == 'flows') {
+        if ( $params[1] === 'flows') {
             return [
                 'collection' => $collection,
                 'page' => $list_response['page'],
@@ -395,7 +395,7 @@ Class AesirX_Analytics_Get_All_Flows extends AesirxAnalyticsMysqlHelper
                 'total_elements' => $list_response['total_elements'],
             ];
         }
-        elseif ( $params[1] == 'flow' ) {
+        elseif ( $params[1] === 'flow' ) {
             return $collection;
         }
     }

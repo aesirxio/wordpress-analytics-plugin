@@ -29,7 +29,7 @@ use Pecee\SimpleRouter\Route\RouteUrl;
 use AesirxAnalytics\Migrator\MigratorMysql;
 
 require_once plugin_dir_path(__FILE__) . 'vendor/autoload.php';
-require_once 'includes/settings.php';
+require_once plugin_dir_path(__FILE__) . 'includes/settings.php';
 
 include_once(ABSPATH . 'wp-admin/includes/plugin.php');
 
@@ -37,14 +37,14 @@ function aesirx_analytics_config_is_ok(string $isStorage = null): bool {
     $options = get_option('aesirx_analytics_plugin_options');
     $res = (!empty($options['storage'])
         && (
-            ($options['storage'] == 'internal')
-            || ($options['storage'] == 'external' && !empty($options['domain']))
+            ($options['storage'] === 'internal')
+            || ($options['storage'] === 'external' && !empty($options['domain']))
         ));
 
     if ($res
         && !is_null($isStorage))
     {
-        $res = $options['storage'] == $isStorage;
+        $res = $options['storage'] === $isStorage;
     }
 
     return $res;
@@ -126,16 +126,16 @@ if (aesirx_analytics_config_is_ok()) {
         $options = get_option('aesirx_analytics_plugin_options');
 
         $domain =
-            ($options['storage'] ?? 'internal') == 'internal'
+            ($options['storage'] ?? 'internal') === 'internal'
                 ? get_bloginfo('url')
                 : rtrim($options['domain'] ?? '', '/');
 
         $consent =
-            ($options['consent'] ?? 'false') == 'true'
+            ($options['consent'] ?? 'false') === 'true'
                 ? 'false'
                 : 'true';
 
-        $trackEcommerce = ($options['track_ecommerce'] ?? 'true') == 'true' ? 'true': 'false';
+        $trackEcommerce = ($options['track_ecommerce'] ?? 'true') === 'true' ? 'true': 'false';
         $blockingCookiesPath = isset($options['blocking_cookies']) && count($options['blocking_cookies']) > 0 ? $options['blocking_cookies'] : [];
         $arrayCookiesPlugins =  isset($options['blocking_cookies_plugins']) &&  count($options['blocking_cookies_plugins']) > 0 ? $options['blocking_cookies_plugins'] : [];
         $prefix = "wp-content/plugins/";
@@ -149,12 +149,12 @@ if (aesirx_analytics_config_is_ok()) {
 
         wp_add_inline_script(
             'aesirx-analytics',
-            'window.aesirx1stparty="' . esc_html($domain) . '";
-            window.disableAnalyticsConsent="' . esc_html($consent) . '";
-            window.aesirxClientID="' . esc_html($clientId) . '";
-            window.aesirxClientSecret="' . esc_html($secret) . '";
+            'window.aesirx1stparty="' . esc_attr($domain) . '";
+            window.disableAnalyticsConsent="' . esc_attr($consent) . '";
+            window.aesirxClientID="' . esc_attr($clientId) . '";
+            window.aesirxClientSecret="' . esc_attr($secret) . '";
             window.blockJSDomains=' . $blockingCookiesJSON . ';
-            window.aesirxTrackEcommerce="' . esc_html($trackEcommerce) . '";',
+            window.aesirxTrackEcommerce="' . esc_attr($trackEcommerce) . '";',
             'before');
     });
 
@@ -163,13 +163,13 @@ if (aesirx_analytics_config_is_ok()) {
         $options = get_option('aesirx_analytics_plugin_options');
 
         if (is_admin()
-            || ($options['track_ecommerce'] ?? 'true') != 'true'
-            || !isset($_SESSION))
+            || ($options['track_ecommerce'] ?? 'true') !== 'true'
+            || !get_transient('aesirx_analytics_session'))
         {
             return;
         }
 
-        $flowUuid = isset($_SESSION['analytics_flow_uuid']) ? sanitize_text_field($_SESSION['analytics_flow_uuid']) : null;
+        $flowUuid = get_transient('aesirx_analytics_session') ? sanitize_text_field(get_transient('aesirx_analytics_session')) : null;
 
         if (is_null($flowUuid))
         {
@@ -223,7 +223,7 @@ function aesirx_analytics_url_handler()
 {
     $options = get_option('aesirx_analytics_plugin_options');
 
-    if (($options['storage'] ?? 'internal') != 'internal') {
+    if (($options['storage'] ?? 'internal') !== 'internal') {
         return;
     }
 
@@ -234,7 +234,6 @@ function aesirx_analytics_url_handler()
         }
         catch (Exception $e)
         {
-            error_log($e->getMessage());
             $data = wp_json_encode([
                 'error' => $e->getMessage()
             ]);
@@ -258,7 +257,7 @@ function aesirx_analytics_url_handler()
         $router->addRoute(
             (new RouteUrl('/remember_flow/{flow}', static function (string $flow): string {
 
-                $_SESSION['analytics_flow_uuid'] = $flow;
+                set_transient('analytics_flow_uuid', $flow, HOUR_IN_SECONDS);
 
                 return wp_json_encode(true);
             }))
@@ -299,19 +298,21 @@ function aesirx_analytics_initialize_function() {
     $migration_list = array_column(MigratorMysql::aesirx_analytics_fetch_rows(), 'name');
 
     $files = glob(plugin_dir_path( __FILE__ ) . 'src/Migration/*.php');
-    
     foreach ($files as $file) {
-        include_once $file;
-        $file_name = basename($file, ".php");
-
-        if(!in_array($file_name, $migration_list)) {
-            MigratorMysql::aesirx_analytics_add_migration_query($file_name);
-            foreach ($sql as $each_query) {
-                // used placeholders and $wpdb->prepare() in variable $each_query
-                // need $wpdb->query() for ALTER TABLE
-                $wpdb->query($each_query); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $realpath = realpath($file);
+        if ($realpath && strpos($realpath, plugin_dir_path(__FILE__) . 'src/Migration/') === 0) {
+            include_once $realpath; // Safe inclusion
+            $file_name = basename($realpath, ".php");
+            if (!in_array($file_name, $migration_list, true)) {
+                MigratorMysql::aesirx_analytics_add_migration_query($file_name);
+                $sql = $sql ?? []; // Ensure $sql is an array
+                foreach ($sql as $each_query) {
+                    // Used placeholders and $wpdb->prepare() in variable $each_query
+                    // Need $wpdb->query() for ALTER TABLE
+                    $wpdb->query($each_query); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                }
             }
-        }       
+        }
     }
     add_option('aesirx_analytics_do_activation_redirect', true);
 }
@@ -320,14 +321,23 @@ function aesirx_analytics_display_update_notice(  ) {
     $notice = get_transient( 'aesirx_analytics_update_notice' );
     if( $notice ) {
 
-        $notice = unserialize($notice);
+        $notice = json_decode($notice, true);
 
         if ($notice instanceof Throwable)
         {
             /* translators: %s: error message */
             // using custom function to escape HTML in error message
-            error_log($notice->getMessage());
-            echo aesirx_analytics_escape_html('<div class="notice notice-error"><p>' . esc_html__('Problem with Aesirx Analytics plugin install', 'aesirx-analytics') . '</p></div>');
+            echo wp_kses('<div class="notice notice-error"><p>' . esc_html__('Problem with Aesirx Analytics plugin install', 'aesirx-analytics') . '</p></div>', array(
+                'p' => array(
+                    'class' => array(),
+                    'span' => array(
+                    'class' => array(),
+                ),
+                'div' => array(
+                    'id' => array(),
+                    'class' => array(),
+                ),
+            )));
         }
 
         delete_transient( 'aesirx_analytics_update_notice' );
@@ -348,6 +358,37 @@ add_action('admin_init', function () {
 });
 
 global $wpdb;
+function get_real_ip() {
+    $headers = ['HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'REMOTE_ADDR'];
+
+    foreach ($headers as $header) {
+        if (!empty($_SERVER[$header])) {
+            $rawIp = sanitize_text_field(wp_unslash($_SERVER[$header])); 
+            $ipList = explode(',', $rawIp);
+
+            foreach ($ipList as $ip) {
+                $ip = trim($ip);
+                if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_RES_RANGE)) {
+                    return $ip;
+                }
+            }
+        }
+    }
+    return false;
+}
+function get_real_user_agent() {
+    $headers = ['HTTP_USER_AGENT'];
+    foreach ($headers as $header) {
+        if (!empty($_SERVER[$header])) {
+            $rawUserAgent = sanitize_text_field(wp_unslash($_SERVER[$header])); 
+            return $rawUserAgent;
+        }
+    }
+    return false;
+}
+
+$ip = get_real_ip();
+$userAgent = get_real_user_agent();
 
 $consent = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     $wpdb->prepare(
@@ -362,10 +403,8 @@ $consent = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.Dire
             AND DATE({$wpdb->prefix}analytics_flows.start) = CURDATE()
         ORDER BY {$wpdb->prefix}analytics_flows.start DESC
         LIMIT 1", 
-        array(
-            sanitize_text_field($_SERVER['REMOTE_ADDR']),
-            sanitize_text_field($_SERVER['HTTP_USER_AGENT']),
-        ))
+        array($ip, $userAgent)
+    )
 );
 
 if (!$consent) {
@@ -410,17 +449,17 @@ if (!$consent) {
         $blockingCookies = array_unique(array_merge($blockingCookiesPaths, $blockingCookiesPlugins), SORT_REGULAR);
         $queueScripts = $wp_scripts->queue;
         $blockingCookiesMode = isset($options['blocking_cookies_mode']) ? $options['blocking_cookies_mode'] : '3rd_party';
-        $siteDomain = $_SERVER['HTTP_HOST'];
+        $siteDomain = isset($_SERVER['HTTP_HOST']) ? filter_var($_SERVER['HTTP_HOST'], FILTER_SANITIZE_URL) : 'unknown';
 
         foreach ( $wp_scripts->registered as $handle => $script ) {
-            if ( !is_string($script->src) || !in_array($handle, $queueScripts) ) {
+            if ( !is_string($script->src) || !in_array($handle, $queueScripts, true) ) {
                 continue;
             }
 
             if ($blockingCookiesMode === '3rd_party') {
                 $scriptDomain = wp_parse_url($script->src, PHP_URL_HOST);
 
-                if ($scriptDomain && $scriptDomain == $siteDomain) {
+                if ($scriptDomain && $scriptDomain === $siteDomain) {
                     continue;
                 }
             }

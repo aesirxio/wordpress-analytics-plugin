@@ -43,7 +43,6 @@ Class AesirX_Analytics_Revoke_Consent_Level1 extends AesirxAnalyticsMysqlHelper
         );
 
         if ($wpdb->last_error) {
-            error_log('Query error: ' . $wpdb->last_error);
             return new WP_Error($wpdb->last_error);
         }
         

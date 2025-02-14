@@ -110,7 +110,7 @@ Class AesirX_Analytics_Get_Attribute_Value extends AesirxAnalyticsMysqlHelper
                 $vals_vec = [];
 
                 foreach ($vals as $key_val => $val_val) {
-                    if (in_array($key_val, $not_allowed)) {
+                    if (in_array($key_val, $not_allowed, true)) {
                         continue;
                     }
 

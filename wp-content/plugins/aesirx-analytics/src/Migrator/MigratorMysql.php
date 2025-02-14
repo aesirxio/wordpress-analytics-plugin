@@ -58,7 +58,7 @@ class MigratorMysql {
         $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
             $wpdb->prefix . 'analytics_migrations',
             $data,
-            array('%s', '%s') // Data types for 'app' and 'name'
+            array('%s', '%s')
         );
     }
 }

@@ -67,7 +67,7 @@ Class AesirX_Analytics_Start_Fingerprint extends AesirxAnalyticsMysqlHelper
                 return new WP_Error('validation_error', esc_html__('Wrong URL format, domain not found', 'aesirx-analytics'));
             }
     
-            if ($url['host'] != $visitor['domain']) {
+            if ($url['host'] !== $visitor['domain']) {
                 return new WP_Error('validation_error', esc_html__('The domain sent in the new URL does not match the domain stored in the visitor document', 'aesirx-analytics'));
             }
     
@@ -83,7 +83,7 @@ Class AesirX_Analytics_Start_Fingerprint extends AesirxAnalyticsMysqlHelper
             if ($params['request']['referer']) {
                 $referer = wp_parse_url($params['request']['referer']);
 
-                if ($referer && $referer['host'] == $url['host'] && $visitor['visitor_flows']) {
+                if ($referer && $referer['host'] === $url['host'] && $visitor['visitor_flows']) {
 
                     $list = $visitor['visitor_flows'];
     

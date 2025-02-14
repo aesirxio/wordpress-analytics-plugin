@@ -125,7 +125,7 @@ class Woocommerce {
     }
 
     private function hasOrderBeenTrackedAlready( $order_id ): bool {
-        return get_post_meta( $order_id, $this->key_order_tracked, true ) == 1;
+        return get_post_meta( $order_id, $this->key_order_tracked, true ) === 1;
     }
 
     private function setOrderBeenTracked( $order_id ): void {

@@ -15,7 +15,7 @@ Class AesirX_Analytics_Job_Geo extends AesirxAnalyticsMysqlHelper
 
         $list = parent::aesirx_analytics_get_ip_list_without_geo($params);
 
-        if (count($list) == 0) {
+        if (count($list) === 0) {
             return;
         }
 
@@ -33,7 +33,6 @@ Class AesirX_Analytics_Job_Geo extends AesirxAnalyticsMysqlHelper
         ));
     
         if ( is_wp_error( $response ) ) {
-            error_log("Error in API request: " . $response->get_error_message());
             return new WP_Error('api_error', esc_html__('Error in API request', 'aesirx-analytics'));
         }
     
@@ -41,7 +40,6 @@ Class AesirX_Analytics_Job_Geo extends AesirxAnalyticsMysqlHelper
         $enrich = json_decode( $body, true );
     
         if (isset($enrich['error'])) {
-            error_log("API error: " . $enrich['error']['message']);
             return new WP_Error('api_error', esc_html__('Error in API request', 'aesirx-analytics'));
         }
     

@@ -7,6 +7,7 @@ Class AesirX_Analytics_Store_Datastream_Template extends AesirxAnalyticsMysqlHel
 {
     function aesirx_analytics_mysql_execute($params = [])
     {
+        $response = [];
         foreach ($params as $key => $value) {
             if (is_string($key)) {
                 $new_value = sanitize_text_field($value);
