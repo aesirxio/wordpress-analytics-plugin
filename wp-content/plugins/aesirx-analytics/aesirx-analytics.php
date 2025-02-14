@@ -164,12 +164,12 @@ if (aesirx_analytics_config_is_ok()) {
 
         if (is_admin()
             || ($options['track_ecommerce'] ?? 'true') !== 'true'
-            || !isset($_SESSION))
+            || !get_transient('aesirx_analytics_session'))
         {
             return;
         }
 
-        $flowUuid = isset($_SESSION['analytics_flow_uuid']) ? sanitize_text_field($_SESSION['analytics_flow_uuid']) : null;
+        $flowUuid = get_transient('aesirx_analytics_session') ? sanitize_text_field(get_transient('aesirx_analytics_session')) : null;
 
         if (is_null($flowUuid))
         {

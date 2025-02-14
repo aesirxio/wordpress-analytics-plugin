@@ -11,6 +11,7 @@ Class AesirX_Analytics_Get_Attribute_Value_Date extends AesirxAnalyticsMysqlHelp
 
         $where_clause = [];
         $bind = [];
+        $hash_map = [];
 
         parent::aesirx_analytics_add_filters($params, $where_clause, $bind);
         parent::aesirx_analytics_add_attribute_filters($params, $where_clause, $bind);

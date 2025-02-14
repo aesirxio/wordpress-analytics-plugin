@@ -152,7 +152,7 @@ Class AesirX_Analytics_Get_Live_Visitors_List extends AesirxAnalyticsMysqlHelper
         foreach ($list as $item) {
             $item = (object) $item;
             
-            if (!empty($collection) && end($collection)['uuid'] == $item->uuid) {
+            if (!empty($collection) && end($collection)['uuid'] === $item->uuid) {
                 continue;
             }
 

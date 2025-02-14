@@ -80,7 +80,7 @@ Class AesirX_Analytics_Get_All_Outlinks extends AesirxAnalyticsMysqlHelper
         if ($list) {
             foreach ($list as $vals) {
 
-                if ($vals['referer'] == null) {
+                if ($vals['referer'] === null) {
                     continue;
                 }
 

@@ -15,7 +15,7 @@ Class AesirX_Analytics_Job_Geo extends AesirxAnalyticsMysqlHelper
 
         $list = parent::aesirx_analytics_get_ip_list_without_geo($params);
 
-        if (count($list) == 0) {
+        if (count($list) === 0) {
             return;
         }
 

@@ -48,7 +48,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                         if (!empty($collection)) {
                             $collection = array_map(function ($row) {
                                 foreach ($row as $key => $value) {
-                                    if ( in_array($key, ['total', 'total_visitor', 'unique_visitor', 'total_number_of_visitors']) ) {
+                                    if ( in_array($key, ['total', 'total_visitor', 'unique_visitor', 'total_number_of_visitors'], true) ) {
                                         $row[$key] = absint($row[$key]);
                                     }
                                 }
@@ -68,7 +68,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                     if (!empty($collection)) {
                         $collection = array_map(function ($row) {
                             foreach ($row as $key => $value) {
-                                if ( in_array($key, ['total', 'total_visitor', 'unique_visitor', 'total_number_of_visitors']) ) {
+                                if ( in_array($key, ['total', 'total_visitor', 'unique_visitor', 'total_number_of_visitors'], true) ) {
                                     $row[$key] = absint($row[$key]);
                                 }
                             }
@@ -86,7 +86,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                     'total_elements' => $total_elements,
                 ];
     
-                if ($params[1] == "metrics") {
+                if ($params[1] === "metrics") {
                     $list_response = $list_response['collection'][0];
                 }
     
@@ -211,7 +211,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                 $ret[] = sprintf("%s ASC", $default);
             } else {
                 foreach ($params['sort'] as $pos => $value) {
-                    if (!in_array($value, $allowed)) {
+                    if (!in_array($value, $allowed, true)) {
                         continue;
                     }
     
@@ -770,7 +770,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             $data_types = array_fill(0, count($data), '%s'); // Default to '%s' for all
             
             if (isset($data['consent'])) {
-                $data_types[array_search('consent', array_keys($data))] = '%d'; // Change to '%d' if consent is an integer
+                $data_types[array_search('consent', array_keys($data), true)] = '%d'; // Change to '%d' if consent is an integer
             }
             
             // Execute the insert
@@ -790,27 +790,27 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
 
             $updated_data = [];
 
-            if ($visitor_data->ip == '') {
+            if ($visitor_data->ip === '') {
                 $updated_data['ip'] = $params['request']['ip'];
             }
 
-            if ($visitor_data->browser_version == '') {
+            if ($visitor_data->browser_version === '') {
                 $updated_data['browser_version'] = isset($params['request']['browser_version']) ? $params['request']['browser_version'] : '';
             }
 
-            if ($visitor_data->browser_name == '') {
+            if ($visitor_data->browser_name === '') {
                 $updated_data['browser_name'] = isset($params['request']['browser_name']) ? $params['request']['browser_name'] : '';
             }
 
-            if ($visitor_data->device == '') {
+            if ($visitor_data->device === '') {
                 $updated_data['device'] = isset($params['request']['device']) ? $params['request']['device'] : '';
             }
 
-            if ($visitor_data->user_agent == '') {
+            if ($visitor_data->user_agent === '') {
                 $updated_data['user_agent'] = isset($params['request']['user_agent']) ? $params['request']['user_agent'] : '';
             }
 
-            if ($visitor_data->lang == '') {
+            if ($visitor_data->lang === '') {
                 $updated_data['lang'] = isset($params['request']['lang']) ? $params['request']['lang'] : '';
             }
 
@@ -1318,14 +1318,16 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             $parser->init();
         
             $og_data = [];
-        
-            if ($title = $parser->get_title()) {
+            $title = $parser->get_title();
+            if (!empty($title)) {
                 $og_data['og:title'] = $title;
             }
-            if ($description = $parser->get_description()) {
+            $description = $parser->get_description();
+            if (!empty($description)) {
                 $og_data['og:description'] = $description;
             }
-            if ($image = $parser->get_image_url()) {
+            $image = $parser->get_image_url();
+            if (!empty($image)) {
                 $og_data['og:image'] = $image;
             }
         
