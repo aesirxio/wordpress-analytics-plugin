@@ -12,7 +12,7 @@
   },
   "devDependencies": {
     "@prettier/plugin-php": "^0.22.1",
-    "@types/react": "^18.2.8",
+    "@types/react": "^19.0.3",
     "@types/react-dom": "^18.3.0",
     "css-loader": "^6.8.1",
     "del": "^7.0.0",
@@ -39,7 +39,7 @@
   "dependencies": {
     "aesirx-analytics": "2.3.3",
     "aesirx-bi-app": "^2.4.0",
-    "react": "^18.2.0",
+    "react": "^19.0.0",
     "react-dom": "^18.3.1",
     "react-spinners": "^0.13.8"
   },
