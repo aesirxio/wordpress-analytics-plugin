@@ -260,8 +260,9 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
                             break;
                         case 'event_name':
                         case 'event_type':
-                            $where_clause[] = '#__analytics_events.' . $key . ' ' . ($is_not ? 'NOT ' : '') . 'IN (%s)';
-                            $bind[] = implode(', ', $list);
+                            $placeholders = implode(',', array_fill(0, count($list), '%s'));
+                            $where_clause[] = '#__analytics_events.' . $key . ' ' . ($is_not ? 'NOT ' : '') . "IN ($placeholders)";
+                            $bind = array_merge($bind, $list);
                             break;
                         case 'city':
                         case 'isp':

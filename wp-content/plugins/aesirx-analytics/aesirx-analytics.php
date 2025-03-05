@@ -52,7 +52,10 @@ function aesirx_analytics_config_is_ok(string $isStorage = null): bool {
 
 if (aesirx_analytics_config_is_ok()) {
     add_action('wp_enqueue_scripts', function (): void {
-        wp_register_script('aesirx-analytics', plugins_url('assets/vendor/consent.js', __FILE__), [], true,  array(
+        wp_register_script('aesirx-consent', plugins_url('assets/vendor/consent.js', __FILE__), [], false,  array(
+            'in_footer' => false,
+        ));
+        wp_register_script('aesirx-analytics', plugins_url('assets/vendor/statistic.js', __FILE__), [], false,  array(
             'in_footer' => false,
         ));
         $translation_array = array(
@@ -122,6 +125,7 @@ if (aesirx_analytics_config_is_ok()) {
         );
         wp_localize_script( 'aesirx-analytics', 'aesirx_analytics_translate', $translation_array );
         wp_enqueue_script('aesirx-analytics');
+        wp_enqueue_script('aesirx-consent');
 
         $options = get_option('aesirx_analytics_plugin_options');
 

@@ -12,7 +12,7 @@ Class AesirX_Analytics_Get_All_Events extends AesirxAnalyticsMysqlHelper
         // Validate and sanitize each parameter in the $params array
         $validated_params = [];
         foreach ($params as $key => $value) {
-            $validated_params[$key] = sanitize_text_field($value);
+            $validated_params[$key] = is_string($value) ? sanitize_text_field($value) : $value;
         }
 
         $where_clause = [
