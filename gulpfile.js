@@ -25,6 +25,13 @@ function movePluginFolderTask() {
 function moveAnalyticJSTask() {
   return gulp
     .src(['./node_modules/aesirx-analytics/dist/analytics.js'])
+    .pipe(rename('statistic.js'))
+    .pipe(gulp.dest(`${dist}/plugins/aesirx-analytics/assets/vendor`));
+}
+
+function moveConsentJSTask() {
+  return gulp
+    .src(['./node_modules/aesirx-consent/dist/consent.js'])
     .pipe(rename('consent.js'))
     .pipe(gulp.dest(`${dist}/plugins/aesirx-analytics/assets/vendor`));
 }
@@ -74,6 +81,7 @@ exports.zip = series(
   cleanTask,
   movePluginFolderTask,
   moveAnalyticJSTask,
+  moveConsentJSTask,
   moveRepeatableFieldsJSTask,
   webpackBIApp,
   composerTask,
@@ -88,6 +96,12 @@ exports.watch = function () {
   watch('./assets/**', series(webpackBIAppWatch));
   watch(
     './wp-content/plugins/aesirx-analytics/**',
-    series(movePluginFolderTask, moveAnalyticJSTask, moveRepeatableFieldsJSTask, composerTask)
+    series(
+      movePluginFolderTask,
+      moveAnalyticJSTask,
+      moveConsentJSTask,
+      moveRepeatableFieldsJSTask,
+      composerTask
+    )
   );
 };

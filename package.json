@@ -37,7 +37,8 @@
     "webpack-stream": "^7.0.0"
   },
   "dependencies": {
-    "aesirx-analytics": "2.3.3",
+    "aesirx-analytics": "2.4.0",
+    "aesirx-consent": "1.0.4",
     "aesirx-bi-app": "^2.4.1",
     "react": "^18.2.0",
     "react-dom": "^18.3.1",
