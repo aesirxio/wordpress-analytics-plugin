@@ -42,6 +42,12 @@ function moveRepeatableFieldsJSTask() {
     .pipe(gulp.dest(`${dist}/plugins/aesirx-analytics/assets/vendor`));
 }
 
+function moveNoticeJSTask() {
+  return gulp
+    .src(['./wp-content/plugins/aesirx-analytics/aesirx-analytics-notice.js'])
+    .pipe(gulp.dest(`${dist}/plugins/aesirx-analytics/assets/vendor`));
+}
+
 function webpackBIApp() {
   return gulp
     .src('./assets/bi/index.tsx')
@@ -83,6 +89,7 @@ exports.zip = series(
   moveAnalyticJSTask,
   moveConsentJSTask,
   moveRepeatableFieldsJSTask,
+  moveNoticeJSTask,
   webpackBIApp,
   composerTask,
   cleanComposerTask,
@@ -101,6 +108,7 @@ exports.watch = function () {
       moveAnalyticJSTask,
       moveConsentJSTask,
       moveRepeatableFieldsJSTask,
+      moveNoticeJSTask,
       composerTask
     )
   );

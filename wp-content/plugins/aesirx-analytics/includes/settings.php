@@ -71,21 +71,25 @@ add_action('admin_init', function () {
   function aesirx_analytics_warning_missing_crontrol() {
 
     if (!is_plugin_active('wp-crontrol/wp-crontrol.php')) {
-      add_settings_error(
-        'aesirx_analytics_plugin_options',
-        'crontrol',
-        esc_html__('Crontrol plugin is not active. Please install and activate it to use geo tracking.', 'aesirx-analytics'),
-        'warning'
-      );
-
+      if (get_option('aesirx_analytics_crontrol_notice_dismissed')) {
+        return;
+      }
       ?>
-        <div class="notice-warning notice notice-bi" style="display: none;">
-            <p><?php echo esc_html__( 'Crontrol plugin is not active. Please install and activate it to use geo tracking.', 'aesirx-analytics' ); ?></p>
+        <div class="notice-warning notice notice-bi aesirx-analytics-notice is-dismissible" style="display: none;">
+          <?php echo wp_kses("<p>".esc_html__("To activate GEO tracking of analytics data, the WP Control Plugin has to be installed / activated.", 'aesirx-analytics' )."</p>
+                                  <p>".sprintf(__("To install it click <a style='color: #2271b1' target='_blank' href='%1\$s'>here</a> and remember to activate the plugin.", 'aesirx-analytics' ), '/wp-admin/plugin-install.php?tab=plugin-information&plugin=wp-crontrol')."</p>",
+            aesirx_analytics_escape_html()); ?>
         </div>
       <?php
     }
   }
   add_action( 'admin_notices', 'aesirx_analytics_warning_missing_crontrol' );
+
+  function aesirx_dismiss_crontrol_notice() {
+    update_option('aesirx_analytics_crontrol_notice_dismissed', true);
+    wp_die();
+  }
+  add_action('wp_ajax_aesirx_dismiss_crontrol_notice', 'aesirx_dismiss_crontrol_notice');
 
   add_settings_field(
     'aesirx_analytics_storage',
@@ -717,7 +721,7 @@ add_action('admin_enqueue_scripts', function ($hook) {
       $hook === 'admin_page_aesirx-bi-acquisition-campaigns' ||
       $hook === 'aesirx-bi_page_aesirx-bi-woocommerce' ||
       $hook === 'admin_page_aesirx-bi-woocommerce-product') {
-
+    wp_enqueue_script('aesirx-analytics-notice', plugins_url('assets/vendor/aesirx-analytics-notice.js', __DIR__), array('jquery'), false, true);
     $options = get_option('aesirx_analytics_plugin_options');
 
     $protocols = ['http://', 'https://'];
@@ -786,6 +790,7 @@ add_action('admin_enqueue_scripts', function ($hook) {
       'href'  => array(),
       'target'    => array(),
       'class'    => array(),
+      'style'    => array(),
      ),
      'p' => array(
       'class' => array(),
