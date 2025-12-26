@@ -2,7 +2,7 @@
 Contributors: aesirx,vikingtechguy,nixa999,nguyenbao10,vietnguyen1406,devphutran
 Tags: privacy, analytics, compliance, wordpress analytics, consent
 Requires at least: 5.9
-Tested up to: 6.7.2
+Tested up to: 6.9
 Stable tag: 4.2.8
 Requires PHP: 7.4
 License: GPL 3.0

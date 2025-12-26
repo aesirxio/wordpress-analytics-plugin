@@ -9,8 +9,7 @@ Class AesirX_Analytics_Get_Live_Visitors_Total extends AesirxAnalyticsMysqlHelpe
         global $wpdb;
 
         $where_clause = [
-            "#__analytics_flows.start = #__analytics_flows.end",
-            "#__analytics_flows.start >= NOW() - INTERVAL 30 MINUTE",
+            "#__analytics_flows.end >= NOW() - INTERVAL 30 MINUTE",
             "#__analytics_visitors.device != 'bot'"
         ];
         $bind = [];

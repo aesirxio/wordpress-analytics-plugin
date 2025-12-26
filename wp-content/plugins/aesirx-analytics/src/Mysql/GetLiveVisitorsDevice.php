@@ -41,8 +41,7 @@ Class AesirX_Analytics_Get_Live_Visitors_Device extends AesirxAnalyticsMysqlHelp
         $where_clause = [
             "#__analytics_events.event_name = %s",
             "#__analytics_events.event_type = %s",
-            "#__analytics_events.start = #__analytics_events.end",
-            "#__analytics_events.start >= NOW() - INTERVAL 30 MINUTE",
+            "#__analytics_events.end >= NOW() - INTERVAL 30 MINUTE",
             "#__analytics_visitors.device != 'bot'"
         ];
 

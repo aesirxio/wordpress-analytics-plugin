@@ -7,7 +7,7 @@ Class AesirX_Analytics_Job_Geo extends AesirxAnalyticsMysqlHelper
     function aesirx_analytics_mysql_execute($params = [])
     {
         $now = gmdate('Y-m-d H:i:s');
-        $options = get_option('aesirx_analytics_plugin_options');
+        $options = get_option('aesirx_analytics_freemium_plugin_options');
         $config =[
             'url_api_enrich' => 'https://api.aesirx.io/index.php?webserviceClient=site&webserviceVersion=1.0.0&option=aesir_analytics&api=hal&task=enrichVisitor',
             'license' => sanitize_text_field($options['license'])

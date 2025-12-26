@@ -28,7 +28,7 @@ if (!class_exists('AesirxAnalyticsMysqlHelper')) {
             $total_pages = ceil($total_elements / $pageSize);
     
             try {
-                $options = get_option('aesirx_analytics_plugin_options');
+                $options = get_option('aesirx_analytics_freemium_plugin_options');
 
                 if (isset($options['cache_time']) && (int) $options['cache_time'] > 0) {
                     $key = $sql;
