@@ -68,6 +68,7 @@ The Terms of service can be found here https://aesirx.io/terms-conditions and th
 = 5.0.0 =
 
 * Freemium Analytics
+* Remove Consent Management from Freemium Analytics
 
 = 4.2.8 =
 
