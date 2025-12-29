@@ -138,15 +138,30 @@ if (is_plugin_active('wp-crontrol/wp-crontrol.php')) {
 }
 
 add_filter('plugin_action_links_' . plugin_basename(__FILE__), function ($links) {
-  $nonce = wp_create_nonce('aesirx_analytics_submenu');
-  $url = add_query_arg(
-        [
-            'page'                    => 'aesirx-bi-dashboard',
-            'aesirx_analytics_nonce'  => $nonce,
-        ],
-        admin_url('admin.php')
+    $nonce = wp_create_nonce('aesirx_analytics_submenu');
+    $stats_url = add_query_arg(
+            [
+                'page'                    => 'aesirx-bi-dashboard',
+                'aesirx_analytics_nonce'  => $nonce,
+            ],
+            admin_url('admin.php')
+        );
+    $links[] = sprintf(
+        '<a href="%s">%s</a>',
+        esc_url($stats_url),
+        esc_html__('Statistics', 'aesirx-analytics')
     );
-  array_push($links, "<a href='$url'>" . esc_html__('Statistics', 'aesirx-analytics') . '</a>');
+
+
+    $pro_url = 'https://aesirx.io/solutions/analytics';
+
+    $links[] = sprintf(
+        '<a href="%s" target="_blank" style="color:#d63638;font-weight:600;">
+            %s
+        </a>',
+        esc_url($pro_url),
+        esc_html__('Upgrade to Pro', 'aesirx-analytics')
+    );
   return $links;
 });
 
@@ -279,6 +294,72 @@ function aesirx_analytics_freemium_display_update_notice(  ) {
 }
 
 add_action( 'admin_notices', 'aesirx_analytics_freemium_display_update_notice' );
+
+register_activation_hook(__FILE__, function () {
+    if (!defined('AESIRX_ANALYTICS_PRO')) {
+        set_transient(
+            'aesirx_analytics_pro_upsell_notice',
+            true,
+            DAY_IN_SECONDS * 7 // show for 7 days max
+        );
+    }
+});
+
+function aesirx_analytics_display_pro_upsell_notice() {
+
+    if (!current_user_can('manage_options')) {
+        return;
+    }
+
+    if (defined('AESIRX_ANALYTICS_PRO')) {
+        return;
+    }
+
+    if (!get_transient('aesirx_analytics_pro_upsell_notice')) {
+        return;
+    }
+
+    $pro_url = 'https://aesirx.io/solutions/analytics';
+    ?>
+    <div class="notice notice-info is-dismissible aesirx-pro-upsell">
+        <p>
+            <strong><?php esc_html_e('Unlock AesirX Analytics Pro 🚀', 'aesirx-analytics'); ?></strong><br>
+            <?php esc_html_e(
+                'Get real-time visitors, UTM & Tag Value Mapping, advanced Analytics dashboards, and priority support.',
+                'aesirx-analytics'
+            ); ?>
+        </p>
+        <p>
+            <a href="<?php echo esc_url($pro_url); ?>"
+               target="_blank"
+               class="button button-primary">
+                <?php esc_html_e('Upgrade to Pro', 'aesirx-analytics'); ?>
+            </a>
+        </p>
+    </div>
+    <?php
+}
+add_action('admin_notices', 'aesirx_analytics_display_pro_upsell_notice');
+
+add_action('admin_enqueue_scripts', function () {
+    wp_enqueue_script('jquery');
+
+    wp_add_inline_script(
+        'jquery',
+        "
+        jQuery(document).on('click', '.aesirx-pro-upsell .notice-dismiss', function () {
+            jQuery.post(ajaxurl, {
+                action: 'aesirx_dismiss_pro_upsell'
+            });
+        });
+        "
+    );
+});
+
+add_action('wp_ajax_aesirx_dismiss_pro_upsell', function () {
+    delete_transient('aesirx_analytics_pro_upsell_notice');
+    wp_die();
+});
 
 add_action('admin_init', function () {
     if (get_option('aesirx_analytics_freemium_do_activation_redirect', false)) {

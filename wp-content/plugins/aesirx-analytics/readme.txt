@@ -225,5 +225,3 @@ The Terms of service can be found here https://aesirx.io/terms-conditions and th
 3. Tracking - Measure the performance of marketing campaigns.
 4. User Experience - Detailed analytics on customer journeys.
 5. Visitor - Gain insights into audience demographics and behaviors.
-6. Woo - Gain insights into e-commerce performance 1.
-7. Woo - Gain insights into e-commerce performance 2.
