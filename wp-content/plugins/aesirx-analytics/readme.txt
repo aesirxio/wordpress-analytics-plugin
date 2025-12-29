@@ -7,7 +7,7 @@ Stable tag: 5.0.0
 Requires PHP: 7.4
 License: GPL 3.0
 
-Enhance website tracking with AesirX Analytics WordPress plugin, integrating first-party analytics and consent for GDPR/ePrivacy compliance.
+Enhance website tracking with the AesirX Analytics WordPress plugin, using privacy-friendly first-party analytics for accurate insights.
 
 == Description ==
 
