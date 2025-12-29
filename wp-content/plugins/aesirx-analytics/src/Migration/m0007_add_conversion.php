@@ -2,10 +2,10 @@
 
 global $wpdb;
 
-$sql = [];
+$aesirx_analytics_freemium_sql = [];
 
 // Create the analytics_conversion table
-$sql[] = "
+$aesirx_analytics_freemium_sql[] = "
     CREATE TABLE `{$wpdb->prefix}analytics_conversion` (
         `id` int(10) UNSIGNED AUTO_INCREMENT UNIQUE KEY NOT NULL,
         `uuid` char(36) NOT NULL,
@@ -23,7 +23,7 @@ $sql[] = "
     ) ENGINE=InnoDB;";
 
 // Create the analytics_conversion_item table
-$sql[] = "
+$aesirx_analytics_freemium_sql[] = "
     CREATE TABLE `{$wpdb->prefix}analytics_conversion_item` (
         `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
         `conversion_uuid` char(36) NOT NULL,
@@ -35,13 +35,13 @@ $sql[] = "
     ) ENGINE=InnoDB;";
 
 // Add foreign key constraint to analytics_conversion table
-$sql[] = "
+$aesirx_analytics_freemium_sql[] = "
     ALTER TABLE `{$wpdb->prefix}analytics_conversion`
     ADD CONSTRAINT `{$wpdb->prefix}analytics_conversion_ibfk_1` FOREIGN KEY (`flow_uuid`)
     REFERENCES `{$wpdb->prefix}analytics_flows` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;";
 
 // Add foreign key constraint to analytics_conversion_item table
-$sql[] = "
+$aesirx_analytics_freemium_sql[] = "
     ALTER TABLE `{$wpdb->prefix}analytics_conversion_item`
     ADD CONSTRAINT `{$wpdb->prefix}analytics_conversion_item_ibfk_1` FOREIGN KEY (`conversion_uuid`)
     REFERENCES `{$wpdb->prefix}analytics_conversion` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;";

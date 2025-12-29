@@ -36,7 +36,7 @@ class CliFactory {
             wp_mkdir_p($upload_dir);
         }
 
-        $options = get_option('aesirx_analytics_plugin_options');
+        $options = get_option('aesirx_analytics_freemium_plugin_options');
 
         static::$instance = new AesirxAnalyticsCli(
             new Env(

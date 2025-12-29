@@ -2,10 +2,10 @@
 
 global $wpdb;
 
-$sql = [];
+$aesirx_analytics_freemium_sql = [];
 
 // Create analytics_events table
-$sql[] = "
+$aesirx_analytics_freemium_sql[] = "
     CREATE TABLE `{$wpdb->prefix}analytics_events` (
         `uuid` char(36) NOT NULL,
         `flow_uuid` char(36) NOT NULL,
@@ -23,7 +23,7 @@ $sql[] = "
     ) ENGINE=InnoDB;";
 
 // Create analytics_event_attributes table
-$sql[] = "
+$aesirx_analytics_freemium_sql[] = "
     CREATE TABLE `{$wpdb->prefix}analytics_event_attributes` (
         `id` INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
         `event_uuid` char(36) NOT NULL,
@@ -33,7 +33,7 @@ $sql[] = "
     ) ENGINE=InnoDB;";
 
 // Create analytics_flows table
-$sql[] = "
+$aesirx_analytics_freemium_sql[] = "
     CREATE TABLE `{$wpdb->prefix}analytics_flows` (
         `id` INT(11) UNSIGNED AUTO_INCREMENT UNIQUE KEY NOT NULL,
         `uuid` char(36) NOT NULL,
@@ -47,7 +47,7 @@ $sql[] = "
     ) ENGINE=InnoDB;";
 
 // Create analytics_visitors table
-$sql[] = "
+$aesirx_analytics_freemium_sql[] = "
     CREATE TABLE `{$wpdb->prefix}analytics_visitors` (
         `uuid` char(36) NOT NULL,
         `ip` varchar(255) NOT NULL,
@@ -67,17 +67,17 @@ $sql[] = "
     ) ENGINE=InnoDB;";
 
 // Add foreign key constraints for analytics_events table
-$sql[] = "
+$aesirx_analytics_freemium_sql[] = "
     ALTER TABLE `{$wpdb->prefix}analytics_events`
     ADD CONSTRAINT `analytics_event_1` FOREIGN KEY (`visitor_uuid`) REFERENCES `{$wpdb->prefix}analytics_visitors` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
     ADD CONSTRAINT `analytics_event_2` FOREIGN KEY (`flow_uuid`) REFERENCES `{$wpdb->prefix}analytics_flows` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;";
 
 // Add foreign key constraint for analytics_event_attributes table
-$sql[] = "
+$aesirx_analytics_freemium_sql[] = "
     ALTER TABLE `{$wpdb->prefix}analytics_event_attributes`
     ADD CONSTRAINT `analytics_ev_attr_1` FOREIGN KEY (`event_uuid`) REFERENCES `{$wpdb->prefix}analytics_events` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;";
 
 // Add foreign key constraint for analytics_flows table
-$sql[] = "
+$aesirx_analytics_freemium_sql[] = "
     ALTER TABLE `{$wpdb->prefix}analytics_flows`
     ADD CONSTRAINT `analytics_flow_1` FOREIGN KEY (`visitor_uuid`) REFERENCES `{$wpdb->prefix}analytics_visitors` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;";

@@ -9,8 +9,7 @@ Class AesirX_Analytics_Get_Live_Visitors_List extends AesirxAnalyticsMysqlHelper
         global $wpdb;
 
         $where_clause = [
-            "#__analytics_flows.start = #__analytics_flows.end",
-            "#__analytics_flows.start >= NOW() - INTERVAL 30 MINUTE",
+            "#__analytics_flows.end >= NOW() - INTERVAL 30 MINUTE",
             "#__analytics_visitors.device != 'bot'"
         ];
         $bind = [];
@@ -33,11 +32,25 @@ Class AesirX_Analytics_Get_Live_Visitors_List extends AesirxAnalyticsMysqlHelper
         $sql =
             "SELECT #__analytics_flows.*, ip, user_agent, device, browser_name, browser_name, browser_version, domain, lang, city, isp, country_name, country_code, geo_created_at, #__analytics_visitors.uuid AS visitor_uuid,
             MAX(CASE WHEN #__analytics_event_attributes.name = 'sop_id' THEN #__analytics_event_attributes.value ELSE NULL END) AS sop_id, 
-            #__analytics_events.url AS url
+            e.url AS url
             from `#__analytics_flows`
+            JOIN (
+                SELECT visitor_uuid, MAX(`end`) AS last_end
+                FROM `#__analytics_flows`
+                GROUP BY visitor_uuid
+            ) latest
+            ON latest.visitor_uuid = `#__analytics_flows`.visitor_uuid
+            AND latest.last_end = `#__analytics_flows`.`end`
             left join `#__analytics_visitors` on #__analytics_visitors.uuid = #__analytics_flows.visitor_uuid
-            left join `#__analytics_events` on #__analytics_events.flow_uuid = #__analytics_flows.uuid
-            left join `#__analytics_event_attributes` on #__analytics_events.uuid = #__analytics_event_attributes.event_uuid
+            left join `wp_analytics_events` e
+            ON e.uuid = (
+                SELECT e2.uuid
+                FROM `wp_analytics_events` e2
+                WHERE e2.flow_uuid = wp_analytics_flows.uuid
+                ORDER BY e2.`end` DESC
+                LIMIT 1
+            )
+            left join `#__analytics_event_attributes` on e.uuid = #__analytics_event_attributes.event_uuid
             WHERE " . implode(" AND ", $where_clause) .
             " GROUP BY `#__analytics_flows`.`visitor_uuid`";
 

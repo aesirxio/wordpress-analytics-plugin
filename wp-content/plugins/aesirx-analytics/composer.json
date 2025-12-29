@@ -20,5 +20,8 @@
     "allow-plugins": {
       "dealerdirect/phpcodesniffer-composer-installer": true
     }
+  },
+  "extra": {
+    "aesirx-analytics": "freemium"
   }
 }
