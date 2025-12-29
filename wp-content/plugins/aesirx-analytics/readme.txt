@@ -11,56 +11,56 @@ Enhance website tracking with AesirX Analytics WordPress plugin, integrating fir
 
 == Description ==
 
-AesirX Analytics provides privacy-focused analytics for WordPress, offering seamless integration of consent management and first-party analytics. AesirX Analytics WordPress plugin enables you to gain valuable insights into your website's performance while ensuring user privacy and compliance with GDPR, CCPA, ePrivacy Directive and other data protection regulations. 
+AesirX Analytics is privacy-focused, first-party analytics for WordPress.
 
-Whether you’re looking to understand user behavior, optimize content, or enhance your website’s performance, AesirX Analytics offers an intuitive interface and robust features to help you make informed decisions while ensuring regulatory compliance.
+The AesirX Analytics plugin helps you understand how your website performs - acquisition, campaigns, behavior, and visitors - with an intuitive dashboard and a first-party architecture designed for compliance-first measurement.
 
-AesirX Analytics' mission is to deliver powerful analytics while prioritizing user privacy and consent. With AesirX Analytics, you can ensure that your analytics practices align with global privacy standards, and your customers can maintain ownership of their data.
+You get meaningful analytics for free, and you can upgrade to AesirX Analytics Pro to unlock advanced capabilities like real-time reporting, value mapping, and user experience views.
 
 = How AesirX Analytics for WordPress Solves Problems: =
 
-1. **Full Data Ownership:** Your data is securely stored on your server, giving you complete control. Customer data is never shared without their explicit consent.
-1. **Comprehensive Consent Management:** Users can fully control their data, including the right to reject or grant consent, and choose decentralized consent for maximum privacy. They can also revoke consent, manage consents, and opt-in for specific features.
-1. **First-Party Analytics:** Gather accurate data directly from your site, ensuring reliability and privacy without third-party involvement.
-1. **Simple Installation:** No coding is required; setup is quick and easy.
+1. **First-Party by Design:** Analytics is collected and managed as first-party data flows - no third-party analytics platforms required.
+1. **Full Data Ownership:** Your site data stays under your control. Customer data is not shared without explicit consent.
+1. **Fast Setup:** Install, activate, and start using the dashboards without custom coding.
+1. **Free Essentials:** Core analytics features are available at no cost.
 1. **Free Access:** Essential features are available at no cost, providing valuable insights to everyone.
-1. **GDPR Compliance:** Built-in tools help you meet GDPR requirements and maintain global privacy standards.
-1. **Expandable:** Easily add more features with additional plugins and integrations
+1. **Expandable with Pro Versions:** BUpgrade to AesirX Analytics Pro for advanced analytics views, real-time reporting, and value mapping. Add additional AesirX plugins when you need more capabilities.
 
 = Features Include: =
 
-* **Behavior Tracking:** Monitor user interactions, such as clicks, scrolls, and engagement.
-* **Consent Management:** Advanced tools for managing user consent and privacy preferences.
-* **Campaign Tracking:** Track and analyze the performance of marketing campaigns.
-* **Visitor Analytics:** Detailed insights into visitor behavior and demographics.
-* **User Experience Insights:** Understand how users interact with your site to enhance their experience.
-* **WooCommerce Integration:** Seamless integration with WooCommerce for e-commerce tracking.
-* **Real-Time Analytics:** Access live data on user interactions and site performance.
-* **Customizable Dashboards:** Build and manage personalized dashboards and reports.
-* **Seamless WordPress Integration:** Effortless setup and configuration within the WordPress platform.
-* **First-Party Analytics:** Ensures data is collected and stored without third-party interference.
+* **Dashboard:** Quick overview of key performance metrics.
+* **Acquisition:** Overview, search engines, and campaigns reporting.
+* **Behavior:** Outlinks and event reporting.
+* **UTM Tracking:** Overview and generator.
+* **Visitors:** Overview, locations, and platforms.
+* **First-Party Architecture:** Built for privacy-first measurement without relying on third-party analytics services.
+* **Seamless WordPress Integration:** Manage everything directly inside WordPress.
+
+Upgrade to **AesirX Analytics Pro** to unlock:
+
+* **Real-Time analytics**
+* **User Experience views**
+* **UTM Value Mapping**
+* **Tag Value Mapping**
+* **User Engagement Score**
+* **Priority Support**
+* **Additional advanced reporting and performance features**
+
+Or choose **AesirX Analytics Pro for JS** to offload the data from your WP DB (speed optimization) with **AesirX First-Party Server** and fully customizable **AesirX Analytics PWA.**
+
+Note: Consent management is handled by **AesirX CMP** (separate plugin). AesirX Analytics is intentionally decoupled from consent so analytics reporting stays clean and focused.
 
 = 3rd party services =
 
-We use https://walletconnect.com/ for connecting the wallet in your browser with our consent.
-The Terms of service can be found here https://walletconnect.com/terms and the Privacy policy is here https://walletconnect.com/privacy.
-
-We use https://www.concordium.com/ to connect the your wallet with our consent form.
-The Privacy policy can be found here https://www.concordium.com/privacy-policy.
-
-We use https://friendlycaptcha.com/ to make a captcha verification on our form.
-The Terms of service can be found here https://friendlycaptcha.com/legal/terms and Privacy policy can be found here https://friendlycaptcha.com/privacy.
+There are no third-party services required to run AesirX Analytics.
 
 = Source code for compressed content =
 
-We use the Analytics and the Business Intelligence to store and manage analytics data from your site and dispaly the relevant data.
-The human readable source code for the Aesirx Analytics JavaScript files can be found here https://github.com/aesirxio/analytics.
-The human readable source code for the Aesirx Business Intelligence JavaScript files can be found here https://github.com/aesirxio/bi-app
+We use the **AesirX Analytics** to store and manage analytics data from your site and dispaly the relevant data.
+The human readable source code for the AesirX Analytics files can be found here https://github.com/aesirxio/wordpress-analytics-plugin.
 
 = Validation =
 
-We are using our server api.aesirx.io for retriving and updating geo data.
-We are using our server dev01.aesirx.io for validating wallet and JWT decoding.
 The Terms of service can be found here https://aesirx.io/terms-conditions and the Privacy policy is here https://aesirx.io/privacy-policy.
 
 == Changelog ==
@@ -223,5 +223,4 @@ The Terms of service can be found here https://aesirx.io/terms-conditions and th
 1. Acquisition - See how visitors find and engage with the website.
 2. Behavior - Understand how people interact with the site.
 3. Tracking - Measure the performance of marketing campaigns.
-4. User Experience - Detailed analytics on customer journeys.
-5. Visitor - Gain insights into audience demographics and behaviors.
+4. Visitor - Gain insights into audience demographics and behaviors.
