@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "aesirx-analytics": "^2.4.5",
-    "aesirx-bi-app": "^2.8.1",
+    "aesirx-bi-app": "^2.8.2",
     "react": "^18.2.0",
     "react-dom": "^18.3.1",
     "react-spinners": "^0.13.8"

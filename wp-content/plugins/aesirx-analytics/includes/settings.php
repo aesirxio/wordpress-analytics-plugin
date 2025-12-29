@@ -50,7 +50,7 @@ add_action('admin_init', function () {
 add_action('admin_menu', function () {
   add_menu_page(
     'AesirX BI Dashboard',
-    'AesirX BI',
+    'AesirX Analytics',
     'manage_options',
     'aesirx-bi-dashboard',
     function () {
@@ -279,7 +279,7 @@ add_action('admin_enqueue_scripts', function ($hook) {
     $jwt = '';
     $cmp_link = aesirx_analytics_freemium_plugin_check_consent_active()
       ? admin_url( 'admin.php?page=aesirx-consent-management-plugin' )
-      : 'https://wordpress.org/plugins/aesirx-cmp/';
+      : '';
     wp_register_script( 'aesrix_bi_window', '', array(), '1.0', false );
 
     wp_enqueue_script('aesrix_bi_window');

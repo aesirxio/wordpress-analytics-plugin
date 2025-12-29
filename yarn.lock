@@ -3202,10 +3202,10 @@ aesirx-analytics@^2.4.5:
     react-dom "18"
     react-toastify "^9.1.3"
 
-aesirx-bi-app@^2.8.1:
-  version "2.8.1"
-  resolved "https://registry.yarnpkg.com/aesirx-bi-app/-/aesirx-bi-app-2.8.1.tgz#484ecfa9186a232ca94cede2d6f7b89aae06468d"
-  integrity sha512-2OFcKwgvRyiPVFphMCacdUQnrwI8sypNVbo3NOtbWTmUxSSP33G2ttjq+v62h2vA5vUITBSvGX51EPGAwxO5dA==
+aesirx-bi-app@^2.8.2:
+  version "2.8.2"
+  resolved "https://registry.yarnpkg.com/aesirx-bi-app/-/aesirx-bi-app-2.8.2.tgz#af081de2e3f0143ab7573b8505c9048909d5a48c"
+  integrity sha512-CxEu7ExHQFnKsp+uV47+aauV6qx2c+3R3Cagi/Ky0+ERIjWUuHrbUAnq5H0hA5FroqJkqgfoTALwgDIryAa1pQ==
   dependencies:
     "@fortawesome/fontawesome-svg-core" "^6.4.0"
     "@fortawesome/free-solid-svg-icons" "^6.4.0"
