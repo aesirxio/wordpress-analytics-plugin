@@ -33,7 +33,7 @@ msgstr "aesirx.io"
 msgid "https://aesirx.io/"
 msgstr "https://aesirx.io/"
 
-#: aesirx-analytics.php:264
+#: aesirx-analytics.php:279
 msgid "Problem with Aesirx Analytics plugin install"
 msgstr "Problem mit der Installation des Aesirx Analytics Plugins"
 
@@ -393,6 +393,19 @@ msgstr ""
 msgid "AesirX First-Party Server"
 msgstr ""
 
-#: aesirx-analytics.php:149
+#: aesirx-analytics.php:152
 msgid "Statistics"
+msgstr ""
+
+#: aesirx-analytics.php:163
+#: aesirx-analytics.php:336
+msgid "Upgrade to Pro"
+msgstr ""
+
+#: aesirx-analytics.php:326
+msgid "Unlock AesirX Analytics Pro 🚀"
+msgstr ""
+
+#: aesirx-analytics.php:327
+msgid "Get real-time visitors, UTM & Tag Value Mapping, advanced Analytics dashboards, and priority support."
 msgstr ""

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-12-26T08:11:43+00:00\n"
+"POT-Creation-Date: 2025-12-29T03:59:05+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: aesirx-analytics\n"
@@ -285,12 +285,25 @@ msgstr ""
 msgid "Consent Management"
 msgstr ""
 
-#: aesirx-analytics.php:149
+#: aesirx-analytics.php:152
 msgid "Statistics"
 msgstr ""
 
-#: aesirx-analytics.php:264
+#: aesirx-analytics.php:163
+#: aesirx-analytics.php:336
+msgid "Upgrade to Pro"
+msgstr ""
+
+#: aesirx-analytics.php:279
 msgid "Problem with Aesirx Analytics plugin install"
+msgstr ""
+
+#: aesirx-analytics.php:326
+msgid "Unlock AesirX Analytics Pro 🚀"
+msgstr ""
+
+#: aesirx-analytics.php:327
+msgid "Get real-time visitors, UTM & Tag Value Mapping, advanced Analytics dashboards, and priority support."
 msgstr ""
 
 #. translators: %s: URL to aesir.io read mor details
