@@ -1,6 +1,6 @@
 === AesirX Analytics ===
 Contributors: aesirx,vikingtechguy,nixa999,nguyenbao10,vietnguyen1406,devphutran
-Tags: privacy, analytics, compliance, wordpress analytics, consent
+Tags: analytics, wordpress analytics, first-party analytics, website insights, visitor tracking
 Requires at least: 5.9
 Tested up to: 6.9
 Stable tag: 5.0.0
