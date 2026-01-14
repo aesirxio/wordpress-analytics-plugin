@@ -24,7 +24,7 @@ You get meaningful analytics for free, and you can upgrade to AesirX Analytics P
 1. **Fast Setup:** Install, activate, and start using the dashboards without custom coding.
 1. **Free Essentials:** Core analytics features are available at no cost.
 1. **Free Access:** Essential features are available at no cost, providing valuable insights to everyone.
-1. **Expandable with Pro Versions:** BUpgrade to AesirX Analytics Pro for advanced analytics views, real-time reporting, and value mapping. Add additional AesirX plugins when you need more capabilities.
+1. **Expandable with Pro Versions:** Upgrade to AesirX Analytics Pro for advanced analytics views, real-time reporting, and value mapping. Add additional AesirX plugins when you need more capabilities.
 
 = Features Include: =
 
