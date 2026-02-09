@@ -3,7 +3,7 @@ Contributors: aesirx,vikingtechguy,nixa999,nguyenbao10,vietnguyen1406,devphutran
 Tags: analytics, wordpress analytics, first-party analytics, website insights, visitor tracking
 Requires at least: 5.9
 Tested up to: 6.9
-Stable tag: 5.0.0
+Stable tag: 5.0.1
 Requires PHP: 7.4
 License: GPL 3.0
 
@@ -64,6 +64,10 @@ The human readable source code for the AesirX Analytics files can be found here 
 The Terms of service can be found here https://aesirx.io/terms-conditions and the Privacy policy is here https://aesirx.io/privacy-policy.
 
 == Changelog ==
+
+= 5.0.1 =
+
+* Fix multiple language
 
 = 5.0.0 =
 
@@ -220,7 +224,8 @@ The Terms of service can be found here https://aesirx.io/terms-conditions and th
 * Top Page View
 
 == Screenshots ==
-1. Acquisition - See how visitors find and engage with the website.
-2. Behavior - Understand how people interact with the site.
-3. Tracking - Measure the performance of marketing campaigns.
-4. Visitor - Gain insights into audience demographics and behaviors.
+1. Consent Shield - Blocks scripts and trackers until users give proper consent.
+2. Consent Log - Tracks and visualizes user consent activity for compliance.
+3. Consent Modal - Customize consent modal to ensure transparency and compliance.
+4. Consent Logic - Supports Global Privacy Control to honor browser opt-out signals.
+5. Geo-Handling - Automates consent modes using browser language and timezone.

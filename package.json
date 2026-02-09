@@ -1,6 +1,6 @@
 {
   "name": "aesirx_analytics",
-  "version": "4.2.8",
+  "version": "5.0.1",
   "description": "analytics via aesirx",
   "private": true,
   "scripts": {

@@ -264,7 +264,8 @@ add_action('admin_enqueue_scripts', function ($hook) {
     $protocols = ['http://', 'https://'];
     $domain = str_replace($protocols, '', site_url());
     $streams = [['name' => get_bloginfo('name'), 'domain' => $domain]];
-    $endpoint = get_bloginfo('url');
+    $origin = wp_parse_url( home_url(), PHP_URL_SCHEME ) . '://' . wp_parse_url( home_url(), PHP_URL_HOST );
+    $endpoint = $origin;
 
     $manifest = json_decode(
       file_get_contents(plugin_dir_path(__DIR__) . 'assets-manifest.json', true)

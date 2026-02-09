@@ -3,7 +3,7 @@
  * Plugin Name: AesirX Analytics
  * Plugin URI: https://analytics.aesirx.io?utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics
  * Description: Aesirx analytics plugin. When you join forces with AesirX, you're not just becoming a Partner - you're also becoming a freedom fighter in the battle for privacy! Earn 25% Affiliate Commission <a href="https://aesirx.io/partner?utm_source=wpplugin&utm_medium=web&utm_campaign=wordpress&utm_id=aesirx&utm_term=wordpress&utm_content=analytics">[Click to Join]</a>
- * Version: 5.0.0
+ * Version: 5.0.1
  * Author: aesirx.io
  * Author URI: https://aesirx.io/
  * Domain Path: /languages
@@ -47,8 +47,8 @@ if (aesirx_analytics_freemium_config_is_ok()) {
             ));
         }
         wp_enqueue_script('aesirx-analytics');
-
-        $domain = get_bloginfo('url');
+        $origin = wp_parse_url( home_url(), PHP_URL_SCHEME ) . '://' . wp_parse_url( home_url(), PHP_URL_HOST );
+        $domain = $origin;
 
         wp_add_inline_script(
             'aesirx-analytics',
